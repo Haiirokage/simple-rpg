@@ -20,25 +20,32 @@ export const FOREST_ACTIONS: ActionDefinition[] = [
     id: "forage",
     name: "Forage for berries",
     timeCost: 3,
-    energyCost: 10,
+    energyCost: 5,
   },
   {
     id: "gatherWood",
     name: "Gather wood",
     timeCost: 2,
-    energyCost: 15,
+    energyCost: 10,
   },
   {
     id: "gatherStone",
     name: "Gather stone",
     timeCost: 3,
-    energyCost: 20,
+    energyCost: 15,
   },
   {
     id: "setTrap",
     name: "Set trap",
     timeCost: 1,
-    energyCost: 5,
+    energyCost: 2,
     resourceCost: { berry: 4 },
   },
 ];
+
+export const CLEAR_GROUND_ACTION: ActionDefinition = {
+  id: "clearGround",
+  name: "Clear ground",
+  timeCost: 8,
+  energyCost: 70,
+};
