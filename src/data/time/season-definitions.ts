@@ -88,7 +88,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Harvestrise",
+    name: "Harvestrise", // June
     sunrise: 3,
     sunset: 22,
     weights: {
@@ -99,7 +99,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Goldleaf",
+    name: "Goldleaf" /** July */,
     sunrise: 4,
     sunset: 21,
     weights: {
