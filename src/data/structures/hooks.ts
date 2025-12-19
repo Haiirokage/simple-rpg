@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getStorage, setStorage } from "../util";
 import { STRUCTURES } from "./definitions";
+import { getBerryIncomeMultiplier } from "../time/season-util";
+import { useCallback } from "preact/hooks";
 
 export type Structure = "berryPlanter" | "pantry";
 export type StructuresStore = Record<Structure | "plots", number>;
@@ -36,7 +38,17 @@ export const useStructures = () => {
     );
   }, 0);
   const { plots, ...structures } = data;
-  return { plots: plots, usedPlots, structures };
+
+  const getBerryIncome = useCallback(
+    (day: number) => {
+      return Math.ceil(
+        structures.berryPlanter * getBerryIncomeMultiplier(day) * 2,
+      );
+    },
+    [structures.berryPlanter],
+  );
+
+  return { plots: plots, usedPlots, structures, getBerryIncome };
 };
 
 export const useUpdateStructures = () => {

@@ -1,7 +1,6 @@
 import { useResources } from "../data/resources/hooks";
 import { useStructures } from "../data/structures/hooks";
 import { useTime } from "../data/time/hooks";
-import { getBerryIncomeMultiplier } from "../data/time/season-util";
 import { useCallback, useMemo } from "preact/hooks";
 import { getStorageCapacity } from "../data/resources/food-definitions";
 import type { ResourceKeys } from "../data/resources/types";
@@ -9,16 +8,9 @@ import { objectKeys } from "../util";
 
 const ResourceBox = () => {
   const { resources, data } = useResources();
-  const { structures } = useStructures();
+  const { structures, getBerryIncome } = useStructures();
   const { day } = useTime();
-  const berryIncomeMultiplier = useMemo(
-    () => getBerryIncomeMultiplier(day),
-    [day],
-  );
-  const dailyBerryIncome = Math.max(
-    1,
-    Math.round(structures.berryPlanter * berryIncomeMultiplier * 2),
-  );
+  const berryIncome = useMemo(() => getBerryIncome(day), [day, getBerryIncome]);
 
   const getCapacityDisplay = useCallback(
     (resourceKey: ResourceKeys): string => {
@@ -41,7 +33,7 @@ const ResourceBox = () => {
             {capacityDisplay}
             {resource === "berry" && structures.berryPlanter > 0 && (
               <span style={{ marginLeft: "0.5rem", opacity: 0.7 }}>
-                (+{dailyBerryIncome})
+                (+{berryIncome})
               </span>
             )}
           </li>

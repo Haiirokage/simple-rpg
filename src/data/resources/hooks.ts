@@ -101,7 +101,7 @@ export const useHandleNewDay = () => {
   const resetTraps = useResetTraps();
   const { data: playerStatus } = usePlayerStatus();
   const updatePlayerStatus = useUpdatePlayerStatus();
-  const { structures } = useStructures();
+  const { structures, getBerryIncome } = useStructures();
 
   const sortedFoodDefinitions = useMemo(
     () => [...FOOD_STORAGE].sort((a, b) => b.decayRate - a.decayRate),
@@ -166,10 +166,13 @@ export const useHandleNewDay = () => {
       decayedResources.rabbitMeat,
     );
 
+    const berry = decayedResources.berry + getBerryIncome(day);
+
     resetTraps();
 
     const finalResources = {
       ...decayedResources,
+      berry,
       rabbitMeat,
     };
 
