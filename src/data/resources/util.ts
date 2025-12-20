@@ -8,15 +8,10 @@ import { objectEntries } from "../../util";
  * @param resources - Current resources
  * @returns Object with canAfford boolean and resulting resource state after cost
  */
-export const getAffordability = (
-  cost: Partial<ResourceStore> = {},
-  resources: ResourceStore,
-) => {
+export const getAffordability = (cost: Partial<ResourceStore> = {}, resources: ResourceStore) => {
   const entries = objectEntries(cost);
 
-  const canAfford = entries.every(
-    ([key, amount]) => (resources[key] ?? 0) >= amount,
-  );
+  const canAfford = entries.every(([key, amount]) => (resources[key] ?? 0) >= amount);
 
   const resourceResult = entries.reduce(
     (acc, [key, amount]) => ({
@@ -35,9 +30,7 @@ export const getAffordability = (
  * @param cost - Resource cost as Partial<ResourceStore>
  * @returns Formatted string like "4 berry, 2 wood" or null if no cost
  */
-export const formatResourceCost = (
-  cost: Partial<ResourceStore> | undefined,
-): string | null => {
+export const formatResourceCost = (cost: Partial<ResourceStore> | undefined): string | null => {
   if (!cost) return null;
   return objectEntries(cost)
     .map(([resource, amount]) => `${amount} ${resource}`)

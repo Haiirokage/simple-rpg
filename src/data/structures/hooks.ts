@@ -32,18 +32,14 @@ export const useStructures = () => {
   const { data } = useStructureStore();
   const usedPlots = STRUCTURES.reduce((sum, structure) => {
     return (
-      sum +
-      ((data[structure.key as keyof StructuresStore] as number) || 0) *
-        structure.plotCost
+      sum + ((data[structure.key as keyof StructuresStore] as number) || 0) * structure.plotCost
     );
   }, 0);
   const { plots, ...structures } = data;
 
   const getBerryIncome = useCallback(
     (day: number) => {
-      return Math.ceil(
-        structures.berryPlanter * getBerryIncomeMultiplier(day) * 2,
-      );
+      return Math.ceil(structures.berryPlanter * getBerryIncomeMultiplier(day) * 2);
     },
     [structures.berryPlanter],
   );

@@ -18,10 +18,7 @@ const FoodCrafting = () => {
   const { data: homeUpgrades } = useHomeUpgrades();
 
   const canMakeJerky = useCallback(() => {
-    return (
-      resources.rabbitMeat >= JERKY_RECIPE.rabbitMeat &&
-      resources.wood >= JERKY_RECIPE.wood
-    );
+    return resources.rabbitMeat >= JERKY_RECIPE.rabbitMeat && resources.wood >= JERKY_RECIPE.wood;
   }, [resources.rabbitMeat, resources.wood]);
 
   const makeJerky = useCallback(() => {

@@ -19,10 +19,7 @@ const ConsumableCrafting = () => {
   const { time } = useTime();
   const updateTime = useUpdateTime();
 
-  const craftConsumables = (
-    key: ConsumableType,
-    resourceResult: Partial<ResourceStore>,
-  ) => {
+  const craftConsumables = (key: ConsumableType, resourceResult: Partial<ResourceStore>) => {
     const equipmentData = consumables[key];
 
     // Subtract costs from resources
@@ -42,10 +39,7 @@ const ConsumableCrafting = () => {
     <div className="consumable-crafting">
       {EQUIPMENT_DEFINITIONS.map((definition) => {
         const { count } = consumables[definition.key];
-        const { canAfford, resourceResult } = getAffordability(
-          definition.cost,
-          resources,
-        );
+        const { canAfford, resourceResult } = getAffordability(definition.cost, resources);
         const canCraft = canAfford && count < definition.maxCount;
         const hasDiscovered = hasDiscoveredResources(definition.cost, data);
 

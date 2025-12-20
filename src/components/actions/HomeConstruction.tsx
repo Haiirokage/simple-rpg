@@ -1,12 +1,6 @@
 import { useMutateResources, useResources } from "../../data/resources/hooks";
-import {
-  getAffordability,
-  formatResourceCost,
-} from "../../data/resources/util";
-import {
-  useStructures,
-  useUpdateStructures,
-} from "../../data/structures/hooks";
+import { getAffordability, formatResourceCost } from "../../data/resources/util";
+import { useStructures, useUpdateStructures } from "../../data/structures/hooks";
 import { useTime, useUpdateTime } from "../../data/time/hooks";
 import {
   getBerryIncomeMultiplier,
@@ -14,16 +8,10 @@ import {
   isActionWithinDaylight,
 } from "../../data/time/season-util";
 import { useMemo } from "preact/hooks";
-import {
-  STRUCTURES,
-  type StructureDefinition,
-} from "../../data/structures/definitions";
+import { STRUCTURES, type StructureDefinition } from "../../data/structures/definitions";
 import type { ResourceStore } from "../../data/resources/types";
 import { useEquipment } from "../../data/equipment/hooks";
-import {
-  usePlayerStatus,
-  useUpdatePlayerStatus,
-} from "../../data/playerStatus/hooks";
+import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
 import ActionButton from "../ActionButton";
 import { CLEAR_GROUND_ACTION } from "./definitions";
 import { Paragraph } from "../../style/elements";
@@ -39,10 +27,7 @@ const HomeConstruction = () => {
   const updateTime = useUpdateTime();
   const { tools } = useEquipment();
 
-  const berryIncomeMultiplier = useMemo(
-    () => getBerryIncomeMultiplier(day),
-    [day],
-  );
+  const berryIncomeMultiplier = useMemo(() => getBerryIncomeMultiplier(day), [day]);
 
   // Helper to check if player has enough plots
   const hasPlots = (building: StructureDefinition) => {
@@ -88,9 +73,7 @@ const HomeConstruction = () => {
           <ActionButton
             action={CLEAR_GROUND_ACTION}
             onClick={clearGround}
-            disabled={
-              !isActionWithinDaylight(time, 8, day) || playerStatus.energy < 70
-            }
+            disabled={!isActionWithinDaylight(time, 8, day) || playerStatus.energy < 70}
           />
           <Paragraph margin="0.25rem 0 0 0">
             Change of new plot: {(plotChance * 100).toFixed(2)}%
@@ -99,25 +82,14 @@ const HomeConstruction = () => {
         Plots: {usedPlots}/{plots}
       </div>
       {STRUCTURES.map((building, idx) => {
-        const { canAfford, resourceResult } = getAffordability(
-          building.resourceCost,
-          resources,
-        );
+        const { canAfford, resourceResult } = getAffordability(building.resourceCost, resources);
         const isDisabled = !canAfford || !hasPlots(building);
-        const currentCount =
-          (structures[building.key as keyof typeof structures] as number) || 0;
+        const currentCount = (structures[building.key as keyof typeof structures] as number) || 0;
 
         return (
-          <div
-            style={{ marginTop: idx > 0 ? "0.5rem" : "0" }}
-            key={building.key}
-          >
-            <button
-              disabled={isDisabled}
-              onClick={() => buildStructure(building, resourceResult)}
-            >
-              {building.name} ({currentCount}) - Costs:{" "}
-              {formatResourceCost(building.resourceCost)}
+          <div style={{ marginTop: idx > 0 ? "0.5rem" : "0" }} key={building.key}>
+            <button disabled={isDisabled} onClick={() => buildStructure(building, resourceResult)}>
+              {building.name} ({currentCount}) - Costs: {formatResourceCost(building.resourceCost)}
               {building.plotCost ? ` | ${building.plotCost} plots` : ""}
             </button>
           </div>
@@ -131,8 +103,7 @@ const HomeConstruction = () => {
             marginTop: "0.5rem",
           }}
         >
-          Berry yield reduced {Math.round(berryIncomeMultiplier * 100)}% in{" "}
-          {getMonthName(day)}
+          Berry yield reduced {Math.round(berryIncomeMultiplier * 100)}% in {getMonthName(day)}
         </div>
       )}
     </div>

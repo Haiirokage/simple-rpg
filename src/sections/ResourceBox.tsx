@@ -27,14 +27,10 @@ const ResourceBox = () => {
         const capacityDisplay = getCapacityDisplay(resource);
         return (
           <li key={resource}>
-            <span style={{ display: "inline-block", width: "10em" }}>
-              {resource}
-            </span>
+            <span style={{ display: "inline-block", width: "10em" }}>{resource}</span>
             {capacityDisplay}
             {resource === "berry" && structures.berryPlanter > 0 && (
-              <span style={{ marginLeft: "0.5rem", opacity: 0.7 }}>
-                (+{berryIncome})
-              </span>
+              <span style={{ marginLeft: "0.5rem", opacity: 0.7 }}>(+{berryIncome})</span>
             )}
           </li>
         );

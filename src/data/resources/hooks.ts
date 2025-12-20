@@ -2,15 +2,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { getStorage, setStorage } from "../util";
 import { useStructures } from "../structures/hooks";
 import { useTime } from "../time/hooks";
-import {
-  getWoodCostPerDay,
-  getRabbitCatchLikelihood,
-} from "../time/season-util";
-import {
-  getStorageCapacity,
-  FOOD_STORAGE,
-  NUTRITION_TYPES,
-} from "./food-definitions";
+import { getWoodCostPerDay, getRabbitCatchLikelihood } from "../time/season-util";
+import { getStorageCapacity, FOOD_STORAGE, NUTRITION_TYPES } from "./food-definitions";
 import { defaultResourceStore, type ResourceStore } from "./types";
 import { objectEntries } from "../../util";
 import { useCallback, useMemo } from "preact/hooks";
@@ -30,9 +23,7 @@ export const hasDiscoveredResources = (
   requiredResources: Partial<ResourceStore>,
   persistedResources: Partial<ResourceStore>,
 ): boolean => {
-  return objectEntries(requiredResources).every(
-    ([key]) => key in persistedResources,
-  );
+  return objectEntries(requiredResources).every(([key]) => key in persistedResources);
 };
 
 /**
@@ -48,8 +39,7 @@ export const useResources = () => {
   );
   const { data, refetch } = useQuery({
     queryKey: ["RESOURCES"],
-    queryFn: () =>
-      getStorage<Partial<ResourceStore>>("RESOURCES", defaultedResourceStore),
+    queryFn: () => getStorage<Partial<ResourceStore>>("RESOURCES", defaultedResourceStore),
     initialData: defaultedResourceStore,
   });
   return {
@@ -119,8 +109,7 @@ export const useHandleNewDay = () => {
     const consumedFood = NUTRITION_TYPES.map((nutritionType) => {
       return sortedFoodDefinitions.find(
         (food) =>
-          food.nutritionType === nutritionType &&
-          resources[food.key] >= (food.mealSize ?? 0),
+          food.nutritionType === nutritionType && resources[food.key] >= (food.mealSize ?? 0),
       );
     }).filter((food) => food !== undefined);
 
@@ -160,19 +149,14 @@ export const useHandleNewDay = () => {
     );
 
     const trapAction = FOREST_ACTIONS.find((a) => a.id === "setTrap");
-    const yieldMultiplier = calculateYieldMultiplier(
-      trapAction?.complexity,
-      knowledge.forest,
-    );
+    const yieldMultiplier = calculateYieldMultiplier(trapAction?.complexity, knowledge.forest);
     // Trap checking after decay (so newly caught rabbits don't decay immediately)
-    const rabbitCatchLikelihood =
-      getRabbitCatchLikelihood(day) * yieldMultiplier;
+    const rabbitCatchLikelihood = getRabbitCatchLikelihood(day) * yieldMultiplier;
 
     const rabbitMeat = Array.from({
       length: consumables.trap.active,
     }).reduce(
-      (caught: number) =>
-        caught + (Math.random() < rabbitCatchLikelihood ? 4 : 0),
+      (caught: number) => caught + (Math.random() < rabbitCatchLikelihood ? 4 : 0),
       decayedResources.rabbitMeat,
     );
 

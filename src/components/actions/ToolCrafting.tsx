@@ -52,10 +52,7 @@ const ToolCrafting = () => {
 
         const nextLevel = toolLevels[nextLevelIndex];
         const nextLevelData = toolDef.levels[nextLevel];
-        const { canAfford, resourceResult } = getAffordability(
-          nextLevelData.cost,
-          resources,
-        );
+        const { canAfford, resourceResult } = getAffordability(nextLevelData.cost, resources);
 
         const costText = objectEntries(nextLevelData.cost)
           .map(([key, cost]) => `${cost} ${key}`)
@@ -65,13 +62,10 @@ const ToolCrafting = () => {
           <div key={toolDef.key}>
             <button
               disabled={!canAfford}
-              onClick={() =>
-                craftTool(toolDef.key, nextLevel as LevelType, resourceResult)
-              }
+              onClick={() => craftTool(toolDef.key, nextLevel as LevelType, resourceResult)}
               style={{ fontSize: "0.9em" }}
             >
-              Craft {nextLevel} {toolDef.name}{" "}
-              {costText ? `(${costText})` : "(free)"}
+              Craft {nextLevel} {toolDef.name} {costText ? `(${costText})` : "(free)"}
             </button>
           </div>
         );

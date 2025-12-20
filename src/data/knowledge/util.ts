@@ -4,7 +4,7 @@ import type { Knowledge } from "./types";
  * Calculate the number of levels gained from a successful action.
  *
  * For positive diff (action harder than current level):
- *   levels = 1 + log2(diff)
+ *   levels = ceil(0.1 + ln(diff))
  *
  * For negative diff (action easier than current level):
  *   chance of level = 10^(diff/20)
@@ -12,14 +12,14 @@ import type { Knowledge } from "./types";
  */
 export const calculateLevelGain = (
   actionComplexity: number = 0,
-  playerTier: number,
-  playerLevel: number,
+  playerLevel: Knowledge,
 ): number => {
-  const playerKnowledge = playerTier * 100 + playerLevel;
+  const playerKnowledge = playerLevel.tier * 100 + playerLevel.level;
   const diff = actionComplexity - playerKnowledge;
 
   if (diff > 0) {
-    return Math.ceil(1 + Math.log(diff));
+    const multiplier = 1 + Math.log10(diff);
+    return Math.floor(multiplier) + (Math.random() < multiplier % 1 ? 1 : 0);
   }
 
   const likelihood = Math.pow(10, diff / 20);
@@ -56,10 +56,7 @@ export const calculateEnergyModifier = (
  * - Equals 1.0 at diff = 0 (target complexity)
  * - Approaches 1.9 as diff → +∞
  */
-export const calculateYieldMultiplier = (
-  actionComplexity = 0,
-  playerLevel: Knowledge,
-): number => {
+export const calculateYieldMultiplier = (actionComplexity = 0, playerLevel: Knowledge): number => {
   const playerKnowledge = playerLevel.tier * 100 + playerLevel.level;
   const diff = playerKnowledge - actionComplexity;
 

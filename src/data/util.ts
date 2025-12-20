@@ -1,7 +1,4 @@
-export const getStorage = <T extends Record<string, unknown>>(
-  key: string,
-  fallback: T,
-): T => {
+export const getStorage = <T extends Record<string, unknown>>(key: string, fallback: T): T => {
   const item = localStorage.getItem(key);
 
   if (!item) {

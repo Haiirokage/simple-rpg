@@ -1,7 +1,4 @@
-const getNewMaxSatiation = (
-  currentMaxSatiation: number,
-  foodTypesConsumed: number,
-): number => {
+const getNewMaxSatiation = (currentMaxSatiation: number, foodTypesConsumed: number): number => {
   const threshold = 40 + 20 * foodTypesConsumed;
 
   if (currentMaxSatiation > threshold) {
@@ -23,17 +20,11 @@ export const updateSatiationFromFood = (
   currentMaxSatiation: number,
   foodTypesConsumed: number,
 ): { satiation: number; maxSatiation: number } => {
-  const newMaxSatiation = getNewMaxSatiation(
-    currentMaxSatiation,
-    foodTypesConsumed,
-  );
+  const newMaxSatiation = getNewMaxSatiation(currentMaxSatiation, foodTypesConsumed);
 
   // Apply satiation delta: hunger (-5) + food bonus (8 per type)
   const satiationDelta = -5 + 8 * foodTypesConsumed;
-  const newSatiation = Math.max(
-    0,
-    Math.min(currentSatiation + satiationDelta, newMaxSatiation),
-  );
+  const newSatiation = Math.max(0, Math.min(currentSatiation + satiationDelta, newMaxSatiation));
 
   return { satiation: newSatiation, maxSatiation: newMaxSatiation };
 };
