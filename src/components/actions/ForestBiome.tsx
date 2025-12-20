@@ -6,6 +6,11 @@ import {
   isActionWithinDaylight,
 } from "../../data/time/season-util";
 import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
+import {
+  useMutateKnowledge,
+  useSpecificKnowledge,
+} from "../../data/knowledge/hooks";
+import { calculateLevelGain } from "../../data/knowledge/util";
 
 import { useMemo } from "preact/hooks";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
@@ -17,6 +22,8 @@ import {
 import ActionButton from "../ActionButton";
 import { getAffordability } from "../../data/resources/util";
 import type { ResourceStore } from "../../data/resources/types";
+import { Paragraph } from "../../style/elements";
+import type { KnowledgeTier } from "../../data/knowledge/types";
 
 const ForestBiome = () => {
   const { resources } = useResources();
@@ -26,6 +33,8 @@ const ForestBiome = () => {
   const updateTime = useUpdateTime();
   const { consumables, tools } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
+  const { knowledge } = useSpecificKnowledge("forest");
+  const { mutate: mutateKnowledge } = useMutateKnowledge();
 
   const berryIncomeMultiplier = useMemo(
     () => getBerryIncomeMultiplier(day),
@@ -38,6 +47,9 @@ const ForestBiome = () => {
 
   return (
     <div className="forest-actions">
+      <Paragraph>
+        Tier {knowledge.tier} (Level {knowledge.level})
+      </Paragraph>
       {FOREST_ACTIONS.map((action) => {
         const { canAfford, resourceResult } = getAffordability(
           action.resourceCost,
@@ -94,6 +106,24 @@ const ForestBiome = () => {
                   break;
                 }
               }
+              // Calculate and apply level gain
+              const newLevel =
+                knowledge.level +
+                calculateLevelGain(
+                  action.complexity || 0,
+                  knowledge.tier,
+                  knowledge.level,
+                );
+
+              mutateKnowledge({
+                forest: {
+                  level: newLevel % 100,
+                  tier: Math.min(
+                    knowledge.tier + Math.floor(newLevel / 100),
+                    3,
+                  ) as KnowledgeTier,
+                },
+              });
 
               updateTime({ time: time + action.timeCost });
               updatePlayerStatus({

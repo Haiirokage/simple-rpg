@@ -10,6 +10,7 @@ export type ActionDefinition = {
   timeCost: number;
   energyCost: number;
   resourceCost?: Partial<ResourceStore>;
+  complexity?: number;
 };
 
 /**
@@ -21,18 +22,21 @@ export const FOREST_ACTIONS: ActionDefinition[] = [
     name: "Forage for berries",
     timeCost: 3,
     energyCost: 5,
+    complexity: 120,
   },
   {
     id: "gatherWood",
     name: "Gather wood",
     timeCost: 2,
     energyCost: 10,
+    complexity: 120,
   },
   {
     id: "gatherStone",
     name: "Gather stone",
     timeCost: 3,
     energyCost: 15,
+    complexity: 150,
   },
   {
     id: "setTrap",
@@ -40,6 +44,7 @@ export const FOREST_ACTIONS: ActionDefinition[] = [
     timeCost: 1,
     energyCost: 2,
     resourceCost: { berry: 4 },
+    complexity: 200,
   },
 ];
 

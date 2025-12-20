@@ -9,7 +9,7 @@ export type TimeStats = {
 };
 
 const defaultTimeStats: TimeStats = {
-  time: 0,
+  time: 6,
   /** 0-359, but displayed as 1-30 */
   day: 3 * 30,
   year: 1,
