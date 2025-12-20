@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 interface ActionButtonProps {
   action: ActionDefinition;
+  energyModifier?: number;
   disabled?: boolean;
   onClick: () => void;
 }
@@ -51,6 +52,7 @@ const ClockHand = styled.div<{ angle: number }>`
 
 const ActionButton = ({
   action,
+  energyModifier = 0,
   disabled = false,
   onClick,
 }: ActionButtonProps) => {
@@ -63,7 +65,7 @@ const ActionButton = ({
         {resourceCostStr && <span> ({resourceCostStr})</span>}
       </div>
       <CostIndicator>
-        <span>{action.energyCost}</span>
+        <span>{action.energyCost + energyModifier}</span>
         <EnergyCircle />
       </CostIndicator>
       <CostIndicator>

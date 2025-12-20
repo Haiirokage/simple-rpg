@@ -10,7 +10,11 @@ import {
   useMutateKnowledge,
   useSpecificKnowledge,
 } from "../../data/knowledge/hooks";
-import { calculateLevelGain } from "../../data/knowledge/util";
+import {
+  calculateLevelGain,
+  calculateEnergyModifier,
+  calculateYieldMultiplier,
+} from "../../data/knowledge/util";
 
 import { useMemo } from "preact/hooks";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
@@ -62,19 +66,36 @@ const ForestBiome = () => {
           (action.id === "setTrap" &&
             consumables.trap.count <= consumables.trap.active) ||
           !isActionWithinDaylight(time, action.timeCost, day);
+
+        const energyModifier = calculateEnergyModifier(
+          action.complexity || 0,
+          knowledge,
+        );
+        const energyCost = action.energyCost + energyModifier;
+
+        const yieldMultiplier = calculateYieldMultiplier(
+          action.complexity,
+          knowledge,
+        );
+
         return !(action.id === "setTrap" && consumables.trap.count === 0) ? (
           <ActionButton
             key={action.id}
+            energyModifier={energyModifier}
             action={action}
             disabled={
-              playerStatus.energy < action.energyCost || !canAfford || disabled
+              playerStatus.energy < energyCost || !canAfford || disabled
             }
             onClick={() => {
               switch (action.id) {
                 case "forage": {
                   const forageYield = Math.round(
-                    20 * berryIncomeMultiplier * Math.random(),
+                    20 *
+                      berryIncomeMultiplier *
+                      yieldMultiplier *
+                      Math.random(),
                   );
+
                   mutateResources({ berry: berry + forageYield });
                   break;
                 }
@@ -84,7 +105,10 @@ const ForestBiome = () => {
                       tools.hatchet.level
                     ].bonus.woodGathering ?? 1;
                   const fiberDropped =
-                    Math.random() < fiberDropChance * woodBonus ? 1 : 0;
+                    Math.random() <
+                    fiberDropChance * woodBonus * yieldMultiplier
+                      ? 1
+                      : 0;
                   mutateResources({
                     wood: wood + woodBonus,
                     fiber: fiber + fiberDropped,
@@ -127,7 +151,7 @@ const ForestBiome = () => {
 
               updateTime({ time: time + action.timeCost });
               updatePlayerStatus({
-                energy: Math.max(0, playerStatus.energy - action.energyCost),
+                energy: Math.max(0, playerStatus.energy - energyCost),
               });
             }}
           />

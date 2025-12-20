@@ -19,6 +19,9 @@ import { applyResourceDecay } from "./consumption";
 import { usePlayerStatus, useUpdatePlayerStatus } from "../playerStatus/hooks";
 import { updateSatiationFromFood } from "../playerStatus/util";
 import pickBy from "lodash/pickBy";
+import { calculateYieldMultiplier } from "../knowledge/util";
+import { useKnowledge } from "../knowledge/hooks";
+import { FOREST_ACTIONS } from "../../components/actions/definitions";
 
 /**
  * Check if all required resources have been discovered (exist in persisted state)
@@ -102,6 +105,7 @@ export const useHandleNewDay = () => {
   const { data: playerStatus } = usePlayerStatus();
   const updatePlayerStatus = useUpdatePlayerStatus();
   const { structures, getBerryIncome } = useStructures();
+  const { knowledge } = useKnowledge();
 
   const sortedFoodDefinitions = useMemo(
     () => [...FOOD_STORAGE].sort((a, b) => b.decayRate - a.decayRate),
@@ -155,8 +159,14 @@ export const useHandleNewDay = () => {
       consumedResources,
     );
 
+    const trapAction = FOREST_ACTIONS.find((a) => a.id === "setTrap");
+    const yieldMultiplier = calculateYieldMultiplier(
+      trapAction?.complexity,
+      knowledge.forest,
+    );
     // Trap checking after decay (so newly caught rabbits don't decay immediately)
-    const rabbitCatchLikelihood = getRabbitCatchLikelihood(day);
+    const rabbitCatchLikelihood =
+      getRabbitCatchLikelihood(day) * yieldMultiplier;
 
     const rabbitMeat = Array.from({
       length: consumables.trap.active,
