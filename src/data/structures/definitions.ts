@@ -1,8 +1,8 @@
 import type { ResourceStore } from "../resources/types";
-import type { Structure } from "./hooks";
+import type { StructureKey } from "./hooks";
 
 export type StructureDefinition = {
-  key: Structure;
+  key: StructureKey;
   name: string;
   timeCost: number;
   resourceCost: Partial<ResourceStore>;
@@ -25,4 +25,12 @@ export const PANTRY: StructureDefinition = {
   plotCost: 4,
 } as const;
 
-export const STRUCTURES = [BERRY_PLANTER, PANTRY];
+export const WOOD_SHED: StructureDefinition = {
+  key: "woodShed",
+  name: "Wood Shed",
+  timeCost: 5,
+  resourceCost: { wood: 15, stone: 5 },
+  plotCost: 1,
+} as const;
+
+export const STRUCTURES = [BERRY_PLANTER, PANTRY, WOOD_SHED];

@@ -22,6 +22,7 @@ import { getAffordability } from "../../data/resources/util";
 import type { ResourceStore } from "../../data/resources/types";
 import { Paragraph } from "../../style/elements";
 import type { KnowledgeTier } from "../../data/knowledge/types";
+import { useAttributes, useGrantExperience } from "../../data/attributes/hooks";
 
 const ForestBiome = () => {
   const { resources } = useResources();
@@ -33,6 +34,8 @@ const ForestBiome = () => {
   const { mutateSpecific } = useUpdateEquipment();
   const { knowledge } = useSpecificKnowledge("forest");
   const { mutate: mutateKnowledge } = useMutateKnowledge();
+  const { attributes } = useAttributes();
+  const grantExperience = useGrantExperience();
 
   const berryIncomeMultiplier = useMemo(() => getBerryIncomeMultiplier(day), [day]);
 
@@ -88,7 +91,13 @@ const ForestBiome = () => {
                   break;
                 }
                 case "gatherStone": {
-                  mutateResources({ stone: stone + 1 });
+                  const stoneYield = (attributes.strength.level - 10) / 20;
+                  const guaranteed = Math.floor(stoneYield);
+                  const sum = guaranteed + (Math.random() < stoneYield % 1 ? 1 : 0);
+                  if (sum > 0) {
+                    mutateResources({ stone: stone + sum });
+                    grantExperience("strength", sum * 3500);
+                  }
                   break;
                 }
                 case "setTrap": {

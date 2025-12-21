@@ -18,11 +18,11 @@ export const calculateLevelGain = (
   const diff = actionComplexity - playerKnowledge;
 
   if (diff > 0) {
-    const multiplier = 1 + Math.log10(diff);
+    const multiplier = (1 + Math.log10(diff)) / Math.pow(3, playerLevel.tier);
     return Math.floor(multiplier) + (Math.random() < multiplier % 1 ? 1 : 0);
   }
 
-  const likelihood = Math.pow(10, diff / 20);
+  const likelihood = Math.pow(10, diff / 20) / Math.pow(3, playerLevel.tier);
 
   return Math.random() < likelihood ? 1 : 0;
 };

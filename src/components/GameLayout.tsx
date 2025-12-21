@@ -2,6 +2,7 @@ import styled from "styled-components";
 import ResourceBox from "../sections/ResourceBox";
 import PlayerEquipment from "../sections/PlayerEquipment";
 import PlayerStatus from "../sections/PlayerStatus";
+import PlayerAttributes from "../sections/PlayerAttributes";
 import ForestBiome from "./actions/ForestBiome";
 import HomeUpgrades from "./actions/HomeUpgrades";
 import HomeConstruction from "./actions/HomeConstruction";
@@ -21,7 +22,7 @@ const GameSection = styled.section`
 const GameField = styled.div`
   padding: 8px;
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: auto auto auto auto;
   gap: 12px;
   width: fit-content;
 `;
@@ -47,6 +48,9 @@ export const GameLayout = () => {
         <GameSection>
           <PlayerStatus />
           <PlayerEquipment />
+        </GameSection>
+        <GameSection>
+          <PlayerAttributes />
         </GameSection>
         <GameSection>
           <h2>Resources</h2>
