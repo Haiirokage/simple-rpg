@@ -1,5 +1,9 @@
 import type { ResourceStore } from "./types";
+import type { ResourceKeys } from "./types";
 import { objectEntries } from "../../util";
+import { FOOD_STORAGE } from "./food-definitions";
+import { MATERIAL_STORAGE } from "./material-definitions";
+import type { StructuresStore } from "../structures/hooks";
 
 /**
  * Check if player can afford a cost and calculate resulting resources.
@@ -22,6 +26,35 @@ export const getAffordability = (cost: Partial<ResourceStore> = {}, resources: R
   );
 
   return { canAfford, resourceResult };
+};
+
+/**
+ * Get storage capacity for a resource, checking both food and material definitions.
+ *
+ * @param resourceKey - The resource to check capacity for
+ * @param pantries - Number of pantries (for food storage)
+ * @returns Maximum capacity for the resource
+ */
+export const getStorageCapacity = (
+  resourceKey: ResourceKeys,
+  structures: Omit<StructuresStore, "plots">,
+): number => {
+  // Check food storage first
+  const def =
+    FOOD_STORAGE.find((d) => d.key === resourceKey) ||
+    MATERIAL_STORAGE.find((d) => d.key === resourceKey);
+  console.log(def);
+  if (def) {
+    if ("capacityPerPantry" in def) {
+      return def.baseCapacity + def.capacityPerPantry * structures.pantry;
+    }
+    if ("capacityPerShed" in def) {
+      return def.baseCapacity + (def.capacityPerShed || 0) * structures.woodShed;
+    }
+    return def.baseCapacity;
+  }
+
+  return Infinity; // unlimited if not in definitions
 };
 
 /**

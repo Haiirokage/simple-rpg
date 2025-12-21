@@ -38,12 +38,3 @@ export const FOOD_STORAGE: ResourceDefinition[] = [
     mealSize: 1,
   },
 ];
-
-/**
- * Get storage capacity for a resource.
- */
-export const getStorageCapacity = (resourceKey: ResourceKeys, pantries: number): number => {
-  const def = FOOD_STORAGE.find((d) => d.key === resourceKey);
-  if (!def) return Infinity; // unlimited if not in definitions
-  return def.baseCapacity + def.capacityPerPantry * pantries;
-};

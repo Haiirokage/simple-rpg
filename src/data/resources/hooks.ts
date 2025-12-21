@@ -3,7 +3,7 @@ import { getStorage, setStorage } from "../util";
 import { useStructures } from "../structures/hooks";
 import { useTime } from "../time/hooks";
 import { getWoodCostPerDay, getRabbitCatchLikelihood } from "../time/season-util";
-import { getStorageCapacity, FOOD_STORAGE, NUTRITION_TYPES } from "./food-definitions";
+import { FOOD_STORAGE, NUTRITION_TYPES } from "./food-definitions";
 import { defaultResourceStore, type ResourceStore } from "./types";
 import { objectEntries } from "../../util";
 import { useCallback, useMemo } from "preact/hooks";
@@ -15,6 +15,7 @@ import pickBy from "lodash/pickBy";
 import { calculateYieldMultiplier } from "../knowledge/util";
 import { useKnowledge } from "../knowledge/hooks";
 import { FOREST_ACTIONS } from "../../components/actions/definitions";
+import { getStorageCapacity } from "./util";
 
 /**
  * Check if all required resources have been discovered (exist in persisted state)
@@ -60,7 +61,7 @@ export const useMutateResources = () => {
         .reduce((acc, [key, value]) => {
           return {
             ...acc,
-            [key]: Math.min(value, getStorageCapacity(key, structures.pantry)),
+            [key]: Math.min(value, getStorageCapacity(key, structures)),
           };
         }, data);
     },
