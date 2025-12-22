@@ -33,4 +33,12 @@ export const WOOD_SHED: StructureDefinition = {
   plotCost: 1,
 } as const;
 
-export const STRUCTURES = [BERRY_PLANTER, PANTRY, WOOD_SHED];
+export const STONE_PILE: StructureDefinition = {
+  key: "stonePile",
+  name: "Stone Pile",
+  timeCost: 5,
+  resourceCost: { wood: 5, stone: 5 },
+  plotCost: 1,
+} as const;
+
+export const STRUCTURES = [BERRY_PLANTER, PANTRY, WOOD_SHED, STONE_PILE];

@@ -137,7 +137,7 @@ export const useHandleNewDay = () => {
       { ...resources, wood: resources.wood - woodConsumption },
     );
 
-    const decayedResources = FOOD_STORAGE.reduce(
+    const decayedFood = FOOD_STORAGE.reduce(
       (acc, resource) => ({
         ...acc,
         [resource.key]: applyResourceDecay(
@@ -148,6 +148,10 @@ export const useHandleNewDay = () => {
       }),
       consumedResources,
     );
+    const materialsAfterDecay = {
+      ...decayedFood,
+      wood: applyResourceDecay("wood", decayedFood.wood, structures.woodShed > 0 ? 0.02 : 0),
+    };
 
     const trapAction = FOREST_ACTIONS.find((a) => a.id === "setTrap");
     const yieldMultiplier = calculateYieldMultiplier(trapAction?.complexity, knowledge.forest);
@@ -158,15 +162,15 @@ export const useHandleNewDay = () => {
       length: consumables.trap.active,
     }).reduce(
       (caught: number) => caught + (Math.random() < rabbitCatchLikelihood ? 4 : 0),
-      decayedResources.rabbitMeat,
+      materialsAfterDecay.rabbitMeat,
     );
 
-    const berry = decayedResources.berry + getBerryIncome(day);
+    const berry = materialsAfterDecay.berry + getBerryIncome(day);
 
     resetTraps();
 
     const finalResources = {
-      ...decayedResources,
+      ...materialsAfterDecay,
       berry,
       rabbitMeat,
     };

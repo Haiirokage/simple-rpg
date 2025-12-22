@@ -4,7 +4,7 @@ import { STRUCTURES } from "./definitions";
 import { getBerryIncomeMultiplier } from "../time/season-util";
 import { useCallback } from "preact/hooks";
 
-export type StructureKey = "berryPlanter" | "pantry" | "woodShed";
+export type StructureKey = "berryPlanter" | "pantry" | "woodShed" | "stonePile";
 export type StructuresStore = Record<StructureKey | "plots", number>;
 
 const defaultStructuresStore: StructuresStore = {
@@ -12,6 +12,7 @@ const defaultStructuresStore: StructuresStore = {
   berryPlanter: 0,
   pantry: 0,
   woodShed: 0,
+  stonePile: 0,
 };
 
 export const getStructures = (): StructuresStore => {

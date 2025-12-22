@@ -21,7 +21,7 @@ export const applyResourceDecay = (
   const def = FOOD_STORAGE.find((d) => d.key === resourceKey);
   if (!def || def.decayRate === 0) return amount; // no decay
 
-  const effectiveDecayRate = Math.max(def.decayRate - decayReduction, 0.01);
+  const effectiveDecayRate = Math.max(def.decayRate - decayReduction, 0);
   const decay = amount * effectiveDecayRate;
   if (decay >= 1) {
     return amount - Math.floor(decay);

@@ -51,6 +51,9 @@ export const getStorageCapacity = (
     if ("capacityPerShed" in def) {
       return def.baseCapacity + (def.capacityPerShed || 0) * structures.woodShed;
     }
+    if ("capacityPerStonePile" in def) {
+      return def.baseCapacity + (def.capacityPerStonePile || 0) * structures.stonePile;
+    }
     return def.baseCapacity;
   }
 
