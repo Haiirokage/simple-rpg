@@ -6,8 +6,7 @@ import { defaultHomeUpgrades } from "./types";
 export const useHomeUpgrades = () => {
   return useQuery({
     queryKey: ["HOME_UPGRADES"],
-    queryFn: () =>
-      getStorage<HomeUpgradesStore>("HOME_UPGRADES", defaultHomeUpgrades),
+    queryFn: () => getStorage<HomeUpgradesStore>("HOME_UPGRADES", defaultHomeUpgrades),
     initialData: defaultHomeUpgrades,
   });
 };
