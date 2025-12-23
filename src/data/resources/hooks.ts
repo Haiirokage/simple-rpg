@@ -16,6 +16,8 @@ import { calculateYieldMultiplier } from "../knowledge/util";
 import { useKnowledge } from "../knowledge/hooks";
 import { FOREST_ACTIONS } from "../../components/actions/definitions";
 import { getStorageCapacity } from "./util";
+import { getEndOfDayEvent } from "../../events/util";
+import { useAddEventLogEntry } from "../eventLog/hooks";
 
 /**
  * Check if all required resources have been discovered (exist in persisted state)
@@ -90,13 +92,16 @@ export const useMutateResources = () => {
 export const useHandleNewDay = () => {
   const { resources } = useResources();
   const { mutate } = useMutateResources();
-  const { day } = useTime();
+  const { day, year } = useTime();
   const { consumables } = useEquipment();
   const resetTraps = useResetTraps();
   const { data: playerStatus } = usePlayerStatus();
   const updatePlayerStatus = useUpdatePlayerStatus();
   const { structures, getBerryIncome } = useStructures();
   const { knowledge } = useKnowledge();
+  const addEntry = useAddEventLogEntry();
+
+  // Check for end-of-day events (month is 0-indexed from day)
 
   const sortedFoodDefinitions = useMemo(
     () => [...FOOD_STORAGE].sort((a, b) => b.decayRate - a.decayRate),
@@ -104,7 +109,15 @@ export const useHandleNewDay = () => {
   );
 
   return () => {
-    const woodConsumption = getWoodCostPerDay(day);
+    const monthIndex = (day - 1) % 12;
+    const event = getEndOfDayEvent(monthIndex);
+    const berryMultiplier = event?.effects.berryMultiplier ?? 1;
+    const woodMultiplier = event?.effects.woodConsumption ?? 1;
+
+    if (event) {
+      addEntry({ year, day, eventId: event.id });
+    }
+    const woodConsumption = getWoodCostPerDay(day) * woodMultiplier;
 
     // Pick foods to consume: one from each nutrition type
     const consumedFood = NUTRITION_TYPES.map((nutritionType) => {
@@ -165,7 +178,7 @@ export const useHandleNewDay = () => {
       materialsAfterDecay.rabbitMeat,
     );
 
-    const berry = materialsAfterDecay.berry + getBerryIncome(day);
+    const berry = materialsAfterDecay.berry + getBerryIncome(day) * berryMultiplier;
 
     resetTraps();
 

@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getStorage, setStorage } from "../util";
-import { getMonthName } from "./season-util";
 
 export type TimeStats = {
   time: number;
@@ -13,14 +12,6 @@ const defaultTimeStats: TimeStats = {
   /** 0-359, but displayed as 1-30 */
   day: 3 * 30,
   year: 1,
-};
-
-/**
- * Get formatted date string from day number (e.g., "February 2")
- */
-export const getDate = (day: number): string => {
-  const dayInMonth = (day % 30) + 1;
-  return `${getMonthName(day)} ${dayInMonth}`;
 };
 
 export const getTime = (): TimeStats => {

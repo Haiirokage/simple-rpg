@@ -20,6 +20,14 @@ export const getMonthName = (day: number): string => {
 };
 
 /**
+ * Get formatted date string from day number (e.g., "February 2")
+ */
+export const getDate = (day: number, short = false): string => {
+  const dayInMonth = (day % 30) + 1;
+  return `${short ? Math.floor(day / 30) + 1 : getMonthName(day)} ${dayInMonth}.`;
+};
+
+/**
  * Get berry income multiplier based on season (month).
  * Winter months have reduced yields for both foraging and berry planters.
  * Multiplier ranges from 0 (harsh winter) to 1.0 (optimal growing season).

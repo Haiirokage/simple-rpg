@@ -43,7 +43,7 @@ export const getStorageCapacity = (
   const def =
     FOOD_STORAGE.find((d) => d.key === resourceKey) ||
     MATERIAL_STORAGE.find((d) => d.key === resourceKey);
-  console.log(def);
+
   if (def) {
     if ("capacityPerPantry" in def) {
       return def.baseCapacity + def.capacityPerPantry * structures.pantry;
