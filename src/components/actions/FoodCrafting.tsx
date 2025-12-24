@@ -2,6 +2,7 @@ import { useMutateResources, useResources } from "../../data/resources/hooks";
 import { useTime, useUpdateTime } from "../../data/time/hooks";
 import { useHomeUpgrades } from "../../data/homeUpgrades/hooks";
 import { useCallback } from "preact/hooks";
+import { Button } from "../../style/elements";
 
 const JERKY_RECIPE = {
   rabbitMeat: 5,
@@ -33,9 +34,9 @@ const FoodCrafting = () => {
   return (
     <div className="food-crafting">
       {homeUpgrades.smoker && (
-        <button onClick={makeJerky} disabled={!canMakeJerky()}>
-          dry meat (5 rabbitMeat, 10 wood → 20 jerky)
-        </button>
+        <Button onClick={makeJerky} disabled={!canMakeJerky()}>
+          Dry meat (5 rabbitMeat, 10 wood → 20 jerky)
+        </Button>
       )}
     </div>
   );

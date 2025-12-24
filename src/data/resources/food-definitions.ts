@@ -23,7 +23,7 @@ export const FOOD_STORAGE: ResourceDefinition[] = [
   },
   {
     key: "rabbitMeat",
-    baseCapacity: 0,
+    baseCapacity: 1,
     capacityPerPantry: 12,
     decayRate: 0.1,
     nutritionType: "protein",

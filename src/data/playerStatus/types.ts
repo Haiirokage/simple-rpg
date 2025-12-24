@@ -3,6 +3,7 @@ export const defaultPlayerStatus = {
   maxSatiation: 80,
   energy: 100,
   maxEnergy: 100,
+  health: 100,
 } as const;
 
 export type PlayerStatusKeys = keyof typeof defaultPlayerStatus;

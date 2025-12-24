@@ -14,7 +14,19 @@ import { useEquipment } from "../../data/equipment/hooks";
 import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
 import ActionButton from "../ActionButton";
 import { CLEAR_GROUND_ACTION } from "./definitions";
-import { Paragraph } from "../../style/elements";
+import { Paragraph, Button } from "../../style/elements";
+import styled from "styled-components";
+import { objectEntries } from "../../util";
+
+const StructureButtonRow = styled.div`
+  display: flex;
+  gap: 4px;
+  margin-top: 0.5rem;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
 
 const HomeConstruction = () => {
   const { resources } = useResources();
@@ -81,18 +93,35 @@ const HomeConstruction = () => {
         </div>
         Plots: {usedPlots}/{plots}
       </div>
-      {STRUCTURES.map((building, idx) => {
+      {STRUCTURES.map((building) => {
         const { canAfford, resourceResult } = getAffordability(building.resourceCost, resources);
         const isDisabled = !canAfford || !hasPlots(building);
         const currentCount = (structures[building.key as keyof typeof structures] as number) || 0;
 
         return (
-          <div style={{ marginTop: idx > 0 ? "0.5rem" : "0" }} key={building.key}>
-            <button disabled={isDisabled} onClick={() => buildStructure(building, resourceResult)}>
+          <StructureButtonRow key={building.key}>
+            <Button disabled={isDisabled} onClick={() => buildStructure(building, resourceResult)}>
               {building.name} ({currentCount}) - Costs: {formatResourceCost(building.resourceCost)}
               {building.plotCost ? ` | ${building.plotCost} plots` : ""}
-            </button>
-          </div>
+            </Button>
+            {currentCount > 0 && (
+              <Button
+                onClick={() => {
+                  updateStructures({ [building.key]: currentCount - 1 });
+                  const refundedResources = objectEntries(building.resourceCost).reduce(
+                    (acc, [key, cost]) => ({
+                      ...acc,
+                      [key]: (acc[key] ?? 0) + Math.floor(cost * 0.5),
+                    }),
+                    resources,
+                  );
+                  mutate(refundedResources);
+                }}
+              >
+                −
+              </Button>
+            )}
+          </StructureButtonRow>
         );
       })}
       {berryIncomeMultiplier < 1 && (

@@ -6,6 +6,7 @@ import { HOME_UPGRADES, type HomeUpgradeDefinition } from "../../data/homeUpgrad
 import type { ResourceStore } from "../../data/resources/types";
 import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
 import { getSeasonByDay } from "../../data/time/season-util";
+import { Button } from "../../style/elements";
 
 const HomeUpgrades = () => {
   const { resources } = useResources();
@@ -26,8 +27,8 @@ const HomeUpgrades = () => {
   };
 
   return (
-    <div className="home-upgrades-actions">
-      <button
+    <div>
+      <Button
         onClick={() => {
           const month = getSeasonByDay(day);
           const wakeupTime = 24 + month.sunrise;
@@ -40,19 +41,21 @@ const HomeUpgrades = () => {
         }}
       >
         Rest
-      </button>
+      </Button>
       {HOME_UPGRADES.map((upgrade) => {
         const isBuilt = homeUpgrades[upgrade.key];
         const { canAfford, resourceResult } = getAffordability(upgrade.resourceCost, resources);
         const isDisabled = isBuilt || !canAfford;
 
         return (
-          <div key={upgrade.key}>
-            <button disabled={isDisabled} onClick={() => buildUpgrade(upgrade, resourceResult)}>
-              {upgrade.name}
-              {isBuilt ? " (✓)" : ""} - Costs: {formatResourceCost(upgrade.resourceCost)}
-            </button>
-          </div>
+          <Button
+            key={upgrade.key}
+            disabled={isDisabled}
+            onClick={() => buildUpgrade(upgrade, resourceResult)}
+          >
+            {upgrade.name}
+            {isBuilt ? " (✓)" : ""} - Costs: {formatResourceCost(upgrade.resourceCost)}
+          </Button>
         );
       })}
     </div>
