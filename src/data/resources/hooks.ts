@@ -119,6 +119,10 @@ export const useHandleNewDay = () => {
     }
     const woodConsumption = getWoodCostPerDay(day) * woodMultiplier;
 
+    // Calculate health damage from insufficient wood
+    const missingWood = Math.max(0, woodConsumption - resources.wood);
+    const healthDamageFromCold = missingWood * 5;
+
     // Pick foods to consume: one from each nutrition type
     const consumedFood = NUTRITION_TYPES.map((nutritionType) => {
       return sortedFoodDefinitions.find(
@@ -133,11 +137,16 @@ export const useHandleNewDay = () => {
       playerStatus.maxSatiation,
       consumedFood.length,
     );
+
+    // Calculate additional health damage from starvation (no food + satiation 0)
+    const healthDamageFromStarvation = consumedFood.length === 0 && satiation === 0 ? 10 : 0;
+
     updatePlayerStatus({
       satiation,
       maxSatiation,
       maxEnergy: satiation,
       energy: Math.min(playerStatus.energy, satiation),
+      health: Math.max(0, playerStatus.health - healthDamageFromCold - healthDamageFromStarvation),
     });
 
     // Consumption first

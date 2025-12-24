@@ -1,6 +1,7 @@
 import { useEffect } from "preact/hooks";
 import { useResources, useHandleNewDay } from "../data/resources/hooks";
-import { useTime, useUpdateTime, getDate } from "../data/time/hooks";
+import { useTime, useUpdateTime } from "../data/time/hooks";
+import { getDate } from "../data/time/season-util";
 
 const Header = () => {
   const { day, time, year } = useTime();

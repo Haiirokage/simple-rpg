@@ -9,6 +9,14 @@ const PlayerStatus = () => {
       <h2>Status</h2>
       <div style={{ marginBottom: "0.5rem" }}>
         <ProgressBar
+          current={status.health}
+          max={status.maxHealth}
+          label="Health"
+          color="#e74c3c"
+        />
+      </div>
+      <div style={{ marginBottom: "0.5rem" }}>
+        <ProgressBar
           current={status.energy}
           max={status.maxEnergy}
           label="Energy"
