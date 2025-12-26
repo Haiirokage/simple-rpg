@@ -20,16 +20,6 @@ import { getEndOfDayEvent } from "../../events/util";
 import { useAddEventLogEntry } from "../eventLog/hooks";
 
 /**
- * Check if all required resources have been discovered (exist in persisted state)
- */
-export const hasDiscoveredResources = (
-  requiredResources: Partial<ResourceStore>,
-  persistedResources: Partial<ResourceStore>,
-): boolean => {
-  return objectEntries(requiredResources).every(([key]) => key in persistedResources);
-};
-
-/**
  * TODO: Add resource discoverability tracking
  * - Store set of resources the player has ever had > 0
  * - Use this to gate craft/build buttons visibility

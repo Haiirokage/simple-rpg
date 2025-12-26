@@ -1,26 +1,21 @@
 import { useResources, useMutateResources } from "../../data/resources/hooks";
-import { getAffordability } from "../../data/resources/util";
+import { getAffordability, hasDiscoveredResources } from "../../data/resources/util";
 import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
 import { useTime, useUpdateTime } from "../../data/time/hooks";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
 import type { ResourceStore } from "../../data/resources/types";
 import { objectEntries } from "../../util";
-import type { ToolType, LevelType } from "../../data/equipment/types";
-import { toolLevels } from "../../data/equipment/types";
+import type { ToolType } from "../../data/equipment/types";
 
 const ToolCrafting = () => {
-  const { resources } = useResources();
+  const { resources, data } = useResources();
   const { mutate: mutateResources } = useMutateResources();
   const { tools } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const { time } = useTime();
   const updateTime = useUpdateTime();
 
-  const craftTool = (
-    toolKey: ToolType,
-    level: LevelType,
-    resourceResult: Partial<ResourceStore>,
-  ) => {
+  const craftTool = (toolKey: ToolType, level: number, resourceResult: Partial<ResourceStore>) => {
     // Subtract costs from resources
     mutateResources(resourceResult);
 
@@ -36,39 +31,40 @@ const ToolCrafting = () => {
     <div className="tool-crafting">
       {TOOL_DEFINITIONS.map((toolDef) => {
         const toolStatus = tools[toolDef.key];
-        const currentLevelIndex = toolLevels.indexOf(toolStatus.level);
-        const nextLevelIndex = currentLevelIndex + 1;
-        const hasNextLevel = nextLevelIndex < toolLevels.length;
+        const nextLevel = toolStatus.level + 1;
+        const hasNextLevel = nextLevel < toolDef.tiers.length;
 
         if (!hasNextLevel) {
+          const toolTier = toolDef.tiers[toolStatus.level];
           return (
             <div key={toolDef.key}>
               <p style={{ marginBottom: "0.25rem", opacity: 0.7 }}>
-                {toolDef.name} (current: {toolStatus.level}) - Max level reached
+                {toolDef.name} (current: {toolTier.name}) - Max level reached
               </p>
             </div>
           );
         }
 
-        const nextLevel = toolLevels[nextLevelIndex];
-        const nextLevelData = toolDef.levels[nextLevel];
-        const { canAfford, resourceResult } = getAffordability(nextLevelData.cost, resources);
+        const nextTierData = toolDef.tiers[nextLevel];
+        const { canAfford, resourceResult } = getAffordability(nextTierData.cost, resources);
 
-        const costText = objectEntries(nextLevelData.cost)
+        const costText = objectEntries(nextTierData.cost)
           .map(([key, cost]) => `${cost} ${key}`)
           .join(", ");
 
-        return (
+        const hasDiscovered = hasDiscoveredResources(nextTierData.cost, data);
+
+        return hasDiscovered ? (
           <div key={toolDef.key}>
             <button
               disabled={!canAfford}
-              onClick={() => craftTool(toolDef.key, nextLevel as LevelType, resourceResult)}
+              onClick={() => craftTool(toolDef.key, nextLevel, resourceResult)}
               style={{ fontSize: "0.9em" }}
             >
-              Craft {nextLevel} {toolDef.name} {costText ? `(${costText})` : "(free)"}
+              Craft {nextTierData.name} {toolDef.name} {costText ? `(${costText})` : "(free)"}
             </button>
           </div>
-        );
+        ) : null;
       })}
     </div>
   );

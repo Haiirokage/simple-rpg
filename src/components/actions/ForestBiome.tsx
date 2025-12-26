@@ -79,9 +79,9 @@ const ForestBiome = () => {
                   break;
                 }
                 case "gatherWood": {
-                  const woodBonus =
-                    TOOL_DEFINITIONS.find((t) => t.key === "hatchet")?.levels[tools.hatchet.level]
-                      .bonus.woodGathering ?? 1;
+                  const hatchetDef = TOOL_DEFINITIONS.find((t) => t.key === "hatchet");
+                  const tierDef = hatchetDef?.tiers[tools.hatchet.level];
+                  const woodBonus = tierDef?.bonus.woodGathering ?? 1;
                   const fiberDropped =
                     Math.random() < fiberDropChance * woodBonus * yieldMultiplier ? 1 : 0;
                   mutateResources({

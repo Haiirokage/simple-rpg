@@ -6,14 +6,11 @@ interface consumableStatus {
   active: number;
 }
 
-export const tools = ["hatchet"] as const;
+export const tools = ["hatchet", "bow"] as const;
 export type ToolType = (typeof tools)[number];
 
-export const toolLevels = ["none", "stone"] as const;
-export type LevelType = (typeof toolLevels)[number];
-
 interface ToolStatus {
-  level: LevelType;
+  level: number; // 0 = none, 1+ = tier index in definition
 }
 
 export type EquipmentStore = {
@@ -30,7 +27,10 @@ export const defaultEquipmentStore: EquipmentStore = {
   },
   tools: {
     hatchet: {
-      level: "none",
+      level: 0,
+    },
+    bow: {
+      level: 0,
     },
   },
 };

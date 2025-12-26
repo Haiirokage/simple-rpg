@@ -72,3 +72,13 @@ export const formatResourceCost = (cost: Partial<ResourceStore> | undefined): st
     .map(([resource, amount]) => `${amount} ${resource}`)
     .join(", ");
 };
+
+/**
+ * Check if all required resources have been discovered (exist in persisted state)
+ */
+export const hasDiscoveredResources = (
+  requiredResources: Partial<ResourceStore>,
+  persistedResources: Partial<ResourceStore>,
+): boolean => {
+  return objectEntries(requiredResources).every(([key]) => key in persistedResources);
+};

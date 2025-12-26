@@ -1,9 +1,5 @@
-import {
-  useResources,
-  useMutateResources,
-  hasDiscoveredResources,
-} from "../../data/resources/hooks";
-import { getAffordability } from "../../data/resources/util";
+import { useResources, useMutateResources } from "../../data/resources/hooks";
+import { getAffordability, hasDiscoveredResources } from "../../data/resources/util";
 import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
 import { useTime, useUpdateTime } from "../../data/time/hooks";
 import { EQUIPMENT_DEFINITIONS } from "../../data/equipment/definitions";

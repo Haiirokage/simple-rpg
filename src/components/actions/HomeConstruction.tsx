@@ -62,7 +62,7 @@ const HomeConstruction = () => {
   // Hatchet multiplies chance by 50x per level
   const plotDifficulty = Math.pow(10, plots - 8);
   const basePlotChance = 0.2 / plotDifficulty;
-  const hatchetMultiplier = tools.hatchet.level === "stone" ? 50 : 1;
+  const hatchetMultiplier = Math.max(tools.hatchet.level * 50, 1);
   const plotChance = Math.min(basePlotChance * hatchetMultiplier, 1); // Cap at 100%
 
   // Clear ground action
@@ -88,7 +88,7 @@ const HomeConstruction = () => {
             disabled={!isActionWithinDaylight(time, 8, day) || playerStatus.energy < 70}
           />
           <Paragraph margin="0.25rem 0 0 0">
-            Change of new plot: {(plotChance * 100).toFixed(2)}%
+            Chance of new plot: {(plotChance * 100).toFixed(2)}%
           </Paragraph>
         </div>
         Plots: {usedPlots}/{plots}
