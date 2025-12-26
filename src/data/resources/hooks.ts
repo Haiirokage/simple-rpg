@@ -128,7 +128,7 @@ export const useHandleNewDay = () => {
       consumedFood.length,
     );
 
-    // Calculate additional health damage from starvation (no food + satiation 0)
+    // Calculate health damage from starvation (no food + satiation 0)
     const healthDamageFromStarvation = consumedFood.length === 0 && satiation === 0 ? 10 : 0;
 
     updatePlayerStatus({
@@ -138,6 +138,14 @@ export const useHandleNewDay = () => {
       energy: Math.min(playerStatus.energy, satiation),
       health: Math.max(0, playerStatus.health - healthDamageFromCold - healthDamageFromStarvation),
     });
+
+    // Log damage events
+    if (healthDamageFromCold > 0) {
+      addEntry({ year, day, eventId: "coldDamage" });
+    }
+    if (healthDamageFromStarvation > 0) {
+      addEntry({ year, day, eventId: "starvation" });
+    }
 
     // Consumption first
 

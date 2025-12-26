@@ -1,4 +1,5 @@
-import { POSITIVE_EVENTS, NEGATIVE_EVENTS, NEUTRAL_EVENTS, type Event } from "./definitions";
+import { POSITIVE_EVENTS, NEGATIVE_EVENTS, NEUTRAL_EVENTS, type Event } from "./eod-events";
+import { SYSTEM_EVENTS } from "./system-events";
 
 const POSITIVE_THRESHOLD = 0.1;
 const NEGATIVE_THRESHOLD = 0.1;
@@ -8,7 +9,10 @@ const NEUTRAL_THRESHOLD = 0.1;
  * Get event details by ID from all event lists
  */
 export const getEventById = (eventId: string): Event | undefined => {
+  const systemEvent = SYSTEM_EVENTS[eventId];
+
   return (
+    systemEvent ||
     POSITIVE_EVENTS.find((e) => e.id === eventId) ||
     NEGATIVE_EVENTS.find((e) => e.id === eventId) ||
     NEUTRAL_EVENTS.find((e) => e.id === eventId)
