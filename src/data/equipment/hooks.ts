@@ -1,33 +1,15 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getStorage, setStorage } from "../util";
+import { useDataQuery, useUpdateData } from "../util";
 import { defaultEquipmentStore, type EquipmentStore } from "./types";
 
-export const getEquipment = (): EquipmentStore => {
-  return getStorage<EquipmentStore>("EQUIPMENT", defaultEquipmentStore);
-};
-
-export const setEquipment = (equipment: EquipmentStore) => {
-  setStorage("EQUIPMENT", equipment);
-};
-
 export const useEquipment = () => {
-  const { data } = useQuery({
-    queryKey: ["EQUIPMENT"],
-    queryFn: () => getEquipment(),
-    initialData: defaultEquipmentStore,
-  });
+  const { data } = useDataQuery<EquipmentStore>("EQUIPMENT", defaultEquipmentStore);
   return data;
 };
 
 export const useUpdateEquipment = () => {
   const data = useEquipment();
 
-  const { mutate } = useMutation<void, Error, Partial<EquipmentStore>>({
-    mutationFn: async (updates) => setEquipment({ ...data, ...updates }),
-    onMutate: (updates, context) => {
-      context.client.setQueryData(["EQUIPMENT"], { ...data, ...updates });
-    },
-  });
+  const { mutate } = useUpdateData<EquipmentStore>("EQUIPMENT", defaultEquipmentStore);
   const mutateSpecific = <T extends keyof EquipmentStore>(
     key: T,
     updates: Partial<EquipmentStore[T]>,

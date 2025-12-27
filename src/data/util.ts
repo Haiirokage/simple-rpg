@@ -1,3 +1,10 @@
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type DefinedUseQueryResult,
+} from "@tanstack/react-query";
+
 export const getStorage = <T extends Record<string, unknown>>(key: string, fallback: T): T => {
   const item = localStorage.getItem(key);
 
@@ -14,4 +21,30 @@ export const getStorage = <T extends Record<string, unknown>>(key: string, fallb
 
 export const setStorage = <T>(key: string, value: T) => {
   localStorage.setItem(key, JSON.stringify(value));
+};
+
+export const useDataQuery = <T extends Record<string, unknown>>(key: string, fallback: T) => {
+  const getData = () => getStorage(key, fallback);
+
+  return useQuery({
+    queryKey: [key],
+    queryFn: () => getData(),
+    initialData: fallback,
+  }) as DefinedUseQueryResult<T, Error>;
+};
+
+export const useUpdateData = <T extends Record<string, unknown>>(key: string, defaultStore: T) => {
+  const queryClient = useQueryClient();
+  const { data } = useDataQuery<T>(key, defaultStore);
+
+  const setData = (newData: T) => {
+    setStorage(key, newData);
+  };
+
+  return useMutation<void, Error, Partial<T>>({
+    mutationFn: async (updates) => setData({ ...data, ...updates }),
+    onMutate: (updates) => {
+      queryClient.setQueryData([key], { ...data, ...updates });
+    },
+  });
 };

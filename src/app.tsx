@@ -4,11 +4,15 @@ import Header from "./sections/Header";
 import ViewNav from "./components/ViewNav";
 import HomeLayout from "./sections/HomeLayout";
 import ExplorationLayout from "./sections/ExplorationLayout";
+import { useExploration } from "./data/exploration/hooks";
 
 type ViewKey = "home" | "exploration";
 
 export const App = () => {
-  const [currentView, setCurrentView] = useState<ViewKey>("home");
+  const exploration = useExploration();
+  const [currentView, setCurrentView] = useState<ViewKey>(
+    exploration.active ? "exploration" : "home",
+  );
 
   const renderView = () => {
     switch (currentView) {
