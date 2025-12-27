@@ -1,5 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getStorage, setStorage } from "../util";
+import { useDataQuery, useUpdateData } from "../util";
 
 export type TimeStats = {
   time: number;
@@ -14,30 +13,12 @@ const defaultTimeStats: TimeStats = {
   year: 1,
 };
 
-export const getTime = (): TimeStats => {
-  return getStorage<TimeStats>("TIME_STATS", defaultTimeStats);
-};
-
-export const setTime = (timeStats: TimeStats) => {
-  setStorage("TIME_STATS", timeStats);
-};
-
 export const useTime = () => {
-  const { data } = useQuery({
-    queryKey: ["TIME_STATS"],
-    queryFn: () => getTime(),
-    initialData: defaultTimeStats,
-  });
+  const { data } = useDataQuery<TimeStats>("TIME_STATS", defaultTimeStats);
   return data;
 };
 
 export const useUpdateTime = () => {
-  const timeStats = useTime();
-  const { mutate } = useMutation<void, Error, Partial<TimeStats>>({
-    mutationFn: async (updates) => setTime({ ...timeStats, ...updates }),
-    onMutate: (updates, context) => {
-      context.client.setQueryData(["TIME_STATS"], { ...timeStats, ...updates });
-    },
-  });
+  const { mutate } = useUpdateData<TimeStats>("TIME_STATS", defaultTimeStats);
   return mutate;
 };

@@ -1,5 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getStorage, setStorage } from "../util";
+import { useDataQuery, useUpdateData } from "../util";
 import { useStructures } from "../structures/hooks";
 import { useTime } from "../time/hooks";
 import { getWoodCostPerDay, getRabbitCatchLikelihood } from "../time/season-util";
@@ -26,18 +25,14 @@ import { useAddEventLogEntry } from "../eventLog/hooks";
  * - Buildings and equipment shouldn't show until all required materials are discovered
  */
 export const useResources = () => {
-  const defaultedResourceStore = useMemo(
+  const defaultedResourceStore: Partial<ResourceStore> = useMemo(
     () => pickBy(defaultResourceStore, (value) => value > 0),
     [],
   );
-  const { data, refetch } = useQuery({
-    queryKey: ["RESOURCES"],
-    queryFn: () => getStorage<Partial<ResourceStore>>("RESOURCES", defaultedResourceStore),
-    initialData: defaultedResourceStore,
-  });
+  const { data, refetch } = useDataQuery("RESOURCES", defaultedResourceStore);
   return {
     resources: { ...defaultResourceStore, ...data },
-    data: data as Partial<ResourceStore>,
+    data,
     refetch,
   };
 };
@@ -60,18 +55,15 @@ export const useMutateResources = () => {
     [data, structures],
   );
 
-  return useMutation<void, Error, Partial<ResourceStore>>({
-    mutationFn: async (resources) => {
-      // Apply mutation and enforce storage capacities
+  const { mutate } = useUpdateData<Partial<ResourceStore>>("RESOURCES", data);
+
+  // Custom mutation that applies storage capacity logic
+  return {
+    mutate: (resources: Partial<ResourceStore>) => {
       const merged = mergeData(resources);
-      return setStorage("RESOURCES", merged);
+      mutate(merged);
     },
-    onMutate: (resources, context) => {
-      // Optimistically cap resources on the client as well
-      const merged = mergeData(resources);
-      context.client.setQueryData(["RESOURCES"], merged);
-    },
-  });
+  };
 };
 
 /**

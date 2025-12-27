@@ -1,5 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getStorage, setStorage } from "../util";
+import { useDataQuery, useUpdateData } from "../util";
 import type { KnowledgeStore } from "./types";
 
 const defaultKnowledgeStore: KnowledgeStore = {
@@ -9,20 +8,8 @@ const defaultKnowledgeStore: KnowledgeStore = {
   },
 } as const;
 
-export const getKnowledge = (): KnowledgeStore => {
-  return getStorage<KnowledgeStore>("KNOWLEDGE", defaultKnowledgeStore);
-};
-
-export const setKnowledge = (knowledge: KnowledgeStore) => {
-  setStorage("KNOWLEDGE", knowledge);
-};
-
 export const useKnowledge = () => {
-  const { data, refetch } = useQuery({
-    queryKey: ["KNOWLEDGE"],
-    queryFn: () => getKnowledge(),
-    initialData: defaultKnowledgeStore,
-  });
+  const { data, refetch } = useDataQuery<KnowledgeStore>("KNOWLEDGE", defaultKnowledgeStore);
 
   return {
     knowledge: data,
@@ -36,16 +23,5 @@ export const useSpecificKnowledge = (region: keyof KnowledgeStore) => {
 };
 
 export const useMutateKnowledge = () => {
-  const { knowledge } = useKnowledge();
-
-  return useMutation<void, Error, KnowledgeStore>({
-    mutationFn: async (updates) => {
-      const merged = { ...knowledge, ...updates };
-      return setStorage("KNOWLEDGE", merged);
-    },
-    onMutate: (updates, context) => {
-      const merged = { ...knowledge, ...updates };
-      context.client.setQueryData(["KNOWLEDGE"], merged);
-    },
-  });
+  return useUpdateData<KnowledgeStore>("KNOWLEDGE", defaultKnowledgeStore);
 };

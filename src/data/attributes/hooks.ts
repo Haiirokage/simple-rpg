@@ -1,5 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getStorage, setStorage } from "../util";
+import { useDataQuery, useUpdateData } from "../util";
 import type { Attribute, AttributeStore } from "./types";
 
 const defaultAttributeStore: AttributeStore = {
@@ -9,20 +8,8 @@ const defaultAttributeStore: AttributeStore = {
   },
 } as const;
 
-export const getAttributes = (): AttributeStore => {
-  return getStorage<AttributeStore>("ATTRIBUTES", defaultAttributeStore);
-};
-
-export const setAttributes = (attributes: AttributeStore) => {
-  setStorage("ATTRIBUTES", attributes);
-};
-
 export const useAttributes = () => {
-  const { data, refetch } = useQuery({
-    queryKey: ["ATTRIBUTES"],
-    queryFn: () => getAttributes(),
-    initialData: defaultAttributeStore,
-  });
+  const { data, refetch } = useDataQuery<AttributeStore>("ATTRIBUTES", defaultAttributeStore);
 
   return {
     attributes: data,
@@ -31,18 +18,7 @@ export const useAttributes = () => {
 };
 
 export const useMutateAttributes = () => {
-  const { attributes } = useAttributes();
-
-  return useMutation<void, Error, Partial<AttributeStore>>({
-    mutationFn: async (updates) => {
-      const merged = { ...attributes, ...updates };
-      return setStorage("ATTRIBUTES", merged);
-    },
-    onMutate: (updates, context) => {
-      const merged = { ...attributes, ...updates };
-      context.client.setQueryData(["ATTRIBUTES"], merged);
-    },
-  });
+  return useUpdateData<AttributeStore>("ATTRIBUTES", defaultAttributeStore);
 };
 
 export const useGrantExperience = () => {

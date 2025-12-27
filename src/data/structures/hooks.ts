@@ -1,5 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getStorage, setStorage } from "../util";
+import { useDataQuery, useUpdateData } from "../util";
 import { STRUCTURES } from "./definitions";
 import { getBerryIncomeMultiplier } from "../time/season-util";
 import { useCallback } from "preact/hooks";
@@ -15,20 +14,8 @@ const defaultStructuresStore: StructuresStore = {
   stonePile: 0,
 };
 
-export const getStructures = (): StructuresStore => {
-  return getStorage<StructuresStore>("STRUCTURES", defaultStructuresStore);
-};
-
-export const setStructures = (structures: StructuresStore) => {
-  setStorage("STRUCTURES", structures);
-};
-
 export const useStructureStore = () =>
-  useQuery({
-    queryKey: ["STRUCTURES"],
-    queryFn: () => getStructures(),
-    initialData: defaultStructuresStore,
-  });
+  useDataQuery<StructuresStore>("STRUCTURES", defaultStructuresStore);
 
 export const useStructures = () => {
   const { data } = useStructureStore();
@@ -50,15 +37,6 @@ export const useStructures = () => {
 };
 
 export const useUpdateStructures = () => {
-  const { data: structures } = useStructureStore();
-  const { mutate } = useMutation<void, Error, Partial<StructuresStore>>({
-    mutationFn: async (updates) => setStructures({ ...structures, ...updates }),
-    onMutate: (updates, context) => {
-      context.client.setQueryData(["STRUCTURES"], {
-        ...structures,
-        ...updates,
-      });
-    },
-  });
+  const { mutate } = useUpdateData<StructuresStore>("STRUCTURES", defaultStructuresStore);
   return mutate;
 };
