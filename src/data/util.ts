@@ -24,11 +24,9 @@ export const setStorage = <T>(key: string, value: T) => {
 };
 
 export const useDataQuery = <T extends Record<string, unknown>>(key: string, fallback: T) => {
-  const getData = () => getStorage(key, fallback);
-
   return useQuery({
     queryKey: [key],
-    queryFn: () => getData(),
+    queryFn: () => getStorage(key, fallback),
     initialData: fallback,
   }) as DefinedUseQueryResult<T, Error>;
 };
@@ -37,12 +35,8 @@ export const useUpdateData = <T extends Record<string, unknown>>(key: string, de
   const queryClient = useQueryClient();
   const { data } = useDataQuery<T>(key, defaultStore);
 
-  const setData = (newData: T) => {
-    setStorage(key, newData);
-  };
-
   return useMutation<void, Error, Partial<T>>({
-    mutationFn: async (updates) => setData({ ...data, ...updates }),
+    mutationFn: async (updates) => setStorage(key, { ...data, ...updates }),
     onMutate: (updates) => {
       queryClient.setQueryData([key], { ...data, ...updates });
     },

@@ -1,119 +1,186 @@
 <!-- .github/copilot-instructions.md - guidance for AI coding agents -->
 # Copilot / AI Agent Instructions for simple-game
 
-A survival-farming sim built with Preact. Focus: deliberate, incremental changes after reading current code state.
+A survival-farming sim built with Preact + React Query. Focus on deliberate, incremental changes after reading current code state. This is a time/energy-driven game where players manage resources, craft equipment, explore, and survive through seasons.
 
-## 1. Big Picture
+## 1. Architecture Overview
 
-**Tech Stack:** Preact (TSX) + Vite + React Query + localStorage + styled-components
+**Tech Stack:** Preact (TSX) + Vite + React Query 5 + localStorage + styled-components
 
-**Architecture:**
-- `src/main.tsx` → wraps App with QueryClientProvider
-- `src/app.tsx` → minimal: just Header + GameLayout
-- `src/components/` → UI components, including actions
-- `src/data/` → state hooks and storage utilities
+**Data Flow Model:**
+- All state stored in localStorage via React Query (no separate backend)
+- `src/data/` contains domain hooks organized by feature (resources, time, equipment, exploration, knowledge, playerStatus, structures, homeUpgrades, attributes, eventLog)
+- **Generic pattern:** `useDataQuery(key, fallback)` reads, `useUpdateData(key, default)` writes
+- Mutations auto-filter zero-value fields; storage normalizes via `pickBy()` to keep state lean
 
-**Game Design:** Time-based progression (days, 0-23 hours). Resource gathering in forest, crafting at home. Energy limits actions. Daylight cycle gates outdoor work.
+**App Structure:**
+- `src/app.tsx` → Root; switches between HomeLayout (home/crafting view) and ExplorationLayout (exploration map)
+- `src/main.tsx` → QueryClientProvider wrapper
+- `src/sections/` → Page-level layouts (HomeLayout, ExplorationLayout, Header, EventLog, PlayerStatus)
+- `src/components/` → Reusable UI and action handlers
 
-## 2. Core Subsystems
-
-### Actions
-- **Definition:** `ActionDefinition` type with `id`, `name`, `timeCost`, `energyCost`, optional `resourceCost`
-- **Location:** `src/components/actions/definitions.ts` (FOREST_ACTIONS, HOME_ACTIONS arrays)
-- **Usage:** Components iterate definitions, render ActionButton, switch on action.id for logic
-- **Key Actions:**
-  - Forest: forage, gatherWood, gatherStone, setTrap (costs energy/time)
-  - Home: clearGround (8hr, costs 60 energy, generates wood/stone with plot scaling)
-
-### UI Layout
-- **GameLayout Component:** Master layout with styled grid (GameField, GameSection)
-- **Styled Elements:** EnergyCircle, TimeIndicator, ClockFace (for ActionButton cost display)
-- **Pattern:** styled-components for all component styling, no inline CSS
+## 2. Core Game Subsystems
 
 ### Time & Daylight
-- **Time:** `useTime()` → `{ day: number, time: 0-23 }`
-- **Seasons:** `src/data/time/season-definitions.ts` defines 12 months with sunrise/sunset hours
-- **Daylight Validation:** `isActionWithinDaylight(currentTime, actionTimeCost, day)` checks if action completes before sunset
-- **Usage:** ForestBiome disables actions outside daylight
-- **Tool Tip:** Copenhagen-based progression: winter (8-5pm, 9h), summer (3-10pm, 19h)
+- **State:** `useTime()` returns `{ time: 0-23, day: 0-359, year: 1 }` (day wraps annually)
+- **Seasons:** `src/data/time/season-definitions.ts` maps months (0-11) → rise/set hours (Copenhagen-based: winter 8-17/9h, summer 3-22/19h)
+- **Validation:** `isActionWithinDaylight(time, timeCost, day)` checks action completes before sunset; forest actions use this gate
+- **Advancement:** `useUpdateTime()` mutates time; consumed after actions/exploration events
 
-### Resource State
-- **Read:** `useResources()` → returns `{ resources: full state, persistedResources: discovered only }`
-- **Write:** `useMutateResources()` → mutate partial state, auto-filters out zero values before saving
-- **Discovery Gating:** `hasDiscoveredResources(required, persisted)` checks if craft task should show
-- **Pattern:** Only resources with value > 0 persist; zero values auto-removed
+### Resources & Inventory
+- **State:** `useResources()` → `{ resources: full defaults merged with persisted, data: persisted only }`
+- **Write:** `useMutateResources()` → mutate partial state; auto-filters zero values, applies storage caps per resource type
+- **Storage Capacity:** `getStorageCapacity(resourceKey, structures)` scales based on built structures (e.g., storage buildings)
+- **Key Resources:** wood, stone, berry, rabbit, food, and equipment-specific consumables (trap, bait, etc.)
+- **No Discovery Gate Yet:** TODO in hooks.ts indicates resource discoverability tracking planned (for craft gating)
 
-## 3. Important Files & Responsibilities
+### Equipment & Consumables
+- **State:** `useEquipment()` → nested store: `{ consumables: { trap, bait, ... }, tools: { axe, pickaxe, ... }, ... }`
+- **Mutations:** `useUpdateEquipment()` with `mutateSpecific(key, updates)` for nested updates
+- **Active Traps:** `useResetTraps()` → zeros active trap count (post-day mechanics)
+- **Usage:** Craft tasks create consumables/tools; actions consume them (e.g., bait used to set traps)
 
-- `src/app.tsx`: Root component (Header + GameLayout only)
-- `src/components/GameLayout.tsx`: Master layout, all UI sections
-- `src/components/actions/ForestBiome.tsx`: Forest actions with daylight check
-- `src/components/actions/HomeConstruction.tsx`: Building/clearing with plot generation
-- `src/components/actions/ConsumableCrafting.tsx`: Craft traps/consumables, gated by resource discovery
-- `src/components/ActionButton.tsx`: Reusable action button with energy/time/resource indicators
-- `src/components/actions/definitions.ts`: Centralized action costs and mechanics
-- `src/data/resources.ts`: useResources, useMutateResources, hasDiscoveredResources
-- `src/data/time/season-definitions.ts`: Month definitions with sunrise/sunset
-- `src/data/time/season-util.ts`: isActionWithinDaylight and season lookups
-- `src/data/resources/util.ts`: formatResourceCost and resource helpers
+### Knowledge & Progression
+- **State:** `useKnowledge()` → nested regions: `{ forest: { tier, level }, ... }`
+- **Scaling:** `calculateYieldMultiplier(region, knowledge)` in `knowledge/util.ts` — higher knowledge = better resource yields
+- **Unlock Complexity:** Actions have `complexity` field gated by knowledge level (discovery mechanism)
 
-## 4. Data Flow
+### Exploration & Events
+- **Active Exploration:** `useExploration()` → `{ active: boolean, ... }` — toggles between home and exploration modes
+- **End-of-Day Events:** `getEndOfDayEvent(month)` picks weighted random from POSITIVE/NEGATIVE/NEUTRAL lists
+- **Event Likelihood:** Events have monthly likelihood array; picked via weighted probability
 
-**Reading State:**
+### Player Status
+- **State:** `usePlayerStatus()` → health, energy, satiation, mood, condition
+- **Energy Drain:** `applyResourceDecay()` in `consumption.ts` handles daily resource losses; energy restored via food
+- **Satiation:** `updateSatiationFromFood()` calculates nutrition from consumed foods (NUTRITION_TYPES mapping)
+
+### Structures & Building
+- **State:** `useStructures()` → plot counts, buildings, production facilities
+- **Yield Logic:** `getWoodCostPerDay()`, `getRabbitCatchLikelihood()` in `season-util.ts` — yields vary seasonally
+
+## 3. Data Hooks Pattern (Critical)
+
+**Read Pattern:**
 ```tsx
-const { resources, persistedResources } = useResources();
-const { day, time } = useTime();
+const { data, refetch } = useDataQuery<TypeName>("QUERY_KEY", defaultObject);
+// data contains defaults merged with persisted (spread: defaults THEN persisted)
 ```
 
-**Writing State:**
+**Write Pattern:**
 ```tsx
-const { mutate } = useMutateResources();
-mutate({ berry: berry - 2, wood: wood + 10 });
+const { mutate } = useUpdateData<TypeName>("QUERY_KEY", defaultObject);
+mutate({ fieldA: newValueA }); // partial updates OK; zeros auto-removed
 ```
 
-**Action Flow:**
-1. Component reads state with hooks
-2. ActionButton onClick → switch(action.id) → mutate resources + updateTime
-3. Mutations auto-filter zero values before localStorage
-4. React Query syncs UI
+**Custom Hooks Pattern (e.g., resources, equipment):**
+```tsx
+// Wrapper hooks add business logic (filtering, storage caps, nested updates)
+export const useMutateResources = () => {
+  const { data } = useResources();
+  // mergeData() applies caps, filters zeros before mutation
+  const { mutate } = useUpdateData("RESOURCES", data);
+};
+```
 
-## 5. Critical Patterns & Gotchas
+Query keys used: `TIME_STATS`, `RESOURCES`, `EQUIPMENT`, `EXPLORATION`, `PLAYER_STATUS`, `KNOWLEDGE`, `STRUCTURES`, `HOME_UPGRADES`, `ATTRIBUTES`, `EVENT_LOG`
 
-- **Read Before Edit:** Always `read_file` current state before changing. Don't assume or work from memory.
-- **Small Atomic Changes:** One file per edit, 3-5 lines context. Use `multi_replace_string_in_file` for multiple independent edits.
-- **Styled-components Only:** Use styled components for most styling.
-- **Action Definition Updates:** When adding/changing actions, update definitions.ts + any component using them.
-- **Daylight Checks:** Forest actions must verify both start and end time within daylight (use `isActionWithinDaylight`).
-- **Resource Discovery:** Before adding craft tasks, ensure resources are discoverable through gameplay.
-- **No Zero-Value Storage:** Mutations auto-filter, but verify persisted state doesn't bloat with unused keys.
-- **Error Checks After Edits:** Run `get_errors` immediately after non-trivial changes.
+## 4. Actions System
 
-## 6. What to Change / Not Change
+**Definition Type:**
+```typescript
+type ActionDefinition = {
+  id: string;
+  name: string;
+  timeCost: number;
+  energyCost: number;
+  resourceCost?: Partial<ResourceStore>;
+  complexity?: number; // gated by knowledge
+};
+```
 
-**Safe to Change:**
-- Component JSX, styling, props
-- Action definitions (costs, ids, resourceCost)
-- Daylight hour ranges in season-definitions.ts
-- Adding new action components following existing pattern
+**Action Categories:**
+- Forest: forage, gatherWood, gatherStone, setTrap (daylight-gated; yield scales with knowledge)
+- Home: clearGround (8hr, 60 energy), craft tasks (craft traps, food, tools)
+- Exploration: map movement, site discovery (awaits exploration feature completion)
 
-**Avoid Without Review:**
-- Query key strings (`'TIME_STATS'`, `'RESOURCES'`)
-- localStorage serialization format
-- Time advancement logic in app loop
-- defaultResourceStore shape (ripple effects across UI)
+**Action Handler Pattern:**
+1. Component renders ActionButton(s) from definitions array
+2. onClick → switch(action.id) → call handler function
+3. Handler: mutate resources, update time, trigger events if day-end
+4. Daylight check: use `isActionWithinDaylight(time, timeCost, day)` before allowing outdoor actions
 
-## 7. Workflow Commands
+**Styled Display:**
+- `ActionButton` shows cost indicators (EnergyCircle, TimeIndicator) via styled-components
+- Resource cost displayed inline if action has resourceCost
 
-- `npm run dev` → start dev server (http://localhost:5173)
-- `npm run build` → build and test (tsc + vite)
-- `npm run preview` → preview built output
-- `npm run lint` → check errors; `npm run lint:fix` → auto-fix
+## 5. Component Conventions
 
-## 8. How to Make Changes
+- **Styled-Components Only:** All styling via styled-components; no inline CSS or sass in components
+- **Hook-Based State:** Components are functional, using `useTime()`, `useResources()`, `useMutateResources()`, etc.
+- **Action Rendering:** Iterate `FOREST_ACTIONS` or `HOME_ACTIONS`, render conditional buttons based on player state
+- **Event Logging:** Major actions call `useAddEventLogEntry()` to record activity (EventLog visible in UI)
 
-1. **Ask before major edits:** "Should I do X?" or "Is Y a good approach?" — I'll challenge assumptions.
-2. **Make small changes only:** One file, one concept, verify it works.
-3. **Read the current code first:** Always. No assumptions.
-4. **Keep quality high:** Suggest code reuse, pattern alignment, edge case handling.
-5. **Track progress:** Use TODO list for multi-step work.
-6. **Verify after edits:** Run linter/build to catch errors early.
+## 6. Key Files by Responsibility
+
+**State & Logic:**
+- `src/data/util.ts` → Generic `useDataQuery`, `useUpdateData` wrappers (the foundation)
+- `src/data/resources/hooks.ts` → `useResources`, `useMutateResources`, consumption logic
+- `src/data/time/hooks.ts` + `src/data/time/season-util.ts` → Time, daylight checks, seasonal yields
+- `src/data/equipment/hooks.ts` → Equipment state, trap reset mechanics
+- `src/data/knowledge/hooks.ts` → Knowledge progression, yield multipliers
+- `src/data/playerStatus/hooks.ts` + `src/data/playerStatus/util.ts` → Health, energy, satiation updates
+- `src/data/exploration/hooks.ts` → Exploration mode toggling
+- `src/data/homeUpgrades/hooks.ts` → Building upgrades and unlocks
+- `src/data/eventLog/hooks.ts` → Event history persistence
+
+**UI & Sections:**
+- `src/sections/HomeLayout.tsx` → Main home view dispatcher
+- `src/sections/ExplorationLayout.tsx` → Exploration map view
+- `src/components/actions/` → Action components (ForestBiome, HomeConstruction, ConsumableCrafting, FoodCrafting, ToolCrafting, HomeUpgrades)
+- `src/components/ActionButton.tsx` → Reusable action button with cost display
+
+**Event System:**
+- `src/events/eod-events.ts` + `src/events/system-events.ts` → Event definitions with monthly likelihoods
+- `src/events/util.ts` → `getEndOfDayEvent(month)`, event picking logic
+
+## 7. Critical Patterns & Gotchas
+
+✅ **Always do:**
+- Read current code state before editing (no assumptions from memory)
+- Make atomic changes: one file per edit, 3-5 lines context around change
+- Use `multi_replace_string_in_file` for multiple independent edits in same session
+- Verify after edits: `npm run lint`, check `get_errors`
+- Document TODO items in code (e.g., resource discovery gating)
+
+❌ **Avoid:**
+- Inline CSS or SCSS in components (use styled-components)
+- Changing query key strings (`TIME_STATS`, `RESOURCES`) without full codebase search
+- Modifying `defaultResourceStore` shape without checking all mutation sites
+- Storage cap logic outside `useMutateResources`
+- Daylight checks only at action start (must verify end time too: `time + timeCost` before sunset)
+
+⚠️ **Watch for:**
+- Zero-value filtering: mutations auto-filter, but verify persisted state doesn't bloat
+- Nested state updates: use `mutateSpecific()` for equipment sub-objects
+- Storage capacity breaches: `mergeData()` in `useMutateResources` applies caps; verify in tests
+- Seasonal variance: yields, events, daylight all shift monthly; test across seasons
+
+## 8. Workflow Commands
+
+```bash
+npm run dev        # Start dev server (http://localhost:5173)
+npm run build      # TypeScript check + Vite bundle
+npm run lint       # ESLint check; --fix auto-repairs
+```
+
+## 9. How to Contribute Changes
+
+1. **Read first:** Always `read_file` affected code before proposing/making changes
+2. **Ask about intent:** "Should feature X be done this way?" — I'll challenge assumptions
+3. **Small steps:** One logical change per PR/session; divide large tasks
+4. **Keep patterns:** Match existing code style (hooks, styled-components, action defs)
+5. **Verify:** Run lint & build after edits; check for ripple effects in related files
+6. **Document gaps:** Mark TODO/FIXME for incomplete features or architectural decisions needed
+
+**Personality:** I'm a sparring partner for ideas, a tool for fast implementation, and a code quality guardian. Challenge me on approach; I'll make small, focused changes and catch edge cases.
