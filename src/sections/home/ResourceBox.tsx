@@ -1,10 +1,10 @@
-import { useResources } from "../data/resources/hooks";
-import { useStructures } from "../data/structures/hooks";
-import { useTime } from "../data/time/hooks";
+import { useResources } from "../../data/resources/hooks";
+import { useStructures } from "../../data/structures/hooks";
+import { useTime } from "../../data/time/hooks";
 import { useCallback, useMemo } from "preact/hooks";
-import type { ResourceKeys } from "../data/resources/types";
-import { objectKeys } from "../util";
-import { getStorageCapacity } from "../data/resources/util";
+import type { ResourceKeys } from "../../data/resources/types";
+import { objectKeys } from "../../util";
+import { getStorageCapacity } from "../../data/resources/util";
 
 const ResourceBox = () => {
   const { resources, data } = useResources();

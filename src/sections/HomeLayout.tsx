@@ -1,14 +1,21 @@
 import styled from "styled-components";
 import { GameSection, GameViewContainer } from "../style/game-view";
-import ResourceBox from "../sections/home/ResourceBox";
-import PlayerEquipment from "../sections/home/PlayerEquipment";
-import PlayerStatus from "../sections/PlayerStatus";
-import PlayerAttributes from "../sections/home/PlayerAttributes";
-import EventLog from "../sections/EventLog";
-import ForestBiome from "./actions/ForestBiome";
-import HomeUpgrades from "./actions/HomeUpgrades";
-import HomeConstruction from "./actions/HomeConstruction";
-import PlayerActions from "../sections/home/PlayerActions";
+import ResourceBox from "./home/ResourceBox";
+import PlayerEquipment from "./home/PlayerEquipment";
+import PlayerStatus from "./PlayerStatus";
+import PlayerAttributes from "./home/PlayerAttributes";
+import EventLog from "./EventLog";
+import ForestBiome from "../components/actions/ForestBiome";
+import HomeUpgrades from "../components/actions/HomeUpgrades";
+import HomeConstruction from "../components/actions/HomeConstruction";
+import PlayerActions from "./home/PlayerActions";
+
+const HomeGameContainer = styled(GameViewContainer)`
+  grid-template-columns: auto auto auto auto auto;
+  grid-template-areas:
+    "status attributes resources forest eventLog"
+    "home construction construction actions eventLog";
+`;
 
 const ForestSection = styled(GameSection)`
   .forest-actions {
@@ -24,15 +31,9 @@ const HomeSection = styled(GameSection)`
   }
 `;
 
-export const GameLayout = () => {
+const HomeLayout = () => {
   return (
-    <GameViewContainer
-      templateColumns="auto auto auto auto auto"
-      templateAreas={`
-        "status attributes resources forest eventLog"
-        "home construction construction actions eventLog"
-      `}
-    >
+    <HomeGameContainer>
       <GameSection area="status">
         <PlayerStatus />
         <PlayerEquipment />
@@ -63,6 +64,8 @@ export const GameLayout = () => {
         <h2>Actions</h2>
         <PlayerActions />
       </GameSection>
-    </GameViewContainer>
+    </HomeGameContainer>
   );
 };
+
+export default HomeLayout;

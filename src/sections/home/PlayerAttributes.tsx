@@ -1,4 +1,4 @@
-import { useAttributes } from "../data/attributes/hooks";
+import { useAttributes } from "../../data/attributes/hooks";
 import styled from "styled-components";
 
 const AttributeBox = styled.div`

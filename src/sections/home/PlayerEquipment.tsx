@@ -1,5 +1,5 @@
-import { useEquipment } from "../data/equipment/hooks";
-import { TOOL_DEFINITIONS } from "../data/equipment/definitions";
+import { useEquipment } from "../../data/equipment/hooks";
+import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
 
 const PlayerEquipment = () => {
   const { consumables, tools } = useEquipment();
