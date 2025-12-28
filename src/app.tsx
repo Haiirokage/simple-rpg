@@ -1,12 +1,11 @@
 import "./app.scss";
-import { useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 import Header from "./sections/Header";
-import ViewNav from "./components/ViewNav";
+import ViewNav, { type ViewKey } from "./components/ViewNav";
 import HomeLayout from "./sections/HomeLayout";
 import ExplorationLayout from "./sections/ExplorationLayout";
+import OverviewLayout from "./sections/OverviewLayout";
 import { useExploration } from "./data/exploration/hooks";
-
-type ViewKey = "home" | "exploration";
 
 export const App = () => {
   const exploration = useExploration();
@@ -14,10 +13,20 @@ export const App = () => {
     exploration.active ? "exploration" : "home",
   );
 
+  useEffect(() => {
+    if (exploration.active) {
+      setCurrentView("exploration");
+    } else {
+      setCurrentView("home");
+    }
+  }, [exploration.active]);
+
   const renderView = () => {
     switch (currentView) {
       case "exploration":
         return <ExplorationLayout />;
+      case "overview":
+        return <OverviewLayout />;
       case "home":
       default:
         return <HomeLayout />;

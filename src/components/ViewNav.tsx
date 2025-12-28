@@ -1,6 +1,7 @@
 import styled from "styled-components";
+import { useExploration } from "../data/exploration/hooks";
 
-type ViewKey = "home" | "exploration";
+export type ViewKey = "home" | "exploration" | "overview";
 
 const NavContainer = styled.nav`
   display: flex;
@@ -20,6 +21,11 @@ const TabButton = styled.button<{ active: boolean }>`
   &:hover {
     background-color: #e8e8e8;
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 interface ViewNavProps {
@@ -28,13 +34,22 @@ interface ViewNavProps {
 }
 
 const ViewNav = ({ currentView, onViewChange }: ViewNavProps) => {
+  const exploration = useExploration();
+
   return (
     <NavContainer>
-      <TabButton active={currentView === "home"} onClick={() => onViewChange("home")}>
+      <TabButton
+        active={currentView === "home"}
+        disabled={exploration.active}
+        onClick={() => onViewChange("home")}
+      >
         Home
       </TabButton>
       <TabButton active={currentView === "exploration"} onClick={() => onViewChange("exploration")}>
         Exploration
+      </TabButton>
+      <TabButton active={currentView === "overview"} onClick={() => onViewChange("overview")}>
+        Overview
       </TabButton>
     </NavContainer>
   );

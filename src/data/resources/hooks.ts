@@ -66,6 +66,13 @@ export const useMutateResources = () => {
   };
 };
 
+export const useHandleResources = () => {
+  const { resources, data } = useResources();
+  const { mutate: mutateResources } = useMutateResources();
+
+  return { resources, data, mutateResources };
+};
+
 /**
  * Hook that returns a function to handle daily resource consumption.
  * Call this when a new day starts to apply food and warmth costs.
