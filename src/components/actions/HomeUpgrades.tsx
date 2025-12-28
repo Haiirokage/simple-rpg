@@ -11,8 +11,8 @@ import { Button } from "../../style/elements";
 const HomeUpgrades = () => {
   const { resources } = useResources();
   const { mutate } = useMutateResources();
-  const { time, day } = useTime();
   const updateTime = useUpdateTime();
+  const { time, day } = useTime();
   const { data: homeUpgrades } = useHomeUpgrades();
   const updateHomeUpgrades = useUpdateHomeUpgrades();
   const { data: playerStatus } = usePlayerStatus();

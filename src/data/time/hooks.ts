@@ -22,3 +22,12 @@ export const useUpdateTime = () => {
   const { mutate } = useUpdateData<TimeStats>("TIME_STATS", defaultTimeStats);
   return mutate;
 };
+
+export const useAdvanceTime = () => {
+  const timeStats = useTime();
+  const updateTime = useUpdateTime();
+
+  return (hours: number) => {
+    updateTime({ time: timeStats.time + hours });
+  };
+};

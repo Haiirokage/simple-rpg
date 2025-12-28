@@ -1,5 +1,5 @@
 import { useMutateResources, useResources } from "../../data/resources/hooks";
-import { useTime, useUpdateTime } from "../../data/time/hooks";
+import { useAdvanceTime } from "../../data/time/hooks";
 import { useHomeUpgrades } from "../../data/homeUpgrades/hooks";
 import { useCallback } from "preact/hooks";
 import { Button } from "../../style/elements";
@@ -14,8 +14,7 @@ const JERKY_RECIPE = {
 const FoodCrafting = () => {
   const { resources } = useResources();
   const { mutate } = useMutateResources();
-  const { time } = useTime();
-  const updateTime = useUpdateTime();
+  const advanceTime = useAdvanceTime();
   const { data: homeUpgrades } = useHomeUpgrades();
 
   const canMakeJerky = useCallback(() => {
@@ -28,8 +27,8 @@ const FoodCrafting = () => {
       wood: resources.wood - JERKY_RECIPE.wood,
       jerky: resources.jerky + JERKY_RECIPE.output,
     });
-    updateTime({ time: time + JERKY_RECIPE.timeCost });
-  }, [resources, mutate, time, updateTime]);
+    advanceTime(JERKY_RECIPE.timeCost);
+  }, [resources, mutate, advanceTime]);
 
   return (
     <div className="food-crafting">

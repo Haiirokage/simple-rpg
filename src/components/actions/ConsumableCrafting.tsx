@@ -1,7 +1,7 @@
 import { useResources, useMutateResources } from "../../data/resources/hooks";
 import { getAffordability, hasDiscoveredResources } from "../../data/resources/util";
 import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
-import { useTime, useUpdateTime } from "../../data/time/hooks";
+import { useAdvanceTime } from "../../data/time/hooks";
 import { EQUIPMENT_DEFINITIONS } from "../../data/equipment/definitions";
 import type { ResourceStore } from "../../data/resources/types";
 import { objectEntries } from "../../util";
@@ -12,8 +12,7 @@ const ConsumableCrafting = () => {
   const { mutate: mutateResources } = useMutateResources();
   const { consumables } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
-  const { time } = useTime();
-  const updateTime = useUpdateTime();
+  const advanceTime = useAdvanceTime();
 
   const craftConsumables = (key: ConsumableType, resourceResult: Partial<ResourceStore>) => {
     const equipmentData = consumables[key];
@@ -27,8 +26,7 @@ const ConsumableCrafting = () => {
     mutateSpecific("consumables", {
       [key]: updatedData,
     });
-
-    updateTime({ time: time + 1 });
+    advanceTime(1);
   };
 
   return (

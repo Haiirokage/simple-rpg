@@ -1,6 +1,7 @@
 import { objectEntries } from "../../util";
 import { useHandleResources } from "../resources/hooks";
 import { useDataQuery, useUpdateData } from "../util";
+import { useAdvanceTime } from "../time/hooks";
 import type { ExplorationStore } from "./types";
 import { defaultExplorationStore } from "./types";
 
@@ -27,8 +28,10 @@ export const useHandleExploration = () => {
 
 export const useStartExpedition = () => {
   const { mutateExploration } = useMutateExploration();
+  const advanceTime = useAdvanceTime();
 
   return (endTime: number) => {
+    advanceTime(1); // 1 hour travel time
     mutateExploration({
       active: true,
       endTime,

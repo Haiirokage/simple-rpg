@@ -1,7 +1,7 @@
 import { useResources, useMutateResources } from "../../data/resources/hooks";
 import { getAffordability, hasDiscoveredResources } from "../../data/resources/util";
 import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
-import { useTime, useUpdateTime } from "../../data/time/hooks";
+import { useAdvanceTime } from "../../data/time/hooks";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
 import type { ResourceStore } from "../../data/resources/types";
 import { objectEntries } from "../../util";
@@ -12,8 +12,7 @@ const ToolCrafting = () => {
   const { mutate: mutateResources } = useMutateResources();
   const { tools } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
-  const { time } = useTime();
-  const updateTime = useUpdateTime();
+  const advanceTime = useAdvanceTime();
 
   const craftTool = (toolKey: ToolType, level: number, resourceResult: Partial<ResourceStore>) => {
     // Subtract costs from resources
@@ -24,7 +23,7 @@ const ToolCrafting = () => {
       [toolKey]: { level },
     });
 
-    updateTime({ time: time + 1 });
+    advanceTime(1);
   };
 
   return (
