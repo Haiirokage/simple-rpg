@@ -1,18 +1,22 @@
-import { POSITIVE_EVENTS, NEGATIVE_EVENTS, NEUTRAL_EVENTS, type Event } from "./eod-events";
+import { POSITIVE_EVENTS, NEGATIVE_EVENTS, NEUTRAL_EVENTS } from "./eod-events";
+import type { AnyEvent, EODEvent } from "./types";
 import { SYSTEM_EVENTS } from "./system-events";
+import { EXPLORATION_EVENTS } from "./exploration-events";
 
-const POSITIVE_THRESHOLD = 0.1;
-const NEGATIVE_THRESHOLD = 0.1;
-const NEUTRAL_THRESHOLD = 0.1;
+const POSITIVE_THRESHOLD = 0.07;
+const NEGATIVE_THRESHOLD = 0.05;
+const NEUTRAL_THRESHOLD = 0.03;
 
 /**
  * Get event details by ID from all event lists
  */
-export const getEventById = (eventId: string): Event | undefined => {
+export const getEventById = (eventId: string): AnyEvent | undefined => {
   const systemEvent = SYSTEM_EVENTS[eventId];
+  const explorationEvent = EXPLORATION_EVENTS[eventId];
 
   return (
     systemEvent ||
+    explorationEvent ||
     POSITIVE_EVENTS.find((e) => e.id === eventId) ||
     NEGATIVE_EVENTS.find((e) => e.id === eventId) ||
     NEUTRAL_EVENTS.find((e) => e.id === eventId)
@@ -25,11 +29,11 @@ export const getEventById = (eventId: string): Event | undefined => {
  * @param month 0-indexed month (0 = January, 11 = December)
  * @returns Event or null if no viable events for this month
  */
-export const pickEventFromList = (eventList: Event[], month: number): Event | null => {
+export const pickEventFromList = (eventList: EODEvent[], month: number): EODEvent | null => {
   const totalWeight = eventList.reduce((sum, e) => sum + e.likelihood[month], 0);
   const weightedRoll = Math.random() * totalWeight;
 
-  const findEvent = (index: number, accumulated: number): Event | null => {
+  const findEvent = (index: number, accumulated: number): EODEvent | null => {
     if (index >= eventList.length) {
       return null;
     }
@@ -53,7 +57,7 @@ export const pickEventFromList = (eventList: Event[], month: number): Event | nu
  * @param month 0-indexed month (0 = January, 11 = December)
  * @returns Event or null if no event occurs
  */
-export const getEndOfDayEvent = (month: number): Event | null => {
+export const getEndOfDayEvent = (month: number): EODEvent | null => {
   const roll = Math.random();
 
   if (roll < POSITIVE_THRESHOLD) {

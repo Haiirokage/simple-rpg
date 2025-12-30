@@ -1,31 +1,10 @@
-type EventEffect = "berryMultiplier" | "woodConsumption";
+import type { EODEvent } from "./types";
 
-type MonthlyChances = [
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-];
-
-export type Event = {
-  id: string;
-  name: string;
-  likelihood: MonthlyChances; // 0-1 probability per month, exactly 12 values
-  effects: Partial<Record<EventEffect, number>>;
-};
-
-export const POSITIVE_EVENTS: Event[] = [
+export const POSITIVE_EVENTS: EODEvent[] = [
   {
     id: "abundantSeason",
     name: "Abundant Season",
+    category: "eod",
     likelihood: [0, 0, 0.05, 0.08, 0.1, 0.1, 0.05, 0.08, 0.1, 0.08, 0.05, 0],
     effects: {
       berryMultiplier: 1.5,
@@ -33,10 +12,11 @@ export const POSITIVE_EVENTS: Event[] = [
   },
 ];
 
-export const NEGATIVE_EVENTS: Event[] = [
+export const NEGATIVE_EVENTS: EODEvent[] = [
   {
     id: "coldSnap",
     name: "Cold Snap",
+    category: "eod",
     likelihood: [0.05, 0.04, 0.02, 0, 0, 0, 0, 0, 0, 0, 0.02, 0.05],
     effects: {
       woodConsumption: 2,
@@ -45,6 +25,7 @@ export const NEGATIVE_EVENTS: Event[] = [
   {
     id: "birdRaid",
     name: "Bird Raid",
+    category: "eod",
     likelihood: [0, 0, 0.02, 0.03, 0.04, 0.05, 0.05, 0.04, 0.02, 0, 0, 0],
     effects: {
       berryMultiplier: 0,
@@ -52,4 +33,4 @@ export const NEGATIVE_EVENTS: Event[] = [
   },
 ];
 
-export const NEUTRAL_EVENTS: Event[] = [];
+export const NEUTRAL_EVENTS: EODEvent[] = [];

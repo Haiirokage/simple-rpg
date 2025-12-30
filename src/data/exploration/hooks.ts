@@ -1,4 +1,3 @@
-import { objectEntries } from "../../util";
 import { useHandleResources } from "../resources/hooks";
 import { useDataQuery, useUpdateData } from "../util";
 import { useAdvanceTime } from "../time/hooks";
@@ -41,18 +40,12 @@ export const useStartExpedition = () => {
 };
 
 export const useEndExpedition = () => {
-  const { resources, mutateResources } = useHandleResources();
+  const { addResources } = useHandleResources();
   const { exploration, mutateExploration } = useHandleExploration();
 
   return () => {
-    const newResources = objectEntries(exploration.inventory).reduce((acc, [key, value]) => {
-      return {
-        ...acc,
-        [key]: resources[key] + value,
-      };
-    }, {});
+    addResources(exploration.inventory);
 
-    mutateResources(newResources);
     mutateExploration({
       active: false,
       inventory: {},

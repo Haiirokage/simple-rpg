@@ -3,10 +3,8 @@ import { useTime, useUpdateTime } from "../../data/time/hooks";
 import { isActionWithinDaylight } from "../../data/time/season-util";
 import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
 import { useHandleKnowledge } from "../../data/knowledge/hooks";
-import { calculateLevelGain, calculateEnergyModifier } from "../../data/knowledge/util";
 
 import { useMemo } from "preact/hooks";
-import { FOREST_ACTIONS } from "./definitions";
 import { FOREST_ACTIONS as NEW_FOREST_ACTIONS } from "../../biome/forest/action-definitions";
 import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
 import { useDiscoveries } from "../../data/discoveries/hooks";
@@ -22,12 +20,13 @@ import { sum } from "lodash";
 const ForestBiome = () => {
   const { resources } = useResources();
 
-  const { mutateResources, addResources } = useHandleResources();
+  const { addResources } = useHandleResources();
   const { time, day } = useTime();
   const updateTime = useUpdateTime();
   const { consumables } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const { knowledge, gainLevels } = useHandleKnowledge("forest");
+  const energyModifier = knowledge.tier >= 2 ? -1 : 0;
   const multipliers = useActionMultipliers();
   const grantExperience = useGrantExperience();
 
@@ -52,56 +51,11 @@ const ForestBiome = () => {
       <Paragraph>
         Tier {knowledge.tier} (Level {knowledge.level})
       </Paragraph>
-      {FOREST_ACTIONS.map((action) => {
-        const { canAfford, resourceResult } = getAffordability(action.resourceCost, resources);
-        const mergeResources = (resourceUpdate: Partial<ResourceStore>) => {
-          mutateResources({ ...resourceResult, ...resourceUpdate });
-        };
-        const disabled =
-          (action.id === "setTrap" && consumables.trap.count <= consumables.trap.active) ||
-          !isActionWithinDaylight(time, action.timeCost, day);
 
-        const energyModifier = calculateEnergyModifier(action.complexity || 0, knowledge);
-        const energyCost = action.energyCost + energyModifier;
-
-        return !(action.id === "setTrap" && consumables.trap.count === 0) ? (
-          <ActionButton
-            key={action.id}
-            energyModifier={energyModifier}
-            action={action}
-            disabled={playerStatus.energy < energyCost || !canAfford || disabled}
-            onClick={() => {
-              switch (action.id) {
-                case "setTrap": {
-                  mergeResources({});
-                  mutateSpecific("consumables", {
-                    trap: {
-                      ...consumables.trap,
-                      active: consumables.trap.active + 1,
-                    },
-                  });
-                  break;
-                }
-              }
-              // Calculate and apply level gain
-              gainLevels(calculateLevelGain(action.complexity, knowledge));
-
-              updateTime({ time: time + action.timeCost });
-              updatePlayerStatus({
-                energy: Math.max(0, playerStatus.energy - energyCost),
-              });
-            }}
-          />
-        ) : (
-          ""
-        );
-      })}
-
-      {/* New refactored actions - migrate old ones here one at a time */}
+      {/* New refactored actions */}
       {discoveredActions.map((action) => {
         const { id, name, cost, resourceYield, experienceGrant } = action;
         const multiplier = multipliers[id]();
-        const energyModifier = knowledge.tier >= 2 ? -1 : 0;
         const energyCost = cost.energy + energyModifier;
         const { canAfford, resourceResult } = getAffordability(cost.resources, resources);
 
@@ -125,7 +79,8 @@ const ForestBiome = () => {
               id,
               name,
               timeCost: cost.time,
-              energyCost: cost.energy,
+              energyCost,
+              resourceCost: cost.resources,
             }}
             disabled={playerStatus.energy < energyCost || !canAfford || disabled}
             onClick={() => {
@@ -148,6 +103,39 @@ const ForestBiome = () => {
           />
         );
       })}
+
+      {/* setTrap - unique consumable deployment action */}
+      {consumables.trap.count > 0 && (
+        <ActionButton
+          action={{
+            id: "setTrap",
+            name: "Set trap",
+            timeCost: 1,
+            energyCost: 2 + energyModifier,
+            resourceCost: { berry: 4 },
+          }}
+          disabled={
+            playerStatus.energy < 2 + energyModifier ||
+            consumables.trap.count <= consumables.trap.active ||
+            resources.berry < 4 ||
+            !isActionWithinDaylight(time, 1, day)
+          }
+          onClick={() => {
+            addResources({ berry: -4 });
+            mutateSpecific("consumables", {
+              trap: {
+                ...consumables.trap,
+                active: consumables.trap.active + 1,
+              },
+            });
+            gainLevels(1);
+            updateTime({ time: time + 1 });
+            updatePlayerStatus({
+              energy: Math.max(0, playerStatus.energy - (2 + energyModifier)),
+            });
+          }}
+        />
+      )}
     </div>
   );
 };

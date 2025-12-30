@@ -120,7 +120,7 @@ export const useHandleNewDay = () => {
     const woodMultiplier = event?.effects.woodConsumption ?? 1;
 
     if (event) {
-      addEntry({ year, day, eventId: event.id });
+      addEntry({ year, day, eventId: event.id, category: "eod" });
     }
     const woodConsumption = getWoodCostPerDay(day) * woodMultiplier;
 
@@ -156,10 +156,10 @@ export const useHandleNewDay = () => {
 
     // Log damage events
     if (healthDamageFromCold > 0) {
-      addEntry({ year, day, eventId: "coldDamage" });
+      addEntry({ year, day, eventId: "coldDamage", category: "system" });
     }
     if (healthDamageFromStarvation > 0) {
-      addEntry({ year, day, eventId: "starvation" });
+      addEntry({ year, day, eventId: "starvation", category: "system" });
     }
 
     // Consumption first
@@ -200,7 +200,7 @@ export const useHandleNewDay = () => {
       materialsAfterDecay.rabbitMeat,
     );
 
-    const berry = materialsAfterDecay.berry + getBerryIncome(day) * berryMultiplier;
+    const berry = materialsAfterDecay.berry + Math.floor(getBerryIncome(day) * berryMultiplier);
 
     resetTraps();
 
