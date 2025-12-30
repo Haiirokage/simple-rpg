@@ -1,7 +1,8 @@
 import type { ResourceStore } from "../../data/resources/types";
 import type { DiscoveryType } from "./discovery-definitions";
+import type { AttributeStore } from "../../data/attributes/types";
 
-export type ActionId = "forage" | "gatherWood";
+export type ActionId = "forage" | "gatherWood" | "gatherStone";
 
 export interface ActionDefinition {
   id: ActionId;
@@ -14,6 +15,8 @@ export interface ActionDefinition {
   resourceYield?: Partial<ResourceStore>;
   // Gate: requires N discoveries of a specific type
   discoveriesRequired?: Partial<Record<DiscoveryType, number>>;
+  // Experience grant: XP per unit of resource yielded
+  experienceGrant?: Partial<Record<keyof AttributeStore, number>>;
 }
 
 export const FOREST_ACTIONS: Record<ActionId, ActionDefinition> = {
@@ -35,5 +38,15 @@ export const FOREST_ACTIONS: Record<ActionId, ActionDefinition> = {
       energy: 10,
     },
     resourceYield: { wood: 1, fiber: 1 },
+  },
+  gatherStone: {
+    id: "gatherStone",
+    name: "Gather Stone",
+    cost: {
+      time: 2,
+      energy: 10,
+    },
+    resourceYield: { stone: 1 },
+    experienceGrant: { strength: 3500 },
   },
 };

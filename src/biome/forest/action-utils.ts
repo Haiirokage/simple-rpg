@@ -6,17 +6,19 @@ import { getSeasonByDay } from "../../data/time/season-util";
 import type { ResourceStore } from "../../data/resources/types";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
 import { useEquipment } from "../../data/equipment/hooks";
+import { useAttributes } from "../../data/attributes/hooks";
 
 /**
  * Hook that returns action-specific multiplier functions.
  * Each function combines all relevant factors (seasonal, knowledge, discoveries, etc.)
  * into a single multiplier value.
  */
-export const useActionMultipliers = () => {
+export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceStore>> => {
   const { day } = useTime();
   const discoveries = useDiscoveries();
   const { yieldMultiplier } = getSeasonByDay(day);
   const { tools } = useEquipment();
+  const { attributes } = useAttributes();
 
   const forage = useCallback(() => {
     const seasonalMultiplier = yieldMultiplier.forage || 1;
@@ -33,8 +35,14 @@ export const useActionMultipliers = () => {
     return { fiber: yieldMultiplier.gatherWood * woodBonus * fiberBonus, wood: woodBonus };
   }, [yieldMultiplier.gatherWood, tools.hatchet.level, discoveries.willow_grove]);
 
+  const gatherStone = useCallback(() => {
+    const strengthMult = (attributes.strength.level - 10) / 20;
+    return { stone: strengthMult };
+  }, [attributes.strength]);
+
   return {
     forage,
     gatherWood,
-  } as Record<ActionId, () => Partial<ResourceStore>>;
+    gatherStone,
+  };
 };

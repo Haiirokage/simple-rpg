@@ -18,13 +18,6 @@ export type ActionDefinition = {
  */
 export const FOREST_ACTIONS: ActionDefinition[] = [
   {
-    id: "gatherStone",
-    name: "Gather stone",
-    timeCost: 3,
-    energyCost: 15,
-    complexity: 150,
-  },
-  {
     id: "setTrap",
     name: "Set trap",
     timeCost: 1,

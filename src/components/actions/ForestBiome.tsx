@@ -14,21 +14,20 @@ import ActionButton from "../ActionButton";
 import { getAffordability } from "../../data/resources/util";
 import type { ResourceStore } from "../../data/resources/types";
 import { Paragraph } from "../../style/elements";
-import { useAttributes, useGrantExperience } from "../../data/attributes/hooks";
+import { useGrantExperience } from "../../data/attributes/hooks";
 import { objectEntries } from "../../util";
 import { useActionMultipliers } from "../../biome/forest/action-utils";
+import { sum } from "lodash";
 
 const ForestBiome = () => {
   const { resources } = useResources();
 
-  const { stone } = resources;
   const { mutateResources, addResources } = useHandleResources();
   const { time, day } = useTime();
   const updateTime = useUpdateTime();
   const { consumables } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const { knowledge, gainLevels } = useHandleKnowledge("forest");
-  const { attributes } = useAttributes();
   const multipliers = useActionMultipliers();
   const grantExperience = useGrantExperience();
 
@@ -73,16 +72,6 @@ const ForestBiome = () => {
             disabled={playerStatus.energy < energyCost || !canAfford || disabled}
             onClick={() => {
               switch (action.id) {
-                case "gatherStone": {
-                  const stoneYield = (attributes.strength.level - 10) / 20;
-                  const guaranteed = Math.floor(stoneYield);
-                  const sum = guaranteed + (Math.random() < stoneYield % 1 ? 1 : 0);
-                  if (sum > 0) {
-                    mergeResources({ stone: stone + sum });
-                    grantExperience("strength", sum * 3500);
-                  }
-                  break;
-                }
                 case "setTrap": {
                   mergeResources({});
                   mutateSpecific("consumables", {
@@ -110,7 +99,7 @@ const ForestBiome = () => {
 
       {/* New refactored actions - migrate old ones here one at a time */}
       {discoveredActions.map((action) => {
-        const { id, name, cost, resourceYield } = action;
+        const { id, name, cost, resourceYield, experienceGrant } = action;
         const multiplier = multipliers[id]();
         const energyModifier = knowledge.tier >= 2 ? -1 : 0;
         const energyCost = cost.energy + energyModifier;
@@ -127,6 +116,7 @@ const ForestBiome = () => {
               };
             }, resourceResult as Partial<ResourceStore>)
           : resourceResult;
+        const resourceAmount = sum(Object.values(resourceYieldDiff || {}).filter((v) => v > 0));
 
         return (
           <ActionButton
@@ -143,6 +133,12 @@ const ForestBiome = () => {
 
               // Small knowledge bonus: 1 level per action
               gainLevels(1);
+
+              objectEntries(experienceGrant || {}).forEach(([attributeKey, xpGain]) => {
+                if (xpGain > 0) {
+                  grantExperience(attributeKey, Math.floor(xpGain * resourceAmount));
+                }
+              });
 
               updateTime({ time: time + action.cost.time });
               updatePlayerStatus({
