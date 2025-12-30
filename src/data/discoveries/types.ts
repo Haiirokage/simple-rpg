@@ -1,4 +1,4 @@
-import type { DiscoveryType } from "../../biome/forest/definitions";
+import type { DiscoveryType } from "../../biome/forest/discovery-definitions";
 
 export type DiscoveriesStore = {
   [key in DiscoveryType]: number; // count discovered

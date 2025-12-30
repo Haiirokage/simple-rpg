@@ -1,7 +1,7 @@
 import { useDataQuery, useUpdateData } from "../util";
 import type { DiscoveriesStore } from "./types";
 import { defaultDiscoveriesStore } from "./types";
-import type { DiscoveryDefinition } from "../../biome/forest/definitions";
+import type { DiscoveryDefinition } from "../../biome/forest/discovery-definitions";
 
 export const useDiscoveries = () => {
   const { data } = useDataQuery<DiscoveriesStore>("DISCOVERIES", defaultDiscoveriesStore);

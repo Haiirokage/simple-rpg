@@ -2,13 +2,13 @@ import styled from "styled-components";
 import { useEndExpedition, useHandleExploration } from "../../data/exploration/hooks";
 import { useAdvanceTime, useTime } from "../../data/time/hooks";
 import { Paragraph } from "../../style/elements";
-import { useSpecificKnowledge } from "../../data/knowledge/hooks";
+import { useHandleKnowledge } from "../../data/knowledge/hooks";
 import {
   useDiscoveries,
   useMutateDiscoveries,
   calculateDiscoveryChance,
 } from "../../data/discoveries/hooks";
-import { FOREST_DISCOVERIES } from "../../biome/forest/definitions";
+import { FOREST_DISCOVERIES } from "../../biome/forest/discovery-definitions";
 import { useCallback, useEffect } from "preact/hooks";
 
 const ActionsContainer = styled.div`
@@ -21,7 +21,7 @@ const ExplorationActions = () => {
   const { exploration, mutateExploration } = useHandleExploration();
   const { time } = useTime();
   const endExpedition = useEndExpedition();
-  const { knowledge } = useSpecificKnowledge("forest");
+  const { knowledge } = useHandleKnowledge("forest");
   const knowledgeLevel = knowledge.tier * 100 + knowledge.level;
   const discoveries = useDiscoveries();
   const mutateDiscoveries = useMutateDiscoveries();

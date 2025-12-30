@@ -34,7 +34,7 @@ export const getDate = (day: number, short = false): string => {
  */
 export const getBerryIncomeMultiplier = (day: number): number => {
   const season = getSeasonByDay(day);
-  return season.weights.berryIncome;
+  return season.yieldMultiplier.forage!;
 };
 
 /**

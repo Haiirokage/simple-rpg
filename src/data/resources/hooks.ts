@@ -17,6 +17,7 @@ import { FOREST_ACTIONS } from "../../components/actions/definitions";
 import { getStorageCapacity } from "./util";
 import { getEndOfDayEvent } from "../../events/util";
 import { useAddEventLogEntry } from "../eventLog/hooks";
+import { clamp } from "lodash";
 
 /**
  * TODO: Add resource discoverability tracking
@@ -48,7 +49,7 @@ export const useMutateResources = () => {
         .reduce((acc, [key, value]) => {
           return {
             ...acc,
-            [key]: Math.min(value, getStorageCapacity(key, structures)),
+            [key]: clamp(value, getStorageCapacity(key, structures)),
           };
         }, data);
     },
@@ -70,7 +71,22 @@ export const useHandleResources = () => {
   const { resources, data } = useResources();
   const { mutate: mutateResources } = useMutateResources();
 
-  return { resources, data, mutateResources };
+  const addResources = useCallback(
+    (resourceAdditions: Partial<ResourceStore>) => {
+      const newResources = objectEntries(resourceAdditions).reduce((acc, [key, value]) => {
+        const guaranteed = Math.floor(value);
+        const fractional = value % 1;
+        const bonus = Math.random() < fractional ? 1 : 0;
+        return {
+          ...acc,
+          [key]: resources[key] + guaranteed + bonus,
+        };
+      }, {});
+      mutateResources(newResources);
+    },
+    [resources, mutateResources],
+  );
+  return { resources, data, mutateResources, addResources };
 };
 
 /**

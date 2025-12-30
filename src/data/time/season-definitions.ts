@@ -1,9 +1,9 @@
+import type { ActionId } from "../../biome/forest/action-definitions";
+
 /**
  * Seasonal weights/modifiers for all mechanics.
  */
 export type SeasonWeights = {
-  /** Multiplier for berry gathering (0-1) */
-  berryIncome: number;
   /** Cost in wood per day for heating (units) */
   woodCost: number;
   /** Chance of fiber drop when gathering wood (0-1) */
@@ -24,6 +24,8 @@ export type SeasonDefinition = {
   sunset: number;
   /** Grouped seasonal modifiers and mechanics */
   weights: SeasonWeights;
+  /** Action yield multipliers by action ID */
+  yieldMultiplier: Pick<Record<ActionId, number>, "forage" | "gatherWood">;
 };
 
 /**
@@ -37,10 +39,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 8,
     sunset: 17,
     weights: {
-      berryIncome: 0,
       woodCost: 4,
       fiberDrop: 0.01,
       rabbitCatch: 0.25,
+    },
+    yieldMultiplier: {
+      forage: 0,
+      gatherWood: 0.01,
     },
   },
   {
@@ -48,10 +53,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 7,
     sunset: 18,
     weights: {
-      berryIncome: 0,
       woodCost: 3,
       fiberDrop: 0.01,
       rabbitCatch: 0.2,
+    },
+    yieldMultiplier: {
+      forage: 0,
+      gatherWood: 0.01,
     },
   },
   {
@@ -59,10 +67,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 6,
     sunset: 19,
     weights: {
-      berryIncome: 0.2,
       woodCost: 2,
       fiberDrop: 0.02,
       rabbitCatch: 0.25,
+    },
+    yieldMultiplier: {
+      forage: 0.2,
+      gatherWood: 0.02,
     },
   },
   {
@@ -70,10 +81,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 5,
     sunset: 20,
     weights: {
-      berryIncome: 0.5,
       woodCost: 1,
       fiberDrop: 0.04,
       rabbitCatch: 0.2,
+    },
+    yieldMultiplier: {
+      forage: 0.5,
+      gatherWood: 0.04,
     },
   },
   {
@@ -81,10 +95,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 4,
     sunset: 21,
     weights: {
-      berryIncome: 0.75,
       woodCost: 0,
       fiberDrop: 0.05,
       rabbitCatch: 0.1,
+    },
+    yieldMultiplier: {
+      forage: 0.75,
+      gatherWood: 0.05,
     },
   },
   {
@@ -92,10 +109,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 3,
     sunset: 22,
     weights: {
-      berryIncome: 1.0,
       woodCost: 0,
       fiberDrop: 0.05,
       rabbitCatch: 0.08,
+    },
+    yieldMultiplier: {
+      forage: 1.0,
+      gatherWood: 0.05,
     },
   },
   {
@@ -103,10 +123,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 4,
     sunset: 21,
     weights: {
-      berryIncome: 1.0,
       woodCost: 0,
       fiberDrop: 0.05,
       rabbitCatch: 0.05,
+    },
+    yieldMultiplier: {
+      forage: 1.0,
+      gatherWood: 0.05,
     },
   },
   {
@@ -114,10 +137,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 5,
     sunset: 20,
     weights: {
-      berryIncome: 1.0,
       woodCost: 0,
       fiberDrop: 0.04,
       rabbitCatch: 0.08,
+    },
+    yieldMultiplier: {
+      forage: 1.0,
+      gatherWood: 0.04,
     },
   },
   {
@@ -125,10 +151,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 6,
     sunset: 19,
     weights: {
-      berryIncome: 0.85,
       woodCost: 1,
       fiberDrop: 0.02,
       rabbitCatch: 0.15,
+    },
+    yieldMultiplier: {
+      forage: 0.85,
+      gatherWood: 0.02,
     },
   },
   {
@@ -136,10 +165,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 7,
     sunset: 18,
     weights: {
-      berryIncome: 0.4,
       woodCost: 2,
       fiberDrop: 0.02,
       rabbitCatch: 0.2,
+    },
+    yieldMultiplier: {
+      forage: 0.4,
+      gatherWood: 0.02,
     },
   },
   {
@@ -147,10 +179,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 8,
     sunset: 17,
     weights: {
-      berryIncome: 0.2,
       woodCost: 2,
       fiberDrop: 0.01,
       rabbitCatch: 0.22,
+    },
+    yieldMultiplier: {
+      forage: 0.2,
+      gatherWood: 0.01,
     },
   },
   {
@@ -158,10 +193,13 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 8,
     sunset: 16,
     weights: {
-      berryIncome: 0.1,
       woodCost: 5,
       fiberDrop: 0.01,
       rabbitCatch: 0.25,
+    },
+    yieldMultiplier: {
+      forage: 0.1,
+      gatherWood: 0.01,
     },
   },
 ];
