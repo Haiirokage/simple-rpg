@@ -20,7 +20,7 @@ export const useActionMultipliers = () => {
 
   const forage = useCallback(() => {
     const seasonalMultiplier = yieldMultiplier.forage || 1;
-    const discoveryBonus = 1 + discoveries.berry_patch * 0.05;
+    const discoveryBonus = 1 + discoveries.berry_patch * 0.5;
     return { berry: seasonalMultiplier * discoveryBonus * Math.random() };
   }, [yieldMultiplier.forage, discoveries.berry_patch]);
 
@@ -28,8 +28,10 @@ export const useActionMultipliers = () => {
     const hatchetDef = TOOL_DEFINITIONS.find((t) => t.key === "hatchet");
     const tierDef = hatchetDef?.tiers[tools.hatchet.level];
     const woodBonus = tierDef?.bonus.woodGathering ?? 1;
-    return { fiber: yieldMultiplier.gatherWood * woodBonus, wood: woodBonus };
-  }, [yieldMultiplier.gatherWood, tools.hatchet.level]);
+    const fiberBonus = 1 + discoveries.willow_grove * 0.5;
+
+    return { fiber: yieldMultiplier.gatherWood * woodBonus * fiberBonus, wood: woodBonus };
+  }, [yieldMultiplier.gatherWood, tools.hatchet.level, discoveries.willow_grove]);
 
   return {
     forage,

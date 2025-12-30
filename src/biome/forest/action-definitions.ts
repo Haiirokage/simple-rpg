@@ -24,7 +24,7 @@ export const FOREST_ACTIONS: Record<ActionId, ActionDefinition> = {
       time: 3,
       energy: 5,
     },
-    resourceYield: { berry: 20 },
+    resourceYield: { berry: 10 },
     discoveriesRequired: { berry_patch: 1 },
   },
   gatherWood: {

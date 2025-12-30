@@ -3,13 +3,11 @@ import { useEndExpedition, useHandleExploration } from "../../data/exploration/h
 import { useAdvanceTime, useTime } from "../../data/time/hooks";
 import { Paragraph } from "../../style/elements";
 import { useHandleKnowledge } from "../../data/knowledge/hooks";
-import {
-  useDiscoveries,
-  useMutateDiscoveries,
-  calculateDiscoveryChance,
-} from "../../data/discoveries/hooks";
+import { useDiscoveries, useMutateDiscoveries } from "../../data/discoveries/hooks";
+import { pickRandomDiscovery } from "../../data/discoveries/util";
 import { FOREST_DISCOVERIES } from "../../biome/forest/discovery-definitions";
 import { useCallback, useEffect } from "preact/hooks";
+import { objectEntries } from "../../util";
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -36,23 +34,35 @@ const ExplorationActions = () => {
   }, [timeRemaining, exploration.active, endExpedition]);
 
   const lookAround = useCallback(() => {
-    const berryDef = FOREST_DISCOVERIES.berry_patch;
-    const chance = calculateDiscoveryChance(knowledgeLevel, berryDef, discoveries.berry_patch);
+    const foundDiscovery = pickRandomDiscovery(knowledgeLevel, discoveries);
 
-    console.log(chance);
-    if (Math.random() < chance) {
-      mutateDiscoveries({ berry_patch: discoveries.berry_patch + 1 });
-      mutateExploration({
-        inventory: {
-          ...exploration.inventory,
-          berry: (exploration.inventory.berry || 0) + 10,
-        },
-      });
-
-      console.log("found a berry patch!");
+    if (foundDiscovery) {
+      mutateDiscoveries({ [foundDiscovery]: (discoveries[foundDiscovery] || 0) + 1 });
+      const reward = FOREST_DISCOVERIES[foundDiscovery].reward;
+      if (reward) {
+        const newInventory = objectEntries(reward).reduce((acc, [key, value]) => {
+          return {
+            ...acc,
+            [key]: (acc[key] || 0) + value,
+          };
+        }, exploration.inventory);
+        mutateExploration({
+          inventory: newInventory,
+        });
+      }
+      console.log(`found a ${foundDiscovery}!`);
+    } else {
+      console.log("found nothing");
     }
     advanceTime(1);
-  }, [knowledgeLevel, discoveries, mutateDiscoveries, advanceTime, mutateExploration, exploration]);
+  }, [
+    knowledgeLevel,
+    discoveries,
+    mutateDiscoveries,
+    mutateExploration,
+    exploration.inventory,
+    advanceTime,
+  ]);
 
   return (
     <ActionsContainer>
