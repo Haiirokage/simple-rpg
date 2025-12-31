@@ -1,6 +1,7 @@
 import { useDataQuery, useUpdateData } from "../util";
 import type { KnowledgeStore, KnowledgeTier } from "./types";
 import { useCallback } from "preact/hooks";
+import { rollFractional } from "../../util";
 
 const defaultKnowledgeStore: KnowledgeStore = {
   forest: {
@@ -37,7 +38,11 @@ export const useHandleKnowledge = (region: keyof KnowledgeStore) => {
 
   const gainLevels = useCallback(
     (levelGain: number) => {
-      const newLevel = knowledge.level + levelGain;
+      const totalGain = rollFractional(levelGain);
+
+      if (totalGain === 0) return;
+
+      const newLevel = knowledge.level + totalGain;
       const tierGain = Math.floor(newLevel / 100);
       const newTier = Math.min(knowledge.tier + tierGain, 3) as KnowledgeTier;
 

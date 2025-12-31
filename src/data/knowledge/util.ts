@@ -1,3 +1,4 @@
+import { rollFractional } from "../../util";
 import type { Knowledge } from "./types";
 
 /**
@@ -19,7 +20,7 @@ export const calculateLevelGain = (
 
   if (diff > 0) {
     const multiplier = (1 + Math.log10(diff)) / Math.pow(3, playerLevel.tier);
-    return Math.floor(multiplier) + (Math.random() < multiplier % 1 ? 1 : 0);
+    return rollFractional(multiplier);
   }
 
   const likelihood = Math.pow(10, diff / 20) / Math.pow(3, playerLevel.tier);

@@ -26,6 +26,7 @@ const ForestBiome = () => {
   const { consumables } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const { knowledge, gainLevels } = useHandleKnowledge("forest");
+  const expGain = 1 / Math.pow(20, knowledge.tier);
   const energyModifier = knowledge.tier >= 2 ? -1 : 0;
   const multipliers = useActionMultipliers();
   const grantExperience = useGrantExperience();
@@ -87,7 +88,7 @@ const ForestBiome = () => {
               addResources(resourceYieldDiff);
 
               // Small knowledge bonus: 1 level per action
-              gainLevels(1);
+              gainLevels(expGain);
 
               objectEntries(experienceGrant || {}).forEach(([attributeKey, xpGain]) => {
                 if (xpGain > 0) {
@@ -128,7 +129,7 @@ const ForestBiome = () => {
                 active: consumables.trap.active + 1,
               },
             });
-            gainLevels(1);
+            gainLevels(expGain);
             updateTime({ time: time + 1 });
             updatePlayerStatus({
               energy: Math.max(0, playerStatus.energy - (2 + energyModifier)),

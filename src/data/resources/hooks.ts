@@ -4,7 +4,7 @@ import { useTime } from "../time/hooks";
 import { getWoodCostPerDay, getRabbitCatchLikelihood } from "../time/season-util";
 import { FOOD_STORAGE, NUTRITION_TYPES } from "./food-definitions";
 import { defaultResourceStore, type ResourceStore } from "./types";
-import { objectEntries } from "../../util";
+import { objectEntries, rollFractional } from "../../util";
 import { useCallback, useMemo } from "preact/hooks";
 import { useEquipment, useResetTraps } from "../equipment/hooks";
 import { applyResourceDecay } from "./consumption";
@@ -74,12 +74,10 @@ export const useHandleResources = () => {
   const addResources = useCallback(
     (resourceAdditions: Partial<ResourceStore>) => {
       const newResources = objectEntries(resourceAdditions).reduce((acc, [key, value]) => {
-        const guaranteed = Math.floor(value);
-        const fractional = value % 1;
-        const bonus = Math.random() < fractional ? 1 : 0;
+        const addition = rollFractional(value);
         return {
           ...acc,
-          [key]: resources[key] + guaranteed + bonus,
+          [key]: resources[key] + addition,
         };
       }, {});
       mutateResources(newResources);
