@@ -1,8 +1,9 @@
 import { shuffle } from "lodash";
 import { FOREST_DISCOVERIES } from "../../biome/forest/discovery-definitions";
-import { objectKeys } from "../../util";
+import { objectEntries, objectKeys } from "../../util";
 import { calculateDiscoveryChance } from "./hooks";
 import type { DiscoveriesStore } from "./types";
+import { useMemo } from "preact/hooks";
 
 /**
  * TODO: Make biome-agnostic once multiple biomes exist
@@ -26,6 +27,12 @@ export const pickRandomDiscovery = (
   for (const discoveryType of shuffled) {
     const definition = FOREST_DISCOVERIES[discoveryType];
     const discoveredCount = discoveries[discoveryType] || 0;
+
+    // Skip if already at max
+    if (discoveredCount >= definition.maxCount) {
+      continue;
+    }
+
     const chance = calculateDiscoveryChance(knowledgeLevel, definition, discoveredCount);
 
     if (Math.random() < chance) {
@@ -34,4 +41,23 @@ export const pickRandomDiscovery = (
   }
 
   return undefined;
+};
+
+/**
+ * Hook to check if there are any discoveries with at least a minimum chance of being found.
+ * Useful for determining if exploration is worth attempting.
+ */
+export const useHasViableDiscoveries = (
+  knowledgeLevel: number,
+  discoveries: DiscoveriesStore,
+  minChance: number = 0.02,
+): boolean => {
+  return useMemo(() => {
+    return objectEntries(FOREST_DISCOVERIES).some(([discoveryType, discovery]) => {
+      const discoveredCount = discoveries[discoveryType] || 0;
+      const chance = calculateDiscoveryChance(knowledgeLevel, discovery, discoveredCount);
+
+      return chance >= minChance;
+    });
+  }, [knowledgeLevel, discoveries, minChance]);
 };

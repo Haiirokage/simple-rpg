@@ -1,3 +1,5 @@
+import type { DiscoveryType } from "../biome/forest/discovery-definitions";
+
 export type EventCategory = "eod" | "system" | "exploration";
 
 export type BaseEvent = {
@@ -30,6 +32,7 @@ export type EODEvent = BaseEvent & {
 };
 
 export type ExplorationEvent = BaseEvent & {
+  id: DiscoveryType;
   category: "exploration";
 };
 

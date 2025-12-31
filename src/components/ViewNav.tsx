@@ -45,7 +45,11 @@ const ViewNav = ({ currentView, onViewChange }: ViewNavProps) => {
       >
         Home
       </TabButton>
-      <TabButton active={currentView === "exploration"} onClick={() => onViewChange("exploration")}>
+      <TabButton
+        active={currentView === "exploration"}
+        disabled={!exploration.active}
+        onClick={() => onViewChange("exploration")}
+      >
         Exploration
       </TabButton>
       <TabButton active={currentView === "overview"} onClick={() => onViewChange("overview")}>
