@@ -26,7 +26,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   {
     key: "hatchet",
     name: "Hatchet",
-    tiers: [NO_TOOL, { name: "stone", cost: { wood: 5, stone: 8 }, bonus: { woodGathering: 3 } }],
+    tiers: [NO_TOOL, { name: "stone", cost: { wood: 5, stone: 8 }, bonus: { woodGathering: 4 } }],
   },
   {
     key: "bow",

@@ -3,6 +3,7 @@ import { getAffordability, hasDiscoveredResources } from "../../data/resources/u
 import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
 import { useAdvanceTime } from "../../data/time/hooks";
 import { EQUIPMENT_DEFINITIONS } from "../../data/equipment/definitions";
+import { useDiscoveries } from "../../data/discoveries/hooks";
 import type { ResourceStore } from "../../data/resources/types";
 import { objectEntries } from "../../util";
 import type { ConsumableType } from "../../data/equipment/types";
@@ -13,6 +14,7 @@ const ConsumableCrafting = () => {
   const { consumables } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const advanceTime = useAdvanceTime();
+  const discoveries = useDiscoveries();
 
   const craftConsumables = (key: ConsumableType, resourceResult: Partial<ResourceStore>) => {
     const equipmentData = consumables[key];
@@ -36,6 +38,11 @@ const ConsumableCrafting = () => {
         const { canAfford, resourceResult } = getAffordability(definition.cost, resources);
         const canCraft = canAfford && count < definition.maxCount;
         const hasDiscovered = hasDiscoveredResources(definition.cost, data);
+
+        // Trap requires rabbit_trail discovery
+        if (definition.key === "trap" && discoveries.rabbit_trail === 0) {
+          return null;
+        }
 
         // Don't show this crafting option until resources are discovered
         if (!hasDiscovered) {

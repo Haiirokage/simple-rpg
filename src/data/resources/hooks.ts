@@ -2,6 +2,7 @@ import { useDataQuery, useUpdateData } from "../util";
 import { useStructures } from "../structures/hooks";
 import { useTime } from "../time/hooks";
 import { getWoodCostPerDay, getRabbitCatchLikelihood } from "../time/season-util";
+import { useDiscoveries } from "../discoveries/hooks";
 import { FOOD_STORAGE, NUTRITION_TYPES } from "./food-definitions";
 import { defaultResourceStore, type ResourceStore } from "./types";
 import { objectEntries, rollFractional } from "../../util";
@@ -102,6 +103,7 @@ export const useHandleNewDay = () => {
   const updatePlayerStatus = useUpdatePlayerStatus();
   const { structures, getBerryIncome } = useStructures();
   const { knowledge } = useKnowledge();
+  const discoveries = useDiscoveries();
   const addEntry = useAddEventLogEntry();
 
   // Check for end-of-day events (month is 0-indexed from day)
@@ -189,7 +191,9 @@ export const useHandleNewDay = () => {
     const trapAction = FOREST_ACTIONS.find((a) => a.id === "setTrap");
     const yieldMultiplier = calculateYieldMultiplier(trapAction?.complexity, knowledge.forest);
     // Trap checking after decay (so newly caught rabbits don't decay immediately)
-    const rabbitCatchLikelihood = getRabbitCatchLikelihood(day) * yieldMultiplier;
+    // Multiply by discovered trails (each trail adds 50% bonus)
+    const trailBonus = 1 + discoveries.rabbit_trail * 0.5;
+    const rabbitCatchLikelihood = getRabbitCatchLikelihood(day) * yieldMultiplier * trailBonus;
 
     const rabbitMeat = Array.from({
       length: consumables.trap.active,

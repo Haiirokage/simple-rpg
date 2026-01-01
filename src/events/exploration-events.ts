@@ -17,6 +17,11 @@ export const EXPLORATION_EVENTS: Record<DiscoveryType, ExplorationEvent> = {
     name: "Found Willow Grove",
     category: "exploration",
   },
+  rabbit_trail: {
+    id: "rabbit_trail",
+    name: "Discovered Rabbit Trail",
+    category: "exploration",
+  },
 };
 
 export const buildExplorationEventLog = (

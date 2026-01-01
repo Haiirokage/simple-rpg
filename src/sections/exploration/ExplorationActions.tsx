@@ -30,7 +30,7 @@ const ExplorationActions = () => {
   const { exploration, mutateExploration } = useHandleExploration();
   const { time, day, year } = useTime();
   const endExpedition = useEndExpedition();
-  const { knowledge } = useHandleKnowledge("forest");
+  const { knowledge, gainLevels } = useHandleKnowledge("forest");
   const knowledgeLevel = knowledge.tier * 100 + knowledge.level;
   const discoveries = useDiscoveries();
   const mutateDiscoveries = useMutateDiscoveries();
@@ -62,6 +62,7 @@ const ExplorationActions = () => {
 
         mutateExploration({ inventory: newInventory });
       }
+      gainLevels(1);
       addEventLogEntry(buildExplorationEventLog(foundDiscovery, year, day));
     } else {
       console.log("found nothing");
@@ -77,6 +78,7 @@ const ExplorationActions = () => {
     year,
     day,
     addEventLogEntry,
+    gainLevels,
   ]);
 
   return (

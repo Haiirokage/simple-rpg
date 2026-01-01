@@ -7,4 +7,5 @@ export type DiscoveriesStore = {
 export const defaultDiscoveriesStore: DiscoveriesStore = {
   berry_patch: 0,
   willow_grove: 0,
+  rabbit_trail: 0,
 };
