@@ -21,8 +21,9 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
   const { attributes } = useAttributes();
 
   const forage = useCallback(() => {
-    const seasonalMultiplier = yieldMultiplier.forage || 1;
+    const seasonalMultiplier = yieldMultiplier.forage;
     const discoveryBonus = 1 + discoveries.berry_patch * 0.5;
+    console.log(seasonalMultiplier, discoveryBonus);
     return { berry: seasonalMultiplier * discoveryBonus * Math.random() };
   }, [yieldMultiplier.forage, discoveries.berry_patch]);
 

@@ -1,5 +1,10 @@
 import { shuffle } from "lodash";
-import { FOREST_DISCOVERIES } from "../../biome/forest/discovery-definitions";
+import {
+  FOREST_DISCOVERIES,
+  REPEATABLE_DISCOVERIES,
+  type DiscoveryType,
+  type RepeatableDiscoveryType,
+} from "../../biome/forest/discovery-definitions";
 import { objectEntries, objectKeys } from "../../util";
 import { calculateDiscoveryChance } from "./hooks";
 import type { DiscoveriesStore } from "./types";
@@ -12,13 +17,13 @@ import { useMemo } from "preact/hooks";
 
 /**
  * Pick a random discovery to attempt finding.
- * Shuffles the list and checks each discovery in order.
+ * First tries unlockable discoveries, then falls back to repeatable discoveries if none found.
  * Returns the first discovery found, or null if none found.
  */
 export const pickRandomDiscovery = (
   knowledgeLevel: number,
   discoveries: DiscoveriesStore,
-): keyof typeof FOREST_DISCOVERIES | undefined => {
+): { discovery?: DiscoveryType; repeatable?: RepeatableDiscoveryType } => {
   // Get all discovery types and shuffle
   const discoveryTypes = objectKeys(FOREST_DISCOVERIES);
   const shuffled = shuffle(discoveryTypes);
@@ -36,11 +41,29 @@ export const pickRandomDiscovery = (
     const chance = calculateDiscoveryChance(knowledgeLevel, definition, discoveredCount);
 
     if (Math.random() < chance) {
-      return discoveryType;
+      return { discovery: discoveryType };
     }
   }
 
-  return undefined;
+  // Fall back to repeatable discoveries
+  const repeatableTypes = objectKeys(REPEATABLE_DISCOVERIES);
+  const shuffledRepeatable = shuffle(repeatableTypes);
+
+  for (const discoveryType of shuffledRepeatable) {
+    const definition = REPEATABLE_DISCOVERIES[discoveryType];
+
+    // Check if player meets knowledge requirement
+    if (knowledgeLevel < definition.knowledgeRequirement) {
+      continue;
+    }
+
+    // Simple chance check for repeatable discoveries
+    if (Math.random() < definition.rarity) {
+      return { repeatable: discoveryType };
+    }
+  }
+
+  return {};
 };
 
 /**

@@ -8,6 +8,7 @@ import EventLog from "./EventLog";
 import ForestBiome from "../components/actions/ForestBiome";
 import ExploreButton from "../components/ExploreButton";
 import HomeUpgrades from "../components/actions/HomeUpgrades";
+import HomeActions from "../components/actions/HomeActions";
 import HomeConstruction from "../components/actions/HomeConstruction";
 import PlayerActions from "./home/PlayerActions";
 
@@ -57,6 +58,7 @@ const HomeLayout = () => {
       <HomeSection area="home">
         <h2>Home</h2>
         <HomeUpgrades />
+        <HomeActions />
       </HomeSection>
       <GameSection area="construction">
         <h2>Construction</h2>

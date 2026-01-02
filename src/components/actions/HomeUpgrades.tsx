@@ -1,12 +1,19 @@
 import { useMutateResources, useResources } from "../../data/resources/hooks";
-import { getAffordability, formatResourceCost } from "../../data/resources/util";
+import {
+  getAffordability,
+  formatResourceCost,
+  hasDiscoveredResources,
+} from "../../data/resources/util";
 import { useTime, useUpdateTime } from "../../data/time/hooks";
 import { useHomeUpgrades, useUpdateHomeUpgrades } from "../../data/homeUpgrades/hooks";
 import { HOME_UPGRADES, type HomeUpgradeDefinition } from "../../data/homeUpgrades/definitions";
 import type { ResourceStore } from "../../data/resources/types";
 import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
 import { getSeasonByDay } from "../../data/time/season-util";
+import { useDiscoveries } from "../../data/discoveries/hooks";
+import { useMemo } from "preact/hooks";
 import { Button } from "../../style/elements";
+import { objectEntries } from "../../util";
 
 const HomeUpgrades = () => {
   const { resources } = useResources();
@@ -17,6 +24,19 @@ const HomeUpgrades = () => {
   const updateHomeUpgrades = useUpdateHomeUpgrades();
   const { data: playerStatus } = usePlayerStatus();
   const updatePlayerStatus = useUpdatePlayerStatus();
+  const discoveries = useDiscoveries();
+
+  const discoveredUpgrades = useMemo(() => {
+    return HOME_UPGRADES.filter((upgrade) => {
+      // Show upgrade if no discoveries required, or if all required discoveries are met
+      if (!upgrade.discoveriesRequired) return true;
+      const hasDiscovered = hasDiscoveredResources(upgrade.resourceCost, resources);
+      if (!hasDiscovered) return false;
+      return objectEntries(upgrade.discoveriesRequired).every(
+        ([discoveryType, required]) => discoveries[discoveryType] >= required,
+      );
+    });
+  }, [discoveries, resources]);
 
   const buildUpgrade = (upgrade: HomeUpgradeDefinition, resourceResult: Partial<ResourceStore>) => {
     if (homeUpgrades[upgrade.key]) return; // Already built
@@ -43,7 +63,7 @@ const HomeUpgrades = () => {
       >
         Rest
       </Button>
-      {HOME_UPGRADES.map((upgrade) => {
+      {discoveredUpgrades.map((upgrade) => {
         const isBuilt = homeUpgrades[upgrade.key];
         const { canAfford, resourceResult } = getAffordability(upgrade.resourceCost, resources);
         const isDisabled = isBuilt || !canAfford;

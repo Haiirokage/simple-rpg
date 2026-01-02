@@ -49,6 +49,15 @@ export const EXPLORATION_EVENTS: Record<AllDiscoveryType, ExplorationEvent> = {
       "Fresh hoof prints press into the soft earth of a forest path, their size and depth suggesting a mature deer passed through here recently. You follow the trail of broken twigs and disturbed moss, wondering where these graceful creatures make their home.",
     ],
   },
+  strong_inspiration: {
+    id: "strong_inspiration",
+    name: "Discovered Strength Conditioning",
+    category: "exploration",
+    descriptions: [
+      "While gathering stones, you spot several perfectly-weighted rocks—smooth, heavy, and balanced. As you load them into your pack, your muscles ache with a pleasant burn. It strikes you that carrying these stones around is actually strengthening your body. Perhaps there's a way to harness this feeling, to deliberately train with weights and build real strength for the challenges ahead.",
+      "You find a cache of excellently-formed stones nestled in a rocky outcrop. Their substantial weight makes your arms and shoulders work as you collect them. The good ache that follows stays with you for hours, a satisfying reminder of effort turned to strength. You wonder if you could recreate that feeling intentionally, building yourself stronger for the winter ahead.",
+    ],
+  },
 };
 
 export const buildExplorationEventLog = (

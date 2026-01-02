@@ -24,7 +24,10 @@ export const getMonthName = (day: number): string => {
  */
 export const getDate = (day: number, short = false): string => {
   const dayInMonth = (day % 30) + 1;
-  return `${short ? Math.floor(day / 30) + 1 : getMonthName(day)} ${dayInMonth}.`;
+  const month = Math.floor(day / 30) + 1;
+  const monthStr = short ? String(month).padStart(2, "0") : getMonthName(day);
+  const dayStr = String(dayInMonth).padStart(2, "0");
+  return `${monthStr}.${dayStr}.`;
 };
 
 /**

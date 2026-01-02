@@ -3,7 +3,7 @@ import { formatResourceCost } from "../data/resources/util";
 import styled from "styled-components";
 
 interface ActionButtonProps {
-  action: ActionDefinition;
+  action: Omit<ActionDefinition, "id">;
   energyModifier?: number;
   disabled?: boolean;
   onClick: () => void;

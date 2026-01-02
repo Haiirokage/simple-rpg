@@ -1,6 +1,6 @@
 import type { ResourceStore } from "../../data/resources/types";
 
-export type DiscoveryType = "berry_patch" | "willow_grove" | "rabbit_trail";
+export type DiscoveryType = "berry_patch" | "willow_grove" | "rabbit_trail" | "strong_inspiration";
 export type RepeatableDiscoveryType = "deer_tracks";
 export type AllDiscoveryType = DiscoveryType | RepeatableDiscoveryType;
 
@@ -39,6 +39,13 @@ export const FOREST_DISCOVERIES: Record<DiscoveryType, UnlockableDiscoveryDefini
     maxCount: 4,
     discoveryRange: { min: 140, max: 300 },
     rarity: 0.1,
+  },
+  strong_inspiration: {
+    type: "strong_inspiration",
+    maxCount: 2,
+    discoveryRange: { min: 100, max: 200 },
+    rarity: 0.05,
+    reward: { stone: 5 },
   },
 };
 

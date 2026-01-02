@@ -5,7 +5,7 @@ import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
 import { useHandleKnowledge } from "../../data/knowledge/hooks";
 
 import { useMemo } from "preact/hooks";
-import { FOREST_ACTIONS as NEW_FOREST_ACTIONS } from "../../biome/forest/action-definitions";
+import { FOREST_ACTIONS } from "../../biome/forest/action-definitions";
 import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
 import { useDiscoveries } from "../../data/discoveries/hooks";
 import ActionButton from "../ActionButton";
@@ -37,7 +37,7 @@ const ForestBiome = () => {
 
   const discoveredActions = useMemo(
     () =>
-      Object.values(NEW_FOREST_ACTIONS).filter(
+      Object.values(FOREST_ACTIONS).filter(
         (action) =>
           !action.discoveriesRequired ||
           Object.entries(action.discoveriesRequired).every(
@@ -64,7 +64,7 @@ const ForestBiome = () => {
 
         const resourceYieldDiff = resourceYield
           ? objectEntries(resourceYield).reduce((acc, [key, yieldDef]) => {
-              const adjustedYield = yieldDef * (multiplier[key] || 1);
+              const adjustedYield = yieldDef * (multiplier[key] ?? 1);
               return {
                 ...acc,
                 [key]: adjustedYield,
@@ -77,7 +77,6 @@ const ForestBiome = () => {
           <ActionButton
             key={id}
             action={{
-              id,
               name,
               timeCost: cost.time,
               energyCost,
@@ -109,7 +108,6 @@ const ForestBiome = () => {
       {consumables.trap.count > 0 && (
         <ActionButton
           action={{
-            id: "setTrap",
             name: "Set trap",
             timeCost: 1,
             energyCost: 2 + energyModifier,
