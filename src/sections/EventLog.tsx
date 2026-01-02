@@ -47,9 +47,10 @@ const EventLog = () => {
   const mappedEvents = useMemo(() => {
     return eventLog.eventLog.map((entry) => {
       const event = getEventById(entry.eventId);
-      const description = entry.descriptionIndex
-        ? event!.descriptions[entry.descriptionIndex] //TODO
-        : undefined;
+      const description =
+        entry.descriptionIndex !== undefined
+          ? event!.descriptions[entry.descriptionIndex] //TODO
+          : undefined;
 
       return {
         timestamp: `Y${entry.year} ${getDate(entry.day, true)}`,

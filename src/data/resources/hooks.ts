@@ -120,7 +120,13 @@ export const useHandleNewDay = () => {
     const woodMultiplier = event?.effects.woodConsumption ?? 1;
 
     if (event) {
-      addEntry({ year, day, eventId: event.id, category: "eod" });
+      addEntry({
+        year,
+        day,
+        eventId: event.id,
+        category: "eod",
+        descriptionIndex: Math.floor(Math.random() * event.descriptions.length),
+      });
     }
     const woodConsumption = getWoodCostPerDay(day) * woodMultiplier;
 

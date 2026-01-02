@@ -9,6 +9,11 @@ export const POSITIVE_EVENTS: EODEvent[] = [
     effects: {
       berryMultiplier: 1.5,
     },
+    descriptions: [
+      "This season brought an abundance of berries, boosting your foraging yields.",
+      "You found an unusually high number of berries this season, enhancing your harvests.",
+      "The berry bushes were particularly fruitful this season, increasing your gathering success.",
+    ],
   },
 ];
 
@@ -21,6 +26,11 @@ export const NEGATIVE_EVENTS: EODEvent[] = [
     effects: {
       woodConsumption: 2,
     },
+    descriptions: [
+      "A sudden cold snap increased your wood consumption for warmth.",
+      "You faced an unexpected chill, leading to higher wood usage to stay warm.",
+      "The drop in temperature forced you to use more wood to keep the cold at bay.",
+    ],
   },
   {
     id: "birdRaid",
@@ -30,6 +40,11 @@ export const NEGATIVE_EVENTS: EODEvent[] = [
     effects: {
       berryMultiplier: 0,
     },
+    descriptions: [
+      "A flock of birds raided your berry supplies, leaving you with none.",
+      "You returned to find that birds had eaten all your gathered berries.",
+      "Your hard-earned berries were taken by a sudden bird raid.",
+    ],
   },
 ];
 

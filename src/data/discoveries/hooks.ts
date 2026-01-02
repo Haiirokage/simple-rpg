@@ -1,7 +1,7 @@
 import { useDataQuery, useUpdateData } from "../util";
 import type { DiscoveriesStore } from "./types";
 import { defaultDiscoveriesStore } from "./types";
-import type { DiscoveryDefinition } from "../../biome/forest/discovery-definitions";
+import type { UnlockableDiscoveryDefinition } from "../../biome/forest/discovery-definitions";
 
 export const useDiscoveries = () => {
   const { data } = useDataQuery<DiscoveriesStore>("DISCOVERIES", defaultDiscoveriesStore);
@@ -15,7 +15,7 @@ export const useMutateDiscoveries = () => {
 
 export const calculateDiscoveryChance = (
   currentKnowledge: number,
-  definition: DiscoveryDefinition,
+  definition: UnlockableDiscoveryDefinition,
   discovered: number,
   steepness: number = 0.16,
 ): number => {
