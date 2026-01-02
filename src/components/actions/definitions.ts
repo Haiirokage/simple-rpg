@@ -13,20 +13,6 @@ export type ActionDefinition = {
   complexity?: number;
 };
 
-/**
- * Forest/outdoor action definitions.
- */
-export const FOREST_ACTIONS: ActionDefinition[] = [
-  {
-    id: "setTrap",
-    name: "Set trap",
-    timeCost: 1,
-    energyCost: 2,
-    resourceCost: { berry: 4 },
-    complexity: 200,
-  },
-];
-
 export const CLEAR_GROUND_ACTION: ActionDefinition = {
   id: "clearGround",
   name: "Clear ground",

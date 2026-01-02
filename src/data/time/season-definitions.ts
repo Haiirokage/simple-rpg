@@ -39,9 +39,9 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 8,
     sunset: 17,
     weights: {
-      woodCost: 4,
+      woodCost: 5,
       fiberDrop: 0.01,
-      rabbitCatch: 0.25,
+      rabbitCatch: 0.2,
     },
     yieldMultiplier: {
       forage: 0,
@@ -55,7 +55,7 @@ export const MONTHS: SeasonDefinition[] = [
     weights: {
       woodCost: 3,
       fiberDrop: 0.01,
-      rabbitCatch: 0.2,
+      rabbitCatch: 0.16,
     },
     yieldMultiplier: {
       forage: 0,
@@ -69,7 +69,7 @@ export const MONTHS: SeasonDefinition[] = [
     weights: {
       woodCost: 2,
       fiberDrop: 0.02,
-      rabbitCatch: 0.25,
+      rabbitCatch: 0.2,
     },
     yieldMultiplier: {
       forage: 0.2,
@@ -83,7 +83,7 @@ export const MONTHS: SeasonDefinition[] = [
     weights: {
       woodCost: 1,
       fiberDrop: 0.04,
-      rabbitCatch: 0.2,
+      rabbitCatch: 0.16,
     },
     yieldMultiplier: {
       forage: 0.5,
@@ -97,7 +97,7 @@ export const MONTHS: SeasonDefinition[] = [
     weights: {
       woodCost: 0,
       fiberDrop: 0.05,
-      rabbitCatch: 0.1,
+      rabbitCatch: 0.08,
     },
     yieldMultiplier: {
       forage: 0.75,
@@ -111,7 +111,7 @@ export const MONTHS: SeasonDefinition[] = [
     weights: {
       woodCost: 0,
       fiberDrop: 0.05,
-      rabbitCatch: 0.08,
+      rabbitCatch: 0.06,
     },
     yieldMultiplier: {
       forage: 1.0,
@@ -125,7 +125,7 @@ export const MONTHS: SeasonDefinition[] = [
     weights: {
       woodCost: 0,
       fiberDrop: 0.05,
-      rabbitCatch: 0.05,
+      rabbitCatch: 0.04,
     },
     yieldMultiplier: {
       forage: 1.0,
@@ -139,7 +139,7 @@ export const MONTHS: SeasonDefinition[] = [
     weights: {
       woodCost: 0,
       fiberDrop: 0.04,
-      rabbitCatch: 0.08,
+      rabbitCatch: 0.06,
     },
     yieldMultiplier: {
       forage: 1.0,
@@ -153,7 +153,7 @@ export const MONTHS: SeasonDefinition[] = [
     weights: {
       woodCost: 1,
       fiberDrop: 0.02,
-      rabbitCatch: 0.15,
+      rabbitCatch: 0.12,
     },
     yieldMultiplier: {
       forage: 0.85,
@@ -167,7 +167,7 @@ export const MONTHS: SeasonDefinition[] = [
     weights: {
       woodCost: 2,
       fiberDrop: 0.02,
-      rabbitCatch: 0.2,
+      rabbitCatch: 0.16,
     },
     yieldMultiplier: {
       forage: 0.4,
@@ -181,7 +181,7 @@ export const MONTHS: SeasonDefinition[] = [
     weights: {
       woodCost: 2,
       fiberDrop: 0.01,
-      rabbitCatch: 0.22,
+      rabbitCatch: 0.18,
     },
     yieldMultiplier: {
       forage: 0.2,
@@ -193,9 +193,9 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 8,
     sunset: 16,
     weights: {
-      woodCost: 5,
+      woodCost: 4,
       fiberDrop: 0.01,
-      rabbitCatch: 0.25,
+      rabbitCatch: 0.2,
     },
     yieldMultiplier: {
       forage: 0.1,

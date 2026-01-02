@@ -12,9 +12,6 @@ import { applyResourceDecay } from "./consumption";
 import { usePlayerStatus, useUpdatePlayerStatus } from "../playerStatus/hooks";
 import { updateSatiationFromFood } from "../playerStatus/util";
 import pickBy from "lodash/pickBy";
-import { calculateYieldMultiplier } from "../knowledge/util";
-import { useKnowledge } from "../knowledge/hooks";
-import { FOREST_ACTIONS } from "../../components/actions/definitions";
 import { getStorageCapacity } from "./util";
 import { getEndOfDayEvent } from "../../events/util";
 import { useAddEventLogEntry } from "../eventLog/hooks";
@@ -102,7 +99,6 @@ export const useHandleNewDay = () => {
   const { data: playerStatus } = usePlayerStatus();
   const updatePlayerStatus = useUpdatePlayerStatus();
   const { structures, getBerryIncome } = useStructures();
-  const { knowledge } = useKnowledge();
   const discoveries = useDiscoveries();
   const addEntry = useAddEventLogEntry();
 
@@ -194,12 +190,10 @@ export const useHandleNewDay = () => {
       wood: applyResourceDecay("wood", decayedFood.wood, structures.woodShed > 0 ? 0.02 : 0),
     };
 
-    const trapAction = FOREST_ACTIONS.find((a) => a.id === "setTrap");
-    const yieldMultiplier = calculateYieldMultiplier(trapAction?.complexity, knowledge.forest);
     // Trap checking after decay (so newly caught rabbits don't decay immediately)
-    // Multiply by discovered trails (each trail adds 50% bonus)
-    const trailBonus = 1 + discoveries.rabbit_trail * 0.5;
-    const rabbitCatchLikelihood = getRabbitCatchLikelihood(day) * yieldMultiplier * trailBonus;
+    // Multiply by discovered trails (each trail adds 75% bonus)
+    const trailBonus = 1 + discoveries.rabbit_trail * 0.75;
+    const rabbitCatchLikelihood = getRabbitCatchLikelihood(day) * trailBonus;
 
     const rabbitMeat = Array.from({
       length: consumables.trap.active,

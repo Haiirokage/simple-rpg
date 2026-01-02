@@ -48,18 +48,3 @@ export const calculateEnergyModifier = (
 
   return levelModifier + tierModifier;
 };
-
-/**
- * Calculate yield multiplier based on player knowledge vs action complexity.
- *
- * Uses tanh curve: multiplier = 1 + 0.9 * tanh(diff / 17)
- * - Approaches 0.1 as diff → -∞
- * - Equals 1.0 at diff = 0 (target complexity)
- * - Approaches 1.9 as diff → +∞
- */
-export const calculateYieldMultiplier = (actionComplexity = 0, playerLevel: Knowledge): number => {
-  const playerKnowledge = playerLevel.tier * 100 + playerLevel.level;
-  const diff = playerKnowledge - actionComplexity;
-
-  return 1 + 0.9 * Math.tanh(diff / 17);
-};

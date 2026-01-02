@@ -1,19 +1,18 @@
-import { useMemo } from "preact/hooks";
+import { useMemo, useRef, useEffect } from "preact/hooks";
 import styled from "styled-components";
 import { useEventLog } from "../data/eventLog/hooks";
 import { getEventById } from "../events/util";
 import { getDate } from "../data/time/season-util";
-import { SpanWithTooltip } from "../style/span-with-tooltip";
+import TooltipWrapper from "../style/TooltipWrapper";
 
 const EventLogContainer = styled.div`
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #fdfdfd;
-  padding: 12px;
+  padding: 0 12px;
   width: 200px;
   height: 600px;
-  display: flex;
-  flex-direction: column;
+  overflow-y: scroll;
 
   h2 {
     margin: 0 0 8px;
@@ -26,23 +25,17 @@ const EventItem = styled.div`
   padding: 4px 0;
   border-bottom: 1px solid #eee;
   line-height: 1.4;
+  position: relative;
+  cursor: help;
 
-  &:last-child {
-    border-bottom: none;
-  }
-
-  span.timestamp {
+  span {
     font-weight: bold;
-    color: #666;
-  }
-
-  span.eventName {
-    color: #333;
   }
 `;
 
 const EventLog = () => {
   const { eventLog } = useEventLog();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const mappedEvents = useMemo(() => {
     return eventLog.eventLog.map((entry) => {
@@ -60,18 +53,26 @@ const EventLog = () => {
     });
   }, [eventLog.eventLog]);
 
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [mappedEvents]);
+
   return (
-    <EventLogContainer>
+    <>
       <h2>Event Log</h2>
-      {mappedEvents.map((item, index) => (
-        <EventItem key={index}>
-          <span className="timestamp">{item.timestamp}</span> -{" "}
-          <SpanWithTooltip $tooltip={item.description}>
-            <span className="eventName">{item.eventName}</span>
-          </SpanWithTooltip>
-        </EventItem>
-      ))}
-    </EventLogContainer>
+      <EventLogContainer ref={containerRef}>
+        {mappedEvents.map((item, index) => (
+          <TooltipWrapper description={item.description}>
+            <EventItem key={index}>
+              <span>{item.timestamp}</span>
+              {` - ${item.eventName}`}
+            </EventItem>
+          </TooltipWrapper>
+        ))}
+      </EventLogContainer>
+    </>
   );
 };
 

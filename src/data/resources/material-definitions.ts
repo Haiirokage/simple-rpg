@@ -12,7 +12,7 @@ export const MATERIAL_STORAGE: MaterialResourceDefinition[] = [
   {
     key: "wood",
     baseCapacity: 20,
-    capacityPerShed: 80, // wood shed adds 80
+    capacityPerShed: 180, // wood shed adds 80
     decayRate: 0.02, // 1% decay per day
   },
   {

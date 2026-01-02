@@ -15,8 +15,8 @@ export type ResourceDefinition = {
 export const FOOD_STORAGE: ResourceDefinition[] = [
   {
     key: "berry",
-    baseCapacity: 30,
-    capacityPerPantry: 300,
+    baseCapacity: 40,
+    capacityPerPantry: 400,
     decayRate: 0.05, // 5% decay per day
     nutritionType: "fruit",
     mealSize: 10,
