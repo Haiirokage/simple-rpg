@@ -11,6 +11,7 @@ export type EventLogEntry = {
   day: number;
   eventId: EventId;
   category: EventCategory;
+  descriptionIndex?: number; // Index into the event's description array for hover tooltip
 };
 
 export type EventLogStore = {

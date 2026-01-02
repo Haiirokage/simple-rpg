@@ -1,4 +1,4 @@
-import type { DiscoveryType } from "../biome/forest/discovery-definitions";
+import type { AllDiscoveryType } from "../biome/forest/discovery-definitions";
 
 export type EventCategory = "eod" | "system" | "exploration";
 
@@ -6,6 +6,7 @@ export type BaseEvent = {
   id: string;
   name: string;
   category: EventCategory;
+  descriptions: string[]; // Optional flavor text
 };
 
 type EventEffect = "berryMultiplier" | "woodConsumption";
@@ -32,7 +33,7 @@ export type EODEvent = BaseEvent & {
 };
 
 export type ExplorationEvent = BaseEvent & {
-  id: DiscoveryType;
+  id: AllDiscoveryType;
   category: "exploration";
 };
 

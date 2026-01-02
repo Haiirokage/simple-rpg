@@ -48,9 +48,10 @@ const ExplorationActions = () => {
 
   const lookAround = useCallback(() => {
     const foundDiscovery = pickRandomDiscovery(knowledgeLevel, discoveries);
+    const foundDiscoveryCount = foundDiscovery ? discoveries[foundDiscovery] || 0 : 0;
 
     if (foundDiscovery) {
-      mutateDiscoveries({ [foundDiscovery]: (discoveries[foundDiscovery] || 0) + 1 });
+      mutateDiscoveries({ [foundDiscovery]: foundDiscoveryCount + 1 });
       const { reward } = FOREST_DISCOVERIES[foundDiscovery];
       if (reward) {
         const newInventory = objectEntries(reward).reduce((acc, [key, value]) => {
@@ -63,7 +64,7 @@ const ExplorationActions = () => {
         mutateExploration({ inventory: newInventory });
       }
       gainLevels(1);
-      addEventLogEntry(buildExplorationEventLog(foundDiscovery, year, day));
+      addEventLogEntry(buildExplorationEventLog(foundDiscovery, year, day, foundDiscoveryCount));
     } else {
       console.log("found nothing");
     }

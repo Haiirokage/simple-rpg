@@ -30,7 +30,8 @@ const HomeUpgrades = () => {
     <div>
       <Button
         onClick={() => {
-          const month = getSeasonByDay(day);
+          const nextDay = day + 1;
+          const month = getSeasonByDay(nextDay);
           const wakeupTime = 24 + month.sunrise;
           updatePlayerStatus({
             energy: Math.floor(

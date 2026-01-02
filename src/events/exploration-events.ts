@@ -1,4 +1,4 @@
-import type { DiscoveryType } from "../biome/forest/discovery-definitions";
+import type { AllDiscoveryType } from "../biome/forest/discovery-definitions";
 import type { EventLogEntry } from "../data/eventLog/types";
 import type { ExplorationEvent } from "./types";
 
@@ -6,29 +6,66 @@ import type { ExplorationEvent } from "./types";
  * Exploration events are logged during exploration activities.
  * These record discoveries, findings, and exploration outcomes.
  */
-export const EXPLORATION_EVENTS: Record<DiscoveryType, ExplorationEvent> = {
+export const EXPLORATION_EVENTS: Record<AllDiscoveryType, ExplorationEvent> = {
   berry_patch: {
     id: "berry_patch",
     name: "Found Berry Patch",
     category: "exploration",
+    descriptions: [
+      "You stumble upon a dense thicket laden with ripe berries. The sweet scent fills the air as you carefully pluck the clusters from thorny branches. These berries will be vital to your survival—a reliable source of food to forage throughout the seasons.",
+      "A sun-dappled clearing opens before you, its edges lined with berry bushes heavy with fruit. The clearing seems to be a crossroads of animal trails, suggesting this is a well-known feeding ground for the forest's inhabitants. You fill your pockets before moving on.",
+      "Behind a curtain of hanging vines, you discover bushes laden with plump berries in various stages of ripeness. You could pick them now or return when they're perfectly ripe. Either way, this find is a stroke of luck.",
+      "The forest opens into a small depression where berry bushes dominate the understory. The abundance suggests ideal growing conditions—the soil here must be particularly rich. You mark this location mentally for future visits.",
+      "Pushing through dense underbrush, you emerge into a hidden glade bursting with berry bushes. The sight takes your breath away—more berries than you've ever seen in one place. You could gather here for weeks without depleting the supply.",
+    ],
   },
   willow_grove: {
     id: "willow_grove",
     name: "Found Willow Grove",
     category: "exploration",
+    descriptions: [
+      "Your boots squelch as you approach a boggy depression where several willow trees have taken root near a slow-moving stream. The bark is remarkably supple—perfect for crafting fiber. You realize you've found a valuable material source that could provide numerous crafting materials.",
+      "A cluster of graceful willow trees emerges from the forest, their long drooping branches creating a natural shelter. The bark beneath your fingers feels strong yet flexible. You make a mental note of this hidden grove for future visits.",
+      "Near a small pond, willow trees lean over the water as if admiring their reflection. The abundance of branches suggests you could harvest from here without harming the grove. A serene place, and a practical one too.",
+    ],
   },
   rabbit_trail: {
     id: "rabbit_trail",
     name: "Discovered Rabbit Trail",
     category: "exploration",
+    descriptions: [
+      "Parting a curtain of brambles, you find yourself at the entrance to a sprawling rabbit warren. Countless burrow entrances honeycomb the bank, and the air carries the distinct musky scent of rabbits. A realization strikes you—with materials and effort, you could fashion traps to catch these creatures. This discovery opens new possibilities for sustenance.",
+      "You discover a worn trail through the undergrowth, marked by fresh droppings and nibbled vegetation. The beaten path suggests a well-established rabbit warren nearby. You could potentially use this knowledge to your advantage.",
+      "Beneath an overhanging root system, you find a network of rabbit tunnels. The paths are clearly well-traveled, suggesting a healthy population living nearby. You could set snares here when you're ready.",
+      "A sudden movement in the grass catches your eye—rabbits! They bolt toward a cluster of burrows, leaving clear trails in their wake. You study the warren carefully, noting its location and size.",
+    ],
+  },
+  deer_tracks: {
+    id: "deer_tracks",
+    name: "Found Deer Tracks",
+    category: "exploration",
+    descriptions: [
+      "Near a shallow creek, you discover a perfect impression of a deer's bed pressed into the tall grass—still warm to the touch. Nearby, a few strands of reddish-brown fur cling to low branches. The deer couldn't have left more than an hour ago, and you feel a thrill at how close you've come to witnessing the forest's larger inhabitants.",
+      "Fresh hoof prints press into the soft earth of a forest path, their size and depth suggesting a mature deer passed through here recently. You follow the trail of broken twigs and disturbed moss, wondering where these graceful creatures make their home.",
+    ],
   },
 };
 
 export const buildExplorationEventLog = (
-  discoveryType: DiscoveryType,
+  discoveryType: AllDiscoveryType,
   year: number,
   day: number,
+  descriptionIndex?: number,
 ): EventLogEntry => {
-  const event = EXPLORATION_EVENTS[discoveryType];
-  return { eventId: event.id, category: "exploration", year, day };
+  const { id, descriptions } = EXPLORATION_EVENTS[discoveryType];
+  const randomIndex =
+    descriptions.length > 0 ? Math.floor(Math.random() * descriptions.length) : undefined;
+
+  return {
+    eventId: id,
+    category: "exploration",
+    year,
+    day,
+    descriptionIndex: descriptionIndex || randomIndex,
+  };
 };
