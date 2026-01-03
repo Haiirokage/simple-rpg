@@ -85,15 +85,21 @@ const ForestBiome = () => {
             disabled={playerStatus.energy < energyCost || !canAfford || disabled}
             onClick={() => {
               addResources(resourceYieldDiff);
-
               // Small knowledge bonus: 1 level per action
               gainLevels(expGain);
 
-              objectEntries(experienceGrant || {}).forEach(([attributeKey, xpGain]) => {
-                if (xpGain > 0) {
-                  grantExperience(attributeKey, Math.floor(xpGain * resourceAmount));
-                }
-              });
+              if (experienceGrant && resourceAmount > 0) {
+                const scaledExperienceGrant = objectEntries(experienceGrant).reduce(
+                  (acc, [key, value]) => {
+                    return {
+                      ...acc,
+                      [key]: value * resourceAmount,
+                    };
+                  },
+                  {},
+                );
+                grantExperience(scaledExperienceGrant);
+              }
 
               updateTime({ time: time + action.cost.time });
               updatePlayerStatus({
