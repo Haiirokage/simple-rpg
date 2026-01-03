@@ -1,3 +1,5 @@
+export type Attributes = "strength" | "constitution";
+
 export type Attribute = {
   level: number;
   exp: number;
@@ -26,12 +28,6 @@ export type Attribute = {
  * - Male str 100: (20 + 100) * 2 + 50 = 290 lbs
  * - Female str 40: (20 + 40) * 1 + 8 = 68 lbs
  * - Female str 100: (20 + 100) * 1 + 50 = 170 lbs
- *
- * Examples (single-arm, for bows):
- * - Male str 20: 41 lbs (can barely use 40 lb bow)
- * - Male str 60: 89 lbs
- * - Male str 100: 145 lbs
  */
-export type AttributeStore = {
-  strength: Attribute;
-};
+
+export type AttributeStore = Record<Attributes, Attribute>;

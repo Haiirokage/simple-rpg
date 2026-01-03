@@ -1,15 +1,49 @@
-import { useEffect } from "preact/hooks";
+import { useEffect, useCallback } from "preact/hooks";
 import { useResources, useHandleNewDay } from "../data/resources/hooks";
 import { useTime, useUpdateTime } from "../data/time/hooks";
+import { usePlayerStatus, useHealPlayer } from "../data/playerStatus/hooks";
+import { useAttributes, useGrantExperience } from "../data/attributes/hooks";
 import { getDate } from "../data/time/season-util";
+import { calculateHealthRegenFromTime } from "../data/playerStatus/util";
+import { usePrevious } from "../util";
 
 const Header = () => {
   const { day, time, year } = useTime();
   const updateTime = useUpdateTime();
   const { refetch } = useResources();
   const handleNewDay = useHandleNewDay();
+  const { data: playerStatus } = usePlayerStatus();
+  const healPlayer = useHealPlayer();
+  const { attributes } = useAttributes();
+  const grantExperience = useGrantExperience();
+  const prevTime = usePrevious(time);
+
+  const applyHealthRegen = useCallback(
+    (timeDelta: number) => {
+      if (timeDelta > 0) {
+        const healthRegen = calculateHealthRegenFromTime(
+          attributes.constitution.level,
+          playerStatus.satiation,
+          playerStatus.health,
+          timeDelta,
+        );
+        if (healthRegen > 0) {
+          const healthHealed = healPlayer(healthRegen);
+          if (healthHealed > 0) {
+            // Grant constitution experience equal to health regenerated
+            grantExperience({ constitution: healthHealed * 100 });
+          }
+        }
+      }
+    },
+    [attributes.constitution.level, playerStatus, healPlayer, grantExperience],
+  );
 
   useEffect(() => {
+    // Calculate time delta for this update
+    const timeDelta = time - (prevTime ?? 0);
+    applyHealthRegen(timeDelta);
+
     if (time > 23) {
       const newDayRaw = day + 1;
       // day range is 1..360. Wrap into 1..360 and compute year increment.
@@ -25,7 +59,7 @@ const Header = () => {
 
       handleNewDay();
     }
-  }, [time, updateTime, day, year, handleNewDay]);
+  }, [time, prevTime, updateTime, day, year, handleNewDay, applyHealthRegen]);
 
   return (
     <header>

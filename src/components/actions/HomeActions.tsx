@@ -31,7 +31,7 @@ const HomeActions = () => {
     const expGain = 10 * playerForce * energyCost;
 
     // Grant strength experience
-    grantExperience("strength", expGain);
+    grantExperience({ strength: expGain, constitution: expGain / 5 });
 
     // Advance time
     updateTime({ time: time + timeCost });

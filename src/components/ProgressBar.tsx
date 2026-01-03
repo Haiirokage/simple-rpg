@@ -64,7 +64,7 @@ const ProgressBar = ({
           zIndex: 2,
         }}
       >
-        {label}: {current}/{max}
+        {label}: {current.toFixed(1)}/{max}
       </div>
     </div>
   );

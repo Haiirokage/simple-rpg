@@ -9,3 +9,23 @@ export const useUpdatePlayerStatus = () => {
   const { mutate } = useUpdateData<PlayerStatus>("PLAYER_STATUS", defaultPlayerStatus);
   return mutate;
 };
+
+/**
+ * Hook to heal the player by a certain amount.
+ * Automatically handles max health capping and decimal precision (2 places).
+ *
+ * @returns Function that takes health points to heal and applies the healing with limits
+ */
+export const useHealPlayer = () => {
+  const { data: playerStatus } = usePlayerStatus();
+  const updatePlayerStatus = useUpdatePlayerStatus();
+
+  return (healthPoints: number) => {
+    const newHealth = Math.min(
+      Math.round((playerStatus.health + healthPoints) * 100) / 100,
+      playerStatus.maxHealth,
+    );
+    updatePlayerStatus({ health: newHealth });
+    return newHealth - playerStatus.health;
+  };
+};

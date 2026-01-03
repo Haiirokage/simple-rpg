@@ -28,3 +28,21 @@ export const updateSatiationFromFood = (
 
   return { satiation: newSatiation, maxSatiation: newMaxSatiation };
 };
+
+/**
+ * Calculate health regeneration based on time passed, constitution, and satiation.
+ * Health regen is proportional to constitution and satiation levels.
+ *
+ * Formula: (constitutionLevel / 100) * satiation * hoursPassed
+ * This means health regen is modest per hour but accumulates over time,
+ * and well-fed characters with high constitution recover faster.
+ */
+export const calculateHealthRegenFromTime = (
+  constitutionLevel: number,
+  satiation: number,
+  health: number,
+  hoursPassed: number,
+): number => {
+  const healthBonus = 1 + health / 80;
+  return (constitutionLevel / 50) * (satiation / 100) * healthBonus * hoursPassed;
+};

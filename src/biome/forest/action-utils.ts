@@ -30,7 +30,7 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
     const hatchetDef = TOOL_DEFINITIONS.find((t) => t.key === "hatchet");
     const tierDef = hatchetDef?.tiers[tools.hatchet.level];
     const woodBonus = tierDef?.bonus.woodGathering ?? 1;
-    const fiberBonus = 1 + discoveries.willow_grove * 0.5;
+    const fiberBonus = 0.75 + discoveries.willow_grove * 0.5;
 
     return { fiber: yieldMultiplier.gatherWood * woodBonus * fiberBonus, wood: woodBonus };
   }, [yieldMultiplier.gatherWood, tools.hatchet.level, discoveries.willow_grove]);

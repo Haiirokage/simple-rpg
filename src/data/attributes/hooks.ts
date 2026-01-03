@@ -1,11 +1,16 @@
 import { useDataQuery, useUpdateData } from "../util";
 import type { Attribute, AttributeStore } from "./types";
-import { useMemo } from "preact/hooks";
+import { useCallback, useMemo } from "preact/hooks";
 import { calculateForce } from "./util";
+import { objectEntries } from "../../util";
 
 const defaultAttributeStore: AttributeStore = {
   strength: {
     level: 40,
+    exp: 0,
+  },
+  constitution: {
+    level: 30,
     exp: 0,
   },
 } as const;
@@ -27,7 +32,7 @@ export const useGrantExperience = () => {
   const { attributes } = useAttributes();
   const { mutate: mutateAttributes } = useMutateAttributes();
 
-  const levelUpRecursively = (level: number, exp: number): Attribute => {
+  const levelUpRecursively = useCallback((level: number, exp: number): Attribute => {
     if (level >= 100) {
       return { level: 100, exp };
     }
@@ -38,16 +43,23 @@ export const useGrantExperience = () => {
     }
 
     return { level, exp };
-  };
+  }, []);
 
-  const grantExperience = (attributeName: keyof AttributeStore, amount: number) => {
-    const attr = attributes[attributeName];
-    const { level, exp } = levelUpRecursively(attr.level, attr.exp + amount);
+  const grantExperience = useCallback(
+    (experience: Partial<Record<keyof AttributeStore, number>>) => {
+      const updated = objectEntries(experience).reduce((acc, [attributeName, amount]) => {
+        const attr = attributes[attributeName];
+        const { level, exp } = levelUpRecursively(attr.level, attr.exp + amount);
+        return {
+          ...acc,
+          [attributeName]: { level, exp },
+        };
+      }, {} as Partial<AttributeStore>);
 
-    mutateAttributes({
-      [attributeName]: { level, exp },
-    });
-  };
+      mutateAttributes(updated as AttributeStore);
+    },
+    [attributes, mutateAttributes, levelUpRecursively],
+  );
 
   return grantExperience;
 };

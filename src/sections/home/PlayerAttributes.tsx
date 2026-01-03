@@ -1,8 +1,16 @@
 import { useAttributes } from "../../data/attributes/hooks";
+import { objectEntries } from "../../util";
 import styled from "styled-components";
+import { useMemo } from "preact/hooks";
+import type { Attributes } from "../../data/attributes/types";
+
+const ATTRIBUTE_COLORS: Record<Attributes, string> = {
+  strength: "#ff6b6b",
+  constitution: "#4a90e2",
+};
 
 const AttributeBox = styled.div`
-  border: 1px solid #ccc;
+  border: 1px solid #333;
   border-radius: 3px;
   background-color: #fff;
   font-weight: 500;
@@ -13,7 +21,7 @@ const AttributeBox = styled.div`
   }
 `;
 
-const ExperienceBar = styled.div`
+const ExperienceBar = styled.div<{ color: string }>`
   height: 4px;
   background-color: #f0f0f0;
   border-top: 1px solid #eee;
@@ -21,26 +29,33 @@ const ExperienceBar = styled.div`
 
   & > div {
     height: 100%;
-    background-color: #ff6b6b;
+    background-color: ${(props) => props.color};
   }
 `;
 
 const PlayerAttributes = () => {
   const { attributes } = useAttributes();
-  const strength = attributes.strength;
 
-  const expThreshold = Math.pow(1.4, strength.level);
-  const expProgress = (strength.exp / expThreshold) * 100;
+  const attributeEntries = useMemo(() => objectEntries(attributes), [attributes]);
 
   return (
     <div>
       <h2>Attributes</h2>
-      <AttributeBox>
-        <div>Strength: {strength.level}</div>
-        <ExperienceBar>
-          <div style={{ width: `${expProgress}%` }} />
-        </ExperienceBar>
-      </AttributeBox>
+      {attributeEntries.map(([name, attribute]) => {
+        const expThreshold = Math.pow(1.4, attribute.level);
+        const expProgress = (attribute.exp / expThreshold) * 100;
+
+        return (
+          <AttributeBox key={name}>
+            <div>
+              {name.charAt(0).toUpperCase() + name.slice(1)}: {attribute.level}
+            </div>
+            <ExperienceBar color={ATTRIBUTE_COLORS[name]}>
+              <div style={{ width: `${expProgress}%` }} />
+            </ExperienceBar>
+          </AttributeBox>
+        );
+      })}
     </div>
   );
 };
