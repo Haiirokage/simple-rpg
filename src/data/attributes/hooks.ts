@@ -1,5 +1,7 @@
 import { useDataQuery, useUpdateData } from "../util";
 import type { Attribute, AttributeStore } from "./types";
+import { useMemo } from "preact/hooks";
+import { calculateForce } from "./util";
 
 const defaultAttributeStore: AttributeStore = {
   strength: {
@@ -48,4 +50,10 @@ export const useGrantExperience = () => {
   };
 
   return grantExperience;
+};
+
+export const usePlayerForce = () => {
+  const { attributes } = useAttributes();
+
+  return useMemo(() => calculateForce(attributes.strength.level), [attributes.strength.level]);
 };

@@ -1,7 +1,7 @@
 import { useHomeUpgrades } from "../../data/homeUpgrades/hooks";
 import { useTime, useUpdateTime } from "../../data/time/hooks";
 import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
-import { useAttributes, useGrantExperience } from "../../data/attributes/hooks";
+import { useGrantExperience, usePlayerForce } from "../../data/attributes/hooks";
 import ActionButton from "../ActionButton";
 
 const trainStrengthAction = {
@@ -16,7 +16,7 @@ const HomeActions = () => {
   const { data: playerStatus } = usePlayerStatus();
   const updatePlayerStatus = useUpdatePlayerStatus();
   const grantExperience = useGrantExperience();
-  const { attributes } = useAttributes();
+  const playerForce = usePlayerForce();
 
   const hasStoneGym = homeUpgrades.stoneGym;
 
@@ -28,7 +28,7 @@ const HomeActions = () => {
       energy: Math.max(0, playerStatus.energy - energyCost),
     });
 
-    const expGain = 20 * attributes.strength.level * energyCost;
+    const expGain = 10 * playerForce * energyCost;
 
     // Grant strength experience
     grantExperience("strength", expGain);
