@@ -9,7 +9,7 @@ interface Outcome {
   resourceYield?: Partial<ResourceStore>;
 }
 export type SkillCheck = {
-  knowledge: KnowledgeBiome[]; // e.g., ["forest"]
+  knowledge?: boolean;
   attribute: Attributes[]; // e.g., ["strength"]
   skill: Skills[];
   dc: number; // Difficulty class (e.g., 12, 15, 20)
@@ -40,5 +40,6 @@ export type EncounterFrame = {
 
 export type EncounterStore = {
   active: boolean;
+  biome: KnowledgeBiome;
   encounterFrameId?: EncounterFrameId;
 };

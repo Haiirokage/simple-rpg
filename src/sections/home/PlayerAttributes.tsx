@@ -3,6 +3,7 @@ import { objectEntries } from "../../util";
 import styled from "styled-components";
 import { useMemo } from "preact/hooks";
 import type { Attributes } from "../../data/attributes/types";
+import { getExpThreshold } from "../../data/leveling-util";
 
 const ATTRIBUTE_COLORS: Record<Attributes, string> = {
   strength: "#ff6b6b",
@@ -42,7 +43,7 @@ const PlayerAttributes = () => {
     <div>
       <h2>Attributes</h2>
       {attributeEntries.map(([name, attribute]) => {
-        const expThreshold = Math.pow(1.4, attribute.level);
+        const expThreshold = getExpThreshold(attribute.level);
         const expProgress = (attribute.exp / expThreshold) * 100;
 
         return (

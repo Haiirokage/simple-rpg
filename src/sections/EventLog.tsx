@@ -16,7 +16,7 @@ const EventLogContainer = styled.div`
   background-color: #fdfdfd;
   padding: 0 12px;
   width: 200px;
-  max-height: fit-content;
+  max-height: 798px;
   overflow-y: scroll;
 
   h2 {

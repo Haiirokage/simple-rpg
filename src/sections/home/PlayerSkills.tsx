@@ -3,6 +3,7 @@ import { objectEntries } from "../../util";
 import styled from "styled-components";
 import { useMemo } from "preact/hooks";
 import type { Skills } from "../../data/skills/types";
+import { getExpThreshold } from "../../data/leveling-util";
 
 const SKILL_COLORS: Record<Skills, string> = {
   hunter: "#2ecc71",
@@ -41,7 +42,7 @@ const PlayerSkills = () => {
     <div>
       <h2>Skills</h2>
       {skillEntries.map(([name, skill]) => {
-        const expThreshold = Math.pow(1.4, skill.level);
+        const expThreshold = getExpThreshold(skill.level);
         const expProgress = (skill.exp / expThreshold) * 100;
 
         return (

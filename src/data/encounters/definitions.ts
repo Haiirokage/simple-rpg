@@ -11,7 +11,7 @@ export const ENCOUNTER_FRAMES: Record<string, EncounterFrame> = {
         label: "Try to track the deer",
         cost: { minutes: 30 },
         skillCheck: {
-          knowledge: ["forest"],
+          knowledge: true,
           attribute: [],
           skill: ["hunter"],
           dc: 12,
