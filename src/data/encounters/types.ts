@@ -1,6 +1,7 @@
 import type { KnowledgeBiome } from "../knowledge/types";
 import type { Attributes } from "../attributes/types";
 import type { ResourceStore } from "../resources/types";
+import type { Skills } from "../skills/types";
 
 export type EncounterFrameId = "deer_tracks_found" | "deer_spotted" | "deer_killed"; // Add more frame IDs as they're created
 interface Outcome {
@@ -10,6 +11,7 @@ interface Outcome {
 export type SkillCheck = {
   knowledge: KnowledgeBiome[]; // e.g., ["forest"]
   attribute: Attributes[]; // e.g., ["strength"]
+  skill: Skills[];
   dc: number; // Difficulty class (e.g., 12, 15, 20)
 };
 

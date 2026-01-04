@@ -4,14 +4,19 @@ import ResourceBox from "./home/ResourceBox";
 import PlayerEquipment from "./home/PlayerEquipment";
 import PlayerStatus from "./PlayerStatus";
 import PlayerAttributes from "./home/PlayerAttributes";
-import EventLog from "./EventLog";
+import PlayerSkills from "./home/PlayerSkills";
+import EventLog, { EventLogSection } from "./EventLog";
 import BiomeOverview from "./overview/BiomeOverview";
 
 const OverviewGameContainer = styled(GameViewContainer)`
-  grid-template-columns: auto auto auto auto auto;
+  grid-template-columns: auto auto auto auto;
   grid-template-areas:
-    "status attributes resources biome eventLog"
-    "status attributes resources biome eventLog";
+    "status attributes skills . eventLog"
+    "resources biome biome biome eventLog";
+`;
+
+const BiomeSection = styled(GameSection)`
+  max-width: 800px;
 `;
 
 const OverviewLayout = () => {
@@ -24,16 +29,19 @@ const OverviewLayout = () => {
       <GameSection area="attributes">
         <PlayerAttributes />
       </GameSection>
+      <GameSection area="skills">
+        <PlayerSkills />
+      </GameSection>
       <GameSection area="resources">
         <h2>Resources</h2>
         <ResourceBox />
       </GameSection>
-      <GameSection area="biome">
+      <BiomeSection area="biome">
         <BiomeOverview />
-      </GameSection>
-      <GameSection area="eventLog">
+      </BiomeSection>
+      <EventLogSection area="eventLog">
         <EventLog />
-      </GameSection>
+      </EventLogSection>
     </OverviewGameContainer>
   );
 };

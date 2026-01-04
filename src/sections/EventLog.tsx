@@ -4,6 +4,11 @@ import { useEventLog } from "../data/eventLog/hooks";
 import { getEventById } from "../events/util";
 import { getDate } from "../data/time/season-util";
 import TooltipWrapper from "../style/TooltipWrapper";
+import { GameSection } from "../style/game-view";
+
+export const EventLogSection = styled(GameSection)`
+  height: 838px;
+`;
 
 const EventLogContainer = styled.div`
   border: 1px solid #ccc;
@@ -11,7 +16,7 @@ const EventLogContainer = styled.div`
   background-color: #fdfdfd;
   padding: 0 12px;
   width: 200px;
-  height: 600px;
+  max-height: fit-content;
   overflow-y: scroll;
 
   h2 {

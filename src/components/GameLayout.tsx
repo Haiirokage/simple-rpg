@@ -4,7 +4,7 @@ import ResourceBox from "../sections/home/ResourceBox";
 import PlayerEquipment from "../sections/home/PlayerEquipment";
 import PlayerStatus from "../sections/PlayerStatus";
 import PlayerAttributes from "../sections/home/PlayerAttributes";
-import EventLog from "../sections/EventLog";
+import EventLog, { EventLogSection } from "../sections/EventLog";
 import ForestBiome from "./actions/ForestBiome";
 import HomeUpgrades from "./actions/HomeUpgrades";
 import HomeConstruction from "./actions/HomeConstruction";
@@ -48,9 +48,9 @@ export const GameLayout = () => {
         <h2>Forest</h2>
         <ForestBiome />
       </ForestSection>
-      <GameSection area="eventLog">
+      <EventLogSection area="eventLog">
         <EventLog />
-      </GameSection>
+      </EventLogSection>
       <HomeSection area="home">
         <h2>Home</h2>
         <HomeUpgrades />

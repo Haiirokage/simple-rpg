@@ -13,6 +13,7 @@ export const ENCOUNTER_FRAMES: Record<string, EncounterFrame> = {
         skillCheck: {
           knowledge: ["forest"],
           attribute: [],
+          skill: ["hunter"],
           dc: 12,
         },
         outcomes: {

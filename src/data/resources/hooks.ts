@@ -16,6 +16,7 @@ import { getStorageCapacity } from "./util";
 import { getEndOfDayEvent } from "../../events/util";
 import { useAddEventLogEntry } from "../eventLog/hooks";
 import { clamp } from "lodash";
+import { useGrantSkillExperience, useSkills } from "../skills/hooks";
 
 /**
  * TODO: Add resource discoverability tracking
@@ -101,6 +102,8 @@ export const useHandleNewDay = () => {
   const { structures, getBerryIncome } = useStructures();
   const discoveries = useDiscoveries();
   const addEntry = useAddEventLogEntry();
+  const { skills } = useSkills();
+  const grantExperience = useGrantSkillExperience();
 
   // Check for end-of-day events (month is 0-indexed from day)
 
@@ -192,8 +195,10 @@ export const useHandleNewDay = () => {
 
     // Trap checking after decay (so newly caught rabbits don't decay immediately)
     // Multiply by discovered trails (each trail adds 75% bonus)
-    const trailBonus = 1 + discoveries.rabbit_trail * 0.75;
-    const rabbitCatchLikelihood = getRabbitCatchLikelihood(day) * trailBonus;
+    // Multiply by hunting skill (each 20 levels = +0.1 bonus, so level 20 = 1.1x)
+    const trailBonus = 0.5 + discoveries.rabbit_trail * 0.75;
+    const huntingSkillBonus = 1 + skills.hunter.level / 10;
+    const rabbitCatchLikelihood = getRabbitCatchLikelihood(day) * trailBonus * huntingSkillBonus;
 
     const rabbitMeat = Array.from({
       length: consumables.trap.active,
@@ -201,6 +206,9 @@ export const useHandleNewDay = () => {
       (caught: number) => caught + (Math.random() < rabbitCatchLikelihood ? 4 : 0),
       materialsAfterDecay.rabbitMeat,
     );
+    if (rabbitMeat > 0) {
+      grantExperience({ hunter: rabbitMeat });
+    }
 
     const berry = materialsAfterDecay.berry + Math.floor(getBerryIncome(day) * berryMultiplier);
 

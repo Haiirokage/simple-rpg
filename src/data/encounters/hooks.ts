@@ -3,6 +3,7 @@ import type { EncounterStore, EncounterFrameId, SkillCheck } from "./types";
 import { useKnowledge } from "../knowledge/hooks";
 import { useAttributes } from "../attributes/hooks";
 import { useCallback } from "preact/hooks";
+import { useSkills } from "../skills/hooks";
 
 const defaultEncounterStore: EncounterStore = {
   active: true,
@@ -47,6 +48,7 @@ const KNOWLEDGE_SCALE = 50;
  */
 export const useHandleSkillCheck = () => {
   const { knowledge } = useKnowledge();
+  const { skills } = useSkills();
   const { attributes } = useAttributes();
 
   return useCallback(
@@ -64,9 +66,14 @@ export const useHandleSkillCheck = () => {
         return sum + Math.floor(level / BONUS_SCALE);
       }, 0);
 
-      const total = roll + knowledgeBonus + attributeBonus;
+      const skillBonus = skillCheck.skill.reduce((sum, skill) => {
+        const { level } = skills[skill];
+        return sum + Math.floor(level / BONUS_SCALE);
+      }, 0);
+
+      const total = roll + knowledgeBonus + attributeBonus + skillBonus;
       return total >= skillCheck.dc ? "success" : "failure";
     },
-    [knowledge, attributes],
+    [knowledge, attributes, skills],
   );
 };

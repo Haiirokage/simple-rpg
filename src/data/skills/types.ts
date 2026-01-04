@@ -1,6 +1,7 @@
 export type Skills = "hunter";
 
 export type Skill = {
+  /** Current level 1-100 */
   level: number;
   exp: number;
 };
