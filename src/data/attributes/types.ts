@@ -6,7 +6,7 @@ export type Attribute = {
 };
 
 /**
- * Strength represents pulling force capacity (e.g., for drawing a bow).
+ * Strength represents pulling or pushing force capacity (e.g., for drawing a bow).
  *
  * Population tiers:
  * - 20: Untrained (normal human doing no physical labor)

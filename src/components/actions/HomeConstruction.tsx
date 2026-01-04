@@ -17,6 +17,7 @@ import { CLEAR_GROUND_ACTION } from "./definitions";
 import { Paragraph, Button } from "../../style/elements";
 import styled from "styled-components";
 import { objectEntries } from "../../util";
+import { usePlayerForce } from "../../data/attributes/hooks";
 
 const StructureButtonRow = styled.div`
   display: flex;
@@ -31,6 +32,7 @@ const StructureButtonRow = styled.div`
 const HomeConstruction = () => {
   const { resources } = useResources();
   const { plots, usedPlots, structures } = useStructures();
+  const playerForce = usePlayerForce();
   const updateStructures = useUpdateStructures();
   const { mutate } = useMutateResources();
   const mutatePlayerStatus = useUpdatePlayerStatus();
@@ -63,7 +65,8 @@ const HomeConstruction = () => {
   const plotDifficulty = Math.pow(10, plots - 8);
   const basePlotChance = 0.2 / plotDifficulty;
   const hatchetMultiplier = Math.max(tools.hatchet.level * 50, 1);
-  const plotChance = Math.min(basePlotChance * hatchetMultiplier, 1); // Cap at 100%
+  const strengthMultiplier = 1 + playerForce / 100;
+  const plotChance = Math.min(basePlotChance * hatchetMultiplier * strengthMultiplier, 1); // Cap at 100%
 
   // Clear ground action
   const clearGround = () => {
@@ -88,7 +91,7 @@ const HomeConstruction = () => {
             disabled={!isActionWithinDaylight(time, 8, day) || playerStatus.energy < 70}
           />
           <Paragraph margin="0.25rem 0 0 0">
-            Chance of new plot: {(plotChance * 100).toFixed(2)}%
+            Chance of new plot: {(plotChance * 100).toFixed(1)}%
           </Paragraph>
         </div>
         Plots: {usedPlots}/{plots}
