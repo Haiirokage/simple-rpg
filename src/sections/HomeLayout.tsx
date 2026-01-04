@@ -4,6 +4,7 @@ import ResourceBox from "./home/ResourceBox";
 import PlayerEquipment from "./home/PlayerEquipment";
 import PlayerStatus from "./PlayerStatus";
 import PlayerAttributes from "./home/PlayerAttributes";
+import PlayerSkills from "./home/PlayerSkills";
 import EventLog from "./EventLog";
 import ForestBiome from "../components/actions/ForestBiome";
 import ExploreButton from "../components/ExploreButton";
@@ -13,10 +14,10 @@ import HomeConstruction from "../components/actions/HomeConstruction";
 import PlayerActions from "./home/PlayerActions";
 
 const HomeGameContainer = styled(GameViewContainer)`
-  grid-template-columns: auto auto auto auto auto;
+  grid-template-columns: auto auto auto auto auto auto;
   grid-template-areas:
-    "status attributes resources forest eventLog"
-    "home construction construction actions eventLog";
+    "status attributes skills resources forest eventLog"
+    "home construction construction actions actions eventLog";
 `;
 
 const ForestSection = styled(GameSection)`
@@ -42,6 +43,9 @@ const HomeLayout = () => {
       </GameSection>
       <GameSection area="attributes">
         <PlayerAttributes />
+      </GameSection>
+      <GameSection area="skills">
+        <PlayerSkills />
       </GameSection>
       <GameSection area="resources">
         <h2>Resources</h2>

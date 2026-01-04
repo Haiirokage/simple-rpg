@@ -1,8 +1,9 @@
 import { useDataQuery, useUpdateData } from "../util";
-import type { Attribute, AttributeStore } from "./types";
+import type { AttributeStore } from "./types";
 import { useCallback, useMemo } from "preact/hooks";
 import { calculateForce } from "./util";
 import { objectEntries } from "../../util";
+import { levelUpRecursively } from "../leveling-util";
 
 const defaultAttributeStore: AttributeStore = {
   strength: {
@@ -32,19 +33,6 @@ export const useGrantExperience = () => {
   const { attributes } = useAttributes();
   const { mutate: mutateAttributes } = useMutateAttributes();
 
-  const levelUpRecursively = useCallback((level: number, exp: number): Attribute => {
-    if (level >= 100) {
-      return { level: 100, exp };
-    }
-
-    const expThreshold = Math.pow(1.4, level);
-    if (exp >= expThreshold) {
-      return levelUpRecursively(level + 1, exp - expThreshold);
-    }
-
-    return { level, exp };
-  }, []);
-
   const grantExperience = useCallback(
     (experience: Partial<Record<keyof AttributeStore, number>>) => {
       const updated = objectEntries(experience).reduce((acc, [attributeName, amount]) => {
@@ -58,7 +46,7 @@ export const useGrantExperience = () => {
 
       mutateAttributes(updated as AttributeStore);
     },
-    [attributes, mutateAttributes, levelUpRecursively],
+    [attributes, mutateAttributes],
   );
 
   return grantExperience;
