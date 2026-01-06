@@ -1,10 +1,19 @@
-export const resourceKeys = ["berry", "wood", "stone", "rabbitMeat", "jerky", "fiber"] as const;
+export const resourceKeys = [
+  "berry",
+  "wood",
+  "stone",
+  "rabbitMeat",
+  "venison",
+  "jerky",
+  "fiber",
+] as const;
 
 export const defaultResourceStore = {
   berry: 10,
   wood: 0,
   stone: 0,
   rabbitMeat: 0,
+  venison: 0,
   jerky: 0,
   fiber: 0,
 } as const;

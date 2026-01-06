@@ -14,6 +14,10 @@ const defaultAttributeStore: AttributeStore = {
     level: 30,
     exp: 0,
   },
+  dexterity: {
+    level: 20,
+    exp: 0,
+  },
 } as const;
 
 export const useAttributes = () => {

@@ -9,6 +9,10 @@ const defaultSkillStore: SkillStore = {
     level: 10,
     exp: 0,
   },
+  ranged: {
+    level: 0,
+    exp: 0,
+  },
 } as const;
 
 export const useSkills = () => {

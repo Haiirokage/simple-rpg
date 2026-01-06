@@ -1,5 +1,6 @@
 import { useDataQuery, useUpdateData } from "../util";
-import type { EncounterStore, EncounterFrameId, SkillCheck } from "./types";
+import type { EncounterStore, EncounterFrameId, SkillCheck, NPC } from "./types";
+import { ENCOUNTER_FRAMES } from "./definitions";
 import { useHandleKnowledge } from "../knowledge/hooks";
 import { useAttributes } from "../attributes/hooks";
 import { useCallback } from "preact/hooks";
@@ -9,6 +10,7 @@ const defaultEncounterStore: EncounterStore = {
   active: true,
   biome: "forest",
   encounterFrameId: "deer_tracks_found",
+  npcs: {},
 } as const;
 
 export const useEncounter = () => {
@@ -17,6 +19,35 @@ export const useEncounter = () => {
 
 export const useUpdateEncounter = () => {
   return useUpdateData<EncounterStore>("ENCOUNTERS", defaultEncounterStore);
+};
+
+export const useHandleEncounter = () => {
+  const { data: encounter } = useEncounter();
+  const { mutate } = useUpdateEncounter();
+
+  return { encounter, mutateEncounter: mutate };
+};
+
+/**
+ * Generate NPC instances from spawnCreatures config.
+ */
+const spawnNpcsFromFrame = (frameId: EncounterFrameId) => {
+  const frame = ENCOUNTER_FRAMES[frameId];
+  if (!frame.spawnCreatures) return {};
+
+  return frame.spawnCreatures.reduce(
+    (npcs, config) => ({
+      ...npcs,
+      [config.id]: {
+        id: config.id,
+        type: config.type,
+        distance: config.distance,
+        health: 100,
+        maxHealth: 100,
+      },
+    }),
+    {} as Record<string, NPC>,
+  );
 };
 
 /**
@@ -31,12 +62,14 @@ export const useSetEncounter = () => {
       mutate({
         active: false,
         encounterFrameId: undefined,
+        npcs: {},
       });
       return;
     }
     mutate({
       active: true,
       encounterFrameId: startFrameId,
+      npcs: spawnNpcsFromFrame(startFrameId),
     });
   };
 };

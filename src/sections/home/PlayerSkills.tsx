@@ -7,6 +7,7 @@ import { getExpThreshold } from "../../data/leveling-util";
 
 const SKILL_COLORS: Record<Skills, string> = {
   hunter: "#2ecc71",
+  ranged: "#3498db",
 };
 
 const SkillBox = styled.div`

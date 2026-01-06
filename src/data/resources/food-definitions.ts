@@ -30,6 +30,14 @@ export const FOOD_STORAGE: ResourceDefinition[] = [
     mealSize: 1,
   },
   {
+    key: "venison",
+    baseCapacity: 10,
+    capacityPerPantry: 50,
+    decayRate: 0.1,
+    nutritionType: "protein",
+    mealSize: 1,
+  },
+  {
     key: "jerky",
     baseCapacity: 20,
     capacityPerPantry: 200,
