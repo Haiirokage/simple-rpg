@@ -1,18 +1,17 @@
 import type { KnowledgeBiome } from "../knowledge/types";
-import type { Attributes } from "../attributes/types";
 import type { ResourceStore } from "../resources/types";
 import type { Skills } from "../skills/types";
 import type { Creatures } from "../../npc/creature-definitions";
 
 export type EncounterFrameId = "deer_tracks_found" | "deer_spotted" | "deer_killed"; // Add more frame IDs as they're created
-interface Outcome {
+export interface Outcome {
   nextFrameId: EncounterFrameId | "exit";
   resourceYield?: Partial<ResourceStore>;
 }
 export type SkillCheck = {
   knowledge?: boolean;
-  attribute: Attributes[]; // e.g., ["strength"]
   skill: Skills[];
+  /** Difficulty class 1-30 ish */
   dc: number; // Difficulty class (e.g., 12, 15, 20)
 };
 

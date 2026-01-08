@@ -5,6 +5,7 @@ import { useHandleKnowledge } from "../knowledge/hooks";
 import { useAttributes } from "../attributes/hooks";
 import { useCallback } from "preact/hooks";
 import { useGrantSkillExperience, useSkills } from "../skills/hooks";
+import { getAttributeBySkill } from "../skills/definitions";
 
 const defaultEncounterStore: EncounterStore = {
   active: true,
@@ -74,11 +75,12 @@ export const useSetEncounter = () => {
   };
 };
 
-const BONUS_SCALE = 20;
 const KNOWLEDGE_SCALE = 50;
 /**
  * Hook that returns a function to resolve skill checks.
  * Returns "success" or "failure" based on d20 roll + bonuses vs DC.
+ *
+ * bonus from levels(1-100) is sqrt(level) / 2, this gives the same 5 bonus at level 100 as level / 20, but earlier levels give a larger bonus
  */
 export const useHandleSkillCheck = () => {
   const { data } = useEncounter();
@@ -96,33 +98,29 @@ export const useHandleSkillCheck = () => {
       const score = tier * 100 + level;
       const knowledgeBonus = skillCheck.knowledge ? Math.floor(score / KNOWLEDGE_SCALE) : 0;
 
-      const attributeBonus = skillCheck.attribute.reduce((sum, attr) => {
-        const level = attributes[attr].level;
-        return sum + Math.floor(level / BONUS_SCALE);
-      }, 0);
-
       const skillBonus = skillCheck.skill.reduce((sum, skill) => {
+        const connectedAttribute = getAttributeBySkill(skill);
+        const attributeLevel = attributes[connectedAttribute].level;
         const { level } = skills[skill];
-        return sum + Math.floor(level / BONUS_SCALE);
+        return sum + Math.floor(Math.sqrt(level) / 2) + attributeLevel / 20;
       }, 0);
 
-      const bonus = knowledgeBonus + attributeBonus + skillBonus;
+      const bonus = knowledgeBonus + skillBonus;
       const success = roll + bonus >= skillCheck.dc;
 
+      console.info(`Roll:${roll} + Bonus:${bonus} vs DC:${skillCheck.dc}`);
       if (success) {
-        if (skillBonus > 0) {
-          const skillContribution = skillBonus / bonus;
-          const expReward = Math.round(Math.pow(1.45, skillCheck.dc) * 2 * skillContribution);
-          skillCheck.skill.forEach((skill) => {
-            grantExperience({ [skill]: expReward });
-          });
-        }
-        if (knowledgeBonus > 0) {
-          const knowledgeContribution = knowledgeBonus / bonus;
-          if (skillCheck.dc / 9 >= tier) {
-            const levels = 1 + skillCheck.dc / 9 - tier;
-            gainLevels(Math.round(levels / knowledgeContribution));
-          }
+        const skillContribution = Math.max(0.1, skillBonus / bonus);
+        const expReward = Math.round(Math.pow(1.45, skillCheck.dc) * 2 * skillContribution);
+        skillCheck.skill.forEach((skill) => {
+          console.info(`Gained ${expReward} exp in ${skill} skill.`);
+          grantExperience({ [skill]: expReward });
+        });
+        const knowledgeContribution = Math.max(0.1, knowledgeBonus / bonus);
+        if (skillCheck.dc / 9 >= tier) {
+          const levels = 1 + skillCheck.dc / 9 - tier;
+          console.info(`Gained ${Math.round(levels / knowledgeContribution)} knowledge levels.`);
+          gainLevels(Math.round(levels / knowledgeContribution));
         }
       }
       return success ? "success" : "failure";

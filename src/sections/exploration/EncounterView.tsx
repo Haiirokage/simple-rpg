@@ -5,9 +5,12 @@ import {
   useHandleSkillCheck,
   useHandleEncounter,
 } from "../../data/encounters/hooks";
+import type { Outcome } from "../../data/encounters/types";
+import { useHandleResources } from "../../data/resources/hooks";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
+  const { addResources } = useHandleResources();
   const setEncounter = useSetEncounter();
   const handleSkillCheck = useHandleSkillCheck();
   const handleAttack = useHandleAttack();
@@ -17,16 +20,20 @@ const EncounterView = () => {
   }
   const frame = ENCOUNTER_FRAMES[encounter.encounterFrameId];
 
+  const resolveOutcome = (outcome: Outcome) => {
+    const { nextFrameId, resourceYield } = outcome;
+
+    if (resourceYield) {
+      addResources(resourceYield);
+    }
+
+    setEncounter(nextFrameId);
+  };
+
   const handleActionClick = (action: (typeof frame.actions)[0]) => {
     if (action.type === "skill") {
       const outcome = action.skillCheck ? handleSkillCheck(action.skillCheck) : "success";
-      const nextFrameId = action.outcomes[outcome]?.nextFrameId;
-
-      if (nextFrameId) {
-        setEncounter(nextFrameId);
-      } else {
-        setEncounter("exit");
-      }
+      resolveOutcome(action.outcomes[outcome]);
     }
     if (action.type === "attack") {
       const targetNPC = encounter.npcs[action.attack.target];
@@ -43,9 +50,9 @@ const EncounterView = () => {
           },
         });
         if (npcHealth <= 0) {
-          setEncounter(action.outcomes.success.nextFrameId);
+          resolveOutcome(action.outcomes.success);
         } else {
-          setEncounter(action.outcomes.failure.nextFrameId);
+          resolveOutcome(action.outcomes.failure);
         }
         console.info(
           `(${result.hitSeverity}) Dealt ${result.healthLost} damage to ${action.attack.target}`,

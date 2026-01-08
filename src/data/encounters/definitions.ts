@@ -13,9 +13,8 @@ export const ENCOUNTER_FRAMES: Record<string, EncounterFrame> = {
         cost: { minutes: 30 },
         skillCheck: {
           knowledge: true,
-          attribute: [],
           skill: ["hunter"],
-          dc: 12,
+          dc: 14,
         },
         outcomes: {
           failure: { nextFrameId: "exit" },
@@ -58,7 +57,7 @@ export const ENCOUNTER_FRAMES: Record<string, EncounterFrame> = {
         id: "butcher_deer",
         label: "Butcher the deer",
         cost: { minutes: 60, energy: 5 },
-        skillCheck: { attribute: ["dexterity"], skill: ["hunter"], knowledge: true, dc: 15 },
+        skillCheck: { skill: ["hunter"], knowledge: true, dc: 15 },
         outcomes: {
           failure: { nextFrameId: "exit", resourceYield: { venison: 15 } },
           success: { nextFrameId: "exit", resourceYield: { venison: 20 } },

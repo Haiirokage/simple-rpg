@@ -8,6 +8,7 @@ import { getExpThreshold } from "../../data/leveling-util";
 const ATTRIBUTE_COLORS: Record<Attributes, string> = {
   strength: "#ff6b6b",
   constitution: "#4a90e2",
+  dexterity: "#f5a623",
 };
 
 const AttributeBox = styled.div`

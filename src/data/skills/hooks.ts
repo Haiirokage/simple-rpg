@@ -3,6 +3,9 @@ import type { Skills, SkillStore } from "./types";
 import { useCallback } from "preact/hooks";
 import { objectEntries } from "../../util";
 import { levelUpRecursively } from "../leveling-util";
+import { getAttributeBySkill } from "./definitions";
+import type { AttributeStore } from "../attributes/types";
+import { useAttributes, useMutateAttributes } from "../attributes/hooks";
 
 const defaultSkillStore: SkillStore = {
   hunter: {
@@ -28,22 +31,35 @@ export const useUpdateSkills = () => {
 
 export const useGrantSkillExperience = () => {
   const { skills } = useSkills();
+  const { attributes } = useAttributes();
   const { mutate: mutateSkills } = useUpdateSkills();
+  const { mutate: mutateAttributes } = useMutateAttributes();
 
   const grantExperience = useCallback(
     (experience: Partial<Record<Skills, number>>) => {
-      const updated = objectEntries(experience).reduce((acc, [skillName, amount]) => {
-        const skill = skills[skillName];
-        const { level, exp } = levelUpRecursively(skill.level, skill.exp + amount);
-        return {
-          ...acc,
-          [skillName]: { level, exp },
-        };
-      }, {} as Partial<SkillStore>);
+      const { newSkills, newAttributes } = objectEntries(experience).reduce(
+        (acc, [skillName, amount]) => {
+          const skill = skills[skillName];
+          const skillLevels = levelUpRecursively(skill.level, skill.exp + amount);
+          const connectedAttribute = getAttributeBySkill(skillName);
+          const attribute = attributes[connectedAttribute];
+          const attLevels = levelUpRecursively(
+            attribute.level,
+            attribute.exp + Math.floor(amount / 5),
+          );
 
-      mutateSkills(updated as SkillStore);
+          return {
+            newSkills: { ...acc.newSkills, [skillName]: skillLevels },
+            newAttributes: { ...acc.newAttributes, [connectedAttribute]: attLevels },
+          };
+        },
+        {} as { newSkills: Partial<SkillStore>; newAttributes: Partial<AttributeStore> },
+      );
+
+      mutateSkills(newSkills);
+      mutateAttributes(newAttributes);
     },
-    [skills, mutateSkills],
+    [skills, mutateSkills, attributes, mutateAttributes],
   );
 
   return grantExperience;
