@@ -29,6 +29,13 @@ export const useUpdateSkills = () => {
   return useUpdateData<SkillStore>("SKILLS", defaultSkillStore);
 };
 
+export const useHandleSkills = () => {
+  const { skills } = useSkills();
+  const { mutate } = useUpdateSkills();
+
+  return { skills, mutateSkills: mutate };
+};
+
 export const useGrantSkillExperience = () => {
   const { skills } = useSkills();
   const { attributes } = useAttributes();

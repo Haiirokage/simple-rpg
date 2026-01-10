@@ -1,6 +1,6 @@
-import type { EncounterFrame } from "./types";
+import type { EncounterFrame, EncounterFrameId } from "./types";
 
-export const ENCOUNTER_FRAMES: Record<string, EncounterFrame> = {
+export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
   deer_tracks_found: {
     id: "deer_tracks_found",
     title: "Fresh Deer Tracks",
@@ -17,7 +17,10 @@ export const ENCOUNTER_FRAMES: Record<string, EncounterFrame> = {
           dc: 14,
         },
         outcomes: {
-          failure: { nextFrameId: "exit" },
+          failure: {
+            nextFrameId: "exit",
+            exitMessage: "You lost the tracks and spent some time finding your way back.",
+          },
           success: { nextFrameId: "deer_spotted" },
         },
       },
@@ -40,7 +43,10 @@ export const ENCOUNTER_FRAMES: Record<string, EncounterFrame> = {
           target: "deer1",
         },
         outcomes: {
-          failure: { nextFrameId: "exit" },
+          failure: {
+            nextFrameId: "exit",
+            exitMessage: "You missed the deer. It ran away never to be seen again.",
+          },
           success: { nextFrameId: "deer_killed" },
         },
       },
@@ -59,8 +65,16 @@ export const ENCOUNTER_FRAMES: Record<string, EncounterFrame> = {
         cost: { minutes: 60, energy: 5 },
         skillCheck: { skill: ["hunter"], knowledge: true, dc: 15 },
         outcomes: {
-          failure: { nextFrameId: "exit", resourceYield: { venison: 15 } },
-          success: { nextFrameId: "exit", resourceYield: { venison: 20 } },
+          failure: {
+            nextFrameId: "exit",
+            resourceYield: { venison: 15 },
+            exitMessage: "You butchered the deer but your lack of skill wasted some materials.",
+          },
+          success: {
+            nextFrameId: "exit",
+            resourceYield: { venison: 20 },
+            exitMessage: "You butchered the deer and gathered valuable materials.",
+          },
         },
       },
     ],

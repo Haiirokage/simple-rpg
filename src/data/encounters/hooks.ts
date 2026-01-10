@@ -6,12 +6,13 @@ import { useAttributes } from "../attributes/hooks";
 import { useCallback } from "preact/hooks";
 import { useGrantSkillExperience, useSkills } from "../skills/hooks";
 import { getAttributeBySkill } from "../skills/definitions";
+import { useAdvanceTime } from "../time/hooks";
 
 const defaultEncounterStore: EncounterStore = {
-  active: true,
+  active: false,
   biome: "forest",
-  encounterFrameId: "deer_tracks_found",
   npcs: {},
+  timePassed: 0,
 } as const;
 
 export const useEncounter = () => {
@@ -56,21 +57,32 @@ const spawnNpcsFromFrame = (frameId: EncounterFrameId) => {
  * Sets the encounter as active and sets the initial frame.
  */
 export const useSetEncounter = () => {
-  const { mutate } = useUpdateEncounter();
+  const { mutateEncounter, encounter } = useHandleEncounter();
+  const advanceTime = useAdvanceTime();
 
-  return (startFrameId: EncounterFrameId | "exit") => {
+  return (startFrameId: EncounterFrameId | "exit", timePassed?: number, exitMessage?: string) => {
+    const timePassedTotal = encounter.timePassed + (timePassed || 0);
     if (startFrameId === "exit") {
-      mutate({
+      const hoursPassed = Math.round(timePassedTotal / 60);
+      if (hoursPassed > 0) {
+        advanceTime(hoursPassed);
+      }
+      mutateEncounter({
         active: false,
         encounterFrameId: undefined,
         npcs: {},
+        timePassed: 0,
+        exitMessage: exitMessage,
       });
+
       return;
     }
-    mutate({
+    mutateEncounter({
       active: true,
       encounterFrameId: startFrameId,
       npcs: spawnNpcsFromFrame(startFrameId),
+      timePassed: timePassedTotal,
+      exitMessage: undefined,
     });
   };
 };

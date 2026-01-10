@@ -1,7 +1,7 @@
 import { useCallback } from "preact/hooks";
 import { useAttributes } from "../data/attributes/hooks";
 import { useEncounter } from "../data/encounters/hooks";
-import { useSkills } from "../data/skills/hooks";
+import { useGrantSkillExperience, useHandleSkills } from "../data/skills/hooks";
 import { CREATURES } from "../npc/creature-definitions";
 import { calculateHit, getHealthLost, getHitSeverityByTarget } from "./util";
 
@@ -12,7 +12,8 @@ import { calculateHit, getHealthLost, getHitSeverityByTarget } from "./util";
 export const useHandleAttack = () => {
   const { data: encounter } = useEncounter();
   const { attributes } = useAttributes();
-  const { skills } = useSkills();
+  const { skills } = useHandleSkills();
+  const grantSkillExperience = useGrantSkillExperience();
 
   return useCallback(
     (targetNpcId: string, target: "head" | "body" | "legs") => {
@@ -45,8 +46,17 @@ export const useHandleAttack = () => {
         damageMultiplier,
       );
 
+      if (healthLost > 0) {
+        const skillExperience = {
+          ranged: healthLost * Math.sqrt(npc.distance),
+        };
+
+        console.info("Granting ranged experience:", skillExperience.ranged);
+        grantSkillExperience(skillExperience);
+      }
+
       return { healthLost, hitSeverity };
     },
-    [encounter, attributes, skills],
+    [encounter, attributes, skills, grantSkillExperience],
   );
 };

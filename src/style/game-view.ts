@@ -5,7 +5,7 @@ export const GameSection = styled.section<{ area?: string }>`
   padding: 12px;
   border-radius: 4px;
   background-color: #fafafa;
-  height: 400px;
+  max-height: 400px;
   overflow-y: auto;
   ${(props) => (props.area ? `grid-area: ${props.area};` : "")}
 

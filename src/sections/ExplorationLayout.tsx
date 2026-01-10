@@ -2,12 +2,15 @@ import styled from "styled-components";
 import { GameSection, GameViewContainer } from "../style/game-view";
 import PlayerStatus from "./PlayerStatus";
 import ExplorationActions from "./exploration/ExplorationActions";
-import EventLog from "./EventLog";
+import EventLog, { EventLogSection } from "./EventLog";
 import EncounterView from "./exploration/EncounterView";
+import BiomeOverview from "./overview/BiomeOverview";
 
 const ExplorationGameContainer = styled(GameViewContainer)`
-  grid-template-columns: auto auto auto auto;
-  grid-template-areas: "status actions encounter log";
+  grid-template-columns: 250px 400px 400px 280px;
+  grid-template-areas:
+    "status actions encounter log"
+    ". biome biome log";
 `;
 
 const ExplorationLayout = () => {
@@ -23,8 +26,11 @@ const ExplorationLayout = () => {
       <GameSection area="encounter">
         <EncounterView />
       </GameSection>
-      <GameSection area="log">
+      <EventLogSection area="log">
         <EventLog />
+      </EventLogSection>
+      <GameSection area="biome">
+        <BiomeOverview />
       </GameSection>
     </ExplorationGameContainer>
   );

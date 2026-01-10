@@ -10,6 +10,13 @@ export const useUpdatePlayerStatus = () => {
   return mutate;
 };
 
+export const useHandlePlayerStatus = () => {
+  const { data: playerStatus } = usePlayerStatus();
+  const updatePlayerStatus = useUpdatePlayerStatus();
+
+  return { playerStatus, updatePlayerStatus };
+};
+
 /**
  * Hook to heal the player by a certain amount.
  * Automatically handles max health capping and decimal precision (2 places).

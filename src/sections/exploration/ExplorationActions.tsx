@@ -5,11 +5,16 @@ import { Paragraph } from "../../style/elements";
 import { useHandleKnowledge } from "../../data/knowledge/hooks";
 import { useDiscoveries, useMutateDiscoveries } from "../../data/discoveries/hooks";
 import { pickRandomDiscovery, useHasViableDiscoveries } from "../../data/discoveries/util";
-import { FOREST_DISCOVERIES } from "../../biome/forest/discovery-definitions";
-import { useCallback, useEffect } from "preact/hooks";
+import {
+  FOREST_DISCOVERIES,
+  REPEATABLE_DISCOVERIES,
+} from "../../biome/forest/discovery-definitions";
+import { useCallback } from "preact/hooks";
 import { objectEntries } from "../../util";
 import { useAddEventLogEntry } from "../../data/eventLog/hooks";
 import { buildExplorationEventLog } from "../../events/exploration-events";
+import { useEncounter, useSetEncounter } from "../../data/encounters/hooks";
+import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -28,6 +33,8 @@ const LookAroundButton = styled.button<{ hasViable: boolean }>`
 
 const ExplorationActions = () => {
   const { exploration, mutateExploration } = useHandleExploration();
+  const setEncounter = useSetEncounter();
+  const { data: encounterState } = useEncounter();
   const { time, day, year } = useTime();
   const endExpedition = useEndExpedition();
   const { knowledge, gainLevels } = useHandleKnowledge("forest");
@@ -40,18 +47,16 @@ const ExplorationActions = () => {
 
   const timeRemaining = exploration.endTime ? exploration.endTime - time : 0;
 
-  useEffect(() => {
-    if (exploration.active && timeRemaining <= 0) {
-      endExpedition();
-    }
-  }, [timeRemaining, exploration.active, endExpedition]);
-
   const lookAround = useCallback(() => {
     const { discovery, repeatable } = pickRandomDiscovery(knowledgeLevel, discoveries);
     const foundDiscoveryCount = discovery ? discoveries[discovery] || 0 : 0;
 
     if (repeatable) {
       addEventLogEntry(buildExplorationEventLog(repeatable, year, day, undefined));
+      const rep_disc = REPEATABLE_DISCOVERIES[repeatable];
+      if (rep_disc.triggerEncounter) {
+        setEncounter(rep_disc.triggerEncounter);
+      }
       gainLevels(1);
     } else if (discovery) {
       mutateDiscoveries({ [discovery]: foundDiscoveryCount + 1 });
@@ -83,7 +88,16 @@ const ExplorationActions = () => {
     day,
     addEventLogEntry,
     gainLevels,
+    setEncounter,
   ]);
+
+  const encounterFrame = encounterState.encounterFrameId
+    ? ENCOUNTER_FRAMES[encounterState.encounterFrameId]
+    : undefined;
+
+  const preventLeaving = !!encounterFrame?.preventLeaving;
+
+  const disabled = encounterState.active || timeRemaining <= 0;
 
   return (
     <ActionsContainer>
@@ -92,10 +106,12 @@ const ExplorationActions = () => {
           Time remaining: {timeRemaining}h (until hour {exploration.endTime})
         </Paragraph>
       )}
-      <LookAroundButton hasViable={hasViableDiscoveries} onClick={lookAround}>
+      <LookAroundButton disabled={disabled} hasViable={hasViableDiscoveries} onClick={lookAround}>
         Look Around
       </LookAroundButton>
-      <button onClick={() => endExpedition()}>Return Home</button>
+      <button disabled={preventLeaving} onClick={() => endExpedition()}>
+        Return Home
+      </button>
     </ActionsContainer>
   );
 };

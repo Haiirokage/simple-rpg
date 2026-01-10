@@ -35,7 +35,7 @@ export type SeasonDefinition = {
  */
 export const MONTHS: SeasonDefinition[] = [
   {
-    name: "Frostmoon",
+    name: "⛄ Frostmoon",
     sunrise: 8,
     sunset: 17,
     weights: {
@@ -49,7 +49,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Snowveil",
+    name: "⛄ Snowveil",
     sunrise: 7,
     sunset: 18,
     weights: {
@@ -63,7 +63,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Greening",
+    name: "⛅ Greening",
     sunrise: 6,
     sunset: 19,
     weights: {
@@ -77,7 +77,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Bloomtide",
+    name: "⛅ Bloomtide",
     sunrise: 5,
     sunset: 20,
     weights: {
@@ -91,7 +91,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Sunswept",
+    name: "⛅ Sunswept",
     sunrise: 4,
     sunset: 21,
     weights: {
@@ -105,7 +105,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Harvestrise", // June
+    name: "🌅 Harvestrise",
     sunrise: 3,
     sunset: 22,
     weights: {
@@ -119,7 +119,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Goldleaf" /** July */,
+    name: "🌅 Goldleaf",
     sunrise: 4,
     sunset: 21,
     weights: {
@@ -133,7 +133,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Skyfall",
+    name: "🌅 Skyfall",
     sunrise: 5,
     sunset: 20,
     weights: {
@@ -147,7 +147,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Windmarch",
+    name: "🍂 Windmarch",
     sunrise: 6,
     sunset: 19,
     weights: {
@@ -161,7 +161,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Shadowveil",
+    name: "🍂 Shadowveil",
     sunrise: 7,
     sunset: 18,
     weights: {
@@ -175,7 +175,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Shortdark",
+    name: "🍂 Shortdark",
     sunrise: 8,
     sunset: 17,
     weights: {
@@ -189,7 +189,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
   },
   {
-    name: "Deepcold",
+    name: "⛄ Deepcold",
     sunrise: 8,
     sunset: 16,
     weights: {

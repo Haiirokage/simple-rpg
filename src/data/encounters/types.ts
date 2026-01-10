@@ -4,14 +4,18 @@ import type { Skills } from "../skills/types";
 import type { Creatures } from "../../npc/creature-definitions";
 
 export type EncounterFrameId = "deer_tracks_found" | "deer_spotted" | "deer_killed"; // Add more frame IDs as they're created
+
 export interface Outcome {
   nextFrameId: EncounterFrameId | "exit";
   resourceYield?: Partial<ResourceStore>;
+  exitMessage?: string;
 }
 export type SkillCheck = {
   knowledge?: boolean;
   skill: Skills[];
-  /** Difficulty class 1-30 ish */
+  /** Difficulty class 1-30 ish.
+   * A player can get a total of 15 bonus from skills and knowledge + a roll of 1-20.
+   * The DC must be set accordingly to provide a balanced challenge. */
   dc: number; // Difficulty class (e.g., 12, 15, 20)
 };
 
@@ -65,4 +69,6 @@ export type EncounterStore = {
   biome: KnowledgeBiome;
   encounterFrameId?: EncounterFrameId;
   npcs: Record<string, NPC>;
+  timePassed: number; // in minutes
+  exitMessage?: string;
 };

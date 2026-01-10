@@ -7,7 +7,7 @@ import TooltipWrapper from "../style/TooltipWrapper";
 import { GameSection } from "../style/game-view";
 
 export const EventLogSection = styled(GameSection)`
-  height: 838px;
+  max-height: 838px;
 `;
 
 const EventLogContainer = styled.div`
@@ -15,8 +15,8 @@ const EventLogContainer = styled.div`
   border-radius: 4px;
   background-color: #fdfdfd;
   padding: 0 12px;
-  width: 200px;
-  max-height: 798px;
+  width: auto;
+  max-height: 558px;
   overflow-y: scroll;
 
   h2 {

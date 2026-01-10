@@ -1,8 +1,10 @@
 import styled from "styled-components";
 import { useDiscoveries } from "../../data/discoveries/hooks";
+import { useHandleKnowledge } from "../../data/knowledge/hooks";
 import { FOREST_DISCOVERIES } from "../../biome/forest/discovery-definitions";
 import { EXPLORATION_EVENTS } from "../../events/exploration-events";
 import { objectEntries } from "../../util";
+import { Header2, Header3 } from "../../style/elements";
 
 const BiomeContainer = styled.div`
   display: flex;
@@ -38,35 +40,43 @@ const DiscoveryDescription = styled.div`
 
 const BiomeOverview = () => {
   const discoveries = useDiscoveries();
+  const { knowledge } = useHandleKnowledge("forest");
 
   const foundDiscoveries = objectEntries(FOREST_DISCOVERIES).filter(
     ([key]) => (discoveries[key] || 0) > 0,
   );
 
   return (
-    <BiomeContainer>
-      <h2>Forest Discoveries</h2>
-      {foundDiscoveries.length === 0 ? (
-        <p>No discoveries yet</p>
-      ) : (
-        foundDiscoveries.map(([key, definition]) => {
-          const count = discoveries[key] || 0;
-          const event = EXPLORATION_EVENTS[key as keyof typeof EXPLORATION_EVENTS];
-          const descriptions = event?.descriptions || [];
+    <>
+      <Header2>Forest</Header2>
+      <p>
+        <strong>Knowledge Tier:</strong> {knowledge.tier} | <strong>Level:</strong>{" "}
+        {knowledge.level}
+      </p>
+      <Header3>Discoveries</Header3>
+      <BiomeContainer>
+        {foundDiscoveries.length === 0 ? (
+          <p>No discoveries yet</p>
+        ) : (
+          foundDiscoveries.map(([key, definition]) => {
+            const count = discoveries[key] || 0;
+            const event = EXPLORATION_EVENTS[key as keyof typeof EXPLORATION_EVENTS];
+            const descriptions = event?.descriptions || [];
 
-          return (
-            <DiscoveryItem key={key}>
-              <DiscoveryLabel>
-                {definition.type.replace(/_/g, " ")} ({count}/{definition.maxCount})
-              </DiscoveryLabel>
-              {Array.from({ length: Math.min(count, descriptions.length) }).map((_, index) => (
-                <DiscoveryDescription key={index}>{descriptions[index]}</DiscoveryDescription>
-              ))}
-            </DiscoveryItem>
-          );
-        })
-      )}
-    </BiomeContainer>
+            return (
+              <DiscoveryItem key={key}>
+                <DiscoveryLabel>
+                  {definition.type.replace(/_/g, " ")} ({count}/{definition.maxCount})
+                </DiscoveryLabel>
+                {Array.from({ length: Math.min(count, descriptions.length) }).map((_, index) => (
+                  <DiscoveryDescription key={index}>{descriptions[index]}</DiscoveryDescription>
+                ))}
+              </DiscoveryItem>
+            );
+          })
+        )}
+      </BiomeContainer>
+    </>
   );
 };
 

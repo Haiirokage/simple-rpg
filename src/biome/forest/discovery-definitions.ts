@@ -1,3 +1,4 @@
+import type { EncounterFrameId } from "../../data/encounters/types";
 import type { ResourceStore } from "../../data/resources/types";
 
 export type DiscoveryType = "berry_patch" | "willow_grove" | "rabbit_trail" | "strong_inspiration";
@@ -17,6 +18,7 @@ export interface UnlockableDiscoveryDefinition extends DiscoveryDefinition {
 
 export interface RepeatableDiscoveryDefinition extends DiscoveryDefinition {
   knowledgeRequirement: number;
+  triggerEncounter?: EncounterFrameId;
 }
 
 export const FOREST_DISCOVERIES: Record<DiscoveryType, UnlockableDiscoveryDefinition> = {
@@ -57,5 +59,6 @@ export const REPEATABLE_DISCOVERIES: Record<
     type: "deer_tracks",
     rarity: 0.08,
     knowledgeRequirement: 80,
+    triggerEncounter: "deer_tracks_found",
   },
 };

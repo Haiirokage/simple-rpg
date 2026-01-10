@@ -27,7 +27,7 @@ export const getDate = (day: number, short = false): string => {
   const month = Math.floor(day / 30) + 1;
   const monthStr = short ? String(month).padStart(2, "0") : getMonthName(day);
   const dayStr = String(dayInMonth).padStart(2, "0");
-  return `${monthStr}.${dayStr}.`;
+  return `${monthStr} ${dayStr}.`;
 };
 
 /**

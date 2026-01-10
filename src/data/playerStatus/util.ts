@@ -44,5 +44,5 @@ export const calculateHealthRegenFromTime = (
   hoursPassed: number,
 ): number => {
   const healthBonus = 1 + health / 80;
-  return (constitutionLevel / 50) * (satiation / 100) * healthBonus * hoursPassed;
+  return (constitutionLevel / 50) * (satiation / 100) * healthBonus * hoursPassed * 0.1;
 };

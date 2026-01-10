@@ -14,3 +14,12 @@ export const Button = styled.button`
     cursor: not-allowed;
   }
 `;
+
+export const Header2 = styled.h2`
+  margin: 4px 0 24px;
+  font-size: 28px;
+`;
+export const Header3 = styled.h3`
+  margin: 0 0 16px;
+  font-size: 22px;
+`;
