@@ -14,6 +14,7 @@ import { useDiscoveries } from "../../data/discoveries/hooks";
 import { useMemo } from "preact/hooks";
 import { Button } from "../../style/elements";
 import { objectEntries } from "../../util";
+import TooltipWrapper from "../../style/TooltipWrapper";
 
 const HomeUpgrades = () => {
   const { resources } = useResources();
@@ -48,21 +49,23 @@ const HomeUpgrades = () => {
 
   return (
     <div>
-      <Button
-        onClick={() => {
-          const nextDay = day + 1;
-          const month = getSeasonByDay(nextDay);
-          const wakeupTime = 24 + month.sunrise;
-          updatePlayerStatus({
-            energy: Math.floor(
-              playerStatus.energy + 0.06 * (wakeupTime - time) * playerStatus.satiation,
-            ),
-          });
-          updateTime({ time: wakeupTime });
-        }}
-      >
-        Rest
-      </Button>
+      <TooltipWrapper description="Rest until sunrise and restore energy based on satiation. You will consume food when you pass midnight.">
+        <Button
+          onClick={() => {
+            const nextDay = day + 1;
+            const month = getSeasonByDay(nextDay);
+            const wakeupTime = 24 + month.sunrise;
+            updatePlayerStatus({
+              energy: Math.floor(
+                playerStatus.energy + 0.06 * (wakeupTime - time) * playerStatus.satiation,
+              ),
+            });
+            updateTime({ time: wakeupTime });
+          }}
+        >
+          Rest
+        </Button>
+      </TooltipWrapper>
       {discoveredUpgrades.map((upgrade) => {
         const isBuilt = homeUpgrades[upgrade.key];
         const { canAfford, resourceResult } = getAffordability(upgrade.resourceCost, resources);

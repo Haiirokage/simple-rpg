@@ -17,6 +17,11 @@ const EventPopover = styled.div<{ $top?: number; $left?: number }>`
   z-index: 1000;
 `;
 
+const Wrapper = styled.span`
+  width: fit-content;
+  display: block;
+`;
+
 const TooltipWrapper = (props: { children: React.ReactNode; description?: string }) => {
   const [showPopover, setShowPopover] = useState(false);
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
@@ -35,14 +40,13 @@ const TooltipWrapper = (props: { children: React.ReactNode; description?: string
 
   return (
     <>
-      <span
+      <Wrapper
         ref={triggerRef}
-        className="eventName"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setShowPopover(false)}
       >
         {props.children}
-      </span>
+      </Wrapper>
       {showPopover && props.description && (
         <EventPopover
           $top={popoverPos.top}
