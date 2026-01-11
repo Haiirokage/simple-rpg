@@ -1,33 +1,32 @@
 import { useCallback } from "preact/hooks";
 import { useAttributes } from "../data/attributes/hooks";
-import { useEncounter } from "../data/encounters/hooks";
 import { useGrantSkillExperience, useHandleSkills } from "../data/skills/hooks";
-import { CREATURES } from "../npc/creature-definitions";
+import { getTarget } from "../npc/creature-definitions";
 import { calculateHit, getHealthLost, getHitSeverityByTarget } from "./util";
+import type { NPC } from "../data/encounters/types";
 
 /**
  * Hook that returns a function to handle ranged attacks.
  * Calculates hit chance, damage, and updates NPC health.
  */
 export const useHandleAttack = () => {
-  const { data: encounter } = useEncounter();
   const { attributes } = useAttributes();
   const { skills } = useHandleSkills();
   const grantSkillExperience = useGrantSkillExperience();
 
   return useCallback(
-    (targetNpcId: string, target: "head" | "body" | "legs") => {
-      const npc = encounter.npcs[targetNpcId];
+    (targetNpc: NPC, target: "head" | "body" | "legs") => {
+      const npc = targetNpc;
       if (!npc) return "failure";
 
-      const creature = CREATURES[npc.type as keyof typeof CREATURES];
-      if (!creature) return "failure";
+      const creatureDefinition = getTarget(npc.type);
+      if (!creatureDefinition) return "failure";
 
       const hitQuality = calculateHit(
         attributes.dexterity.level,
         skills.ranged?.level || 0,
         npc.distance,
-        creature.attributes.dexterity,
+        creatureDefinition.attributes.dexterity,
       );
       const hitSeverity = getHitSeverityByTarget(target, hitQuality);
 
@@ -39,8 +38,6 @@ export const useHandleAttack = () => {
             ? 0.5 * targetBaseDamage
             : 0;
 
-      const creatureDefinition = CREATURES[npc.type];
-
       const healthLost = getHealthLost(
         creatureDefinition.targets[target].armor_rating,
         damageMultiplier,
@@ -48,7 +45,7 @@ export const useHandleAttack = () => {
 
       if (healthLost > 0) {
         const skillExperience = {
-          ranged: healthLost * Math.sqrt(npc.distance),
+          ranged: (healthLost / 5) * Math.pow(npc.distance, 2 / 3),
         };
 
         console.info("Granting ranged experience:", skillExperience.ranged);
@@ -57,6 +54,6 @@ export const useHandleAttack = () => {
 
       return { healthLost, hitSeverity };
     },
-    [encounter, attributes, skills, grantSkillExperience],
+    [attributes, skills, grantSkillExperience],
   );
 };

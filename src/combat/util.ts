@@ -19,22 +19,22 @@ export const calculateHit = (
   discovered?: boolean,
 ): number => {
   const confidentRange = BOW_RANGE / 5;
-  const linearDistance = clamp((BOW_RANGE - distance) / (BOW_RANGE - confidentRange), 0, 1);
-  const distanceMultiplier = Math.pow(linearDistance, 1 / 10);
-
-  const dexMult = 0.2 + playerDex / 50;
-  const rangedMult = 0.2 + playerRanged / 50;
+  const linearDistanceMult = clamp((BOW_RANGE - distance) / (BOW_RANGE - confidentRange), 0, 1);
+  const distanceMultiplier = Math.cbrt(linearDistanceMult);
+  const dexMult = 0.8 + playerDex / 100;
+  const rangedMult = 0.05 + playerRanged / 30;
 
   const roll = Math.random();
 
   if (discovered) {
     const enemyDexMult = clamp((playerDex - enemyDex + 30) / 40, 0, 1);
     const hitChance = clamp(distanceMultiplier * dexMult * rangedMult * enemyDexMult, 0, 1);
-    return Math.max(0, roll - hitChance);
+    return Math.max(0, roll - hitChance + 0.5);
   }
 
   const hitChance = clamp(distanceMultiplier * dexMult * rangedMult, 0, 1);
-  return Math.max(0, roll - hitChance);
+  console.log("hit chance", hitChance, distanceMultiplier, dexMult, rangedMult, roll);
+  return Math.max(0, roll - hitChance + 0.5);
 };
 
 export const HIT_SEVERITY = ["critical", "severe", "miss"] as const;
@@ -42,6 +42,7 @@ export const getHitSeverityByTarget = (
   target: "head" | "body" | "legs",
   hitMargin: number,
 ): "critical" | "severe" | "miss" => {
+  console.log("hit margin", hitMargin);
   const getHitType = (multiplier: number) =>
     HIT_SEVERITY[Math.min(Math.floor(hitMargin * multiplier), 2)];
   switch (target) {

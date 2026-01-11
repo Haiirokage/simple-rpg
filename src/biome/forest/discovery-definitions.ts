@@ -25,21 +25,21 @@ export const FOREST_DISCOVERIES: Record<DiscoveryType, UnlockableDiscoveryDefini
   berry_patch: {
     type: "berry_patch",
     maxCount: 5,
-    discoveryRange: { min: 60, max: 275 },
+    discoveryRange: { min: 75, max: 300 },
     rarity: 0.3,
     reward: { berry: 10 },
   },
   willow_grove: {
     type: "willow_grove",
     maxCount: 3,
-    discoveryRange: { min: 100, max: 275 },
+    discoveryRange: { min: 80, max: 265 },
     rarity: 0.1,
     reward: { fiber: 2 },
   },
   rabbit_trail: {
     type: "rabbit_trail",
     maxCount: 4,
-    discoveryRange: { min: 140, max: 300 },
+    discoveryRange: { min: 120, max: 300 },
     rarity: 0.1,
   },
   strong_inspiration: {

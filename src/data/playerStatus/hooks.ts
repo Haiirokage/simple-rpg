@@ -1,3 +1,4 @@
+import { useAttributes } from "../attributes/hooks";
 import { useDataQuery, useUpdateData } from "../util";
 import { defaultPlayerStatus, type PlayerStatus } from "./types";
 
@@ -35,4 +36,12 @@ export const useHealPlayer = () => {
     updatePlayerStatus({ health: newHealth });
     return newHealth - playerStatus.health;
   };
+};
+
+export const usePlayerRegenRates = () => {
+  const { attributes } = useAttributes();
+
+  const energyRegen = (attributes.constitution.level / 5) * 0.01;
+
+  return { energyRegen };
 };

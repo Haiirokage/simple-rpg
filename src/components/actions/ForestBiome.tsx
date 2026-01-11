@@ -16,6 +16,8 @@ import { useGrantExperience } from "../../data/attributes/hooks";
 import { objectEntries } from "../../util";
 import { useActionMultipliers } from "../../biome/forest/action-utils";
 import { sum } from "lodash";
+import ExploreButton from "../ExploreButton";
+import TooltipWrapper from "../../style/TooltipWrapper";
 
 const ForestBiome = () => {
   const { resources } = useResources();
@@ -46,13 +48,18 @@ const ForestBiome = () => {
       ),
     [discoveries],
   );
+  const isDay = isActionWithinDaylight(time, 0, day);
 
   return (
     <div className="forest-actions">
       <Paragraph>
-        Tier {knowledge.tier} (Level {knowledge.level})
+        Knowledge Tier {knowledge.tier} (Level {knowledge.level})
       </Paragraph>
+      <TooltipWrapper description="Venture into the forest to discover new resources, encounters, and more.">
+        <ExploreButton />
+      </TooltipWrapper>
 
+      {!isDay && <Paragraph>It's currently too dark to safely explore the forest.</Paragraph>}
       {/* New refactored actions */}
       {discoveredActions.map((action) => {
         const { id, name, cost, resourceYield, experienceGrant } = action;

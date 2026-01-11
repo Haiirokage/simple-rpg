@@ -109,6 +109,18 @@ const ExplorationActions = () => {
       <LookAroundButton disabled={disabled} hasViable={hasViableDiscoveries} onClick={lookAround}>
         Look Around
       </LookAroundButton>
+      {discoveries.successful_hunt > 0 && (
+        <button
+          disabled={disabled}
+          onClick={() => {
+            if (Math.random() < knowledgeLevel / 300) {
+              setEncounter("deer_tracks_found");
+            }
+          }}
+        >
+          Track down a deer
+        </button>
+      )}
       <button disabled={preventLeaving} onClick={() => endExpedition()}>
         Return Home
       </button>

@@ -1,13 +1,15 @@
 import type { KnowledgeBiome } from "../knowledge/types";
 import type { ResourceStore } from "../resources/types";
 import type { Skills } from "../skills/types";
-import type { Creatures } from "../../npc/creature-definitions";
+import type { AllTargets, Creatures } from "../../npc/creature-definitions";
+import type { ExtraDiscoveries } from "../discoveries/types";
 
 export type EncounterFrameId = "deer_tracks_found" | "deer_spotted" | "deer_killed"; // Add more frame IDs as they're created
 
 export interface Outcome {
   nextFrameId: EncounterFrameId | "exit";
   resourceYield?: Partial<ResourceStore>;
+  discovery?: ExtraDiscoveries;
   exitMessage?: string;
 }
 export type SkillCheck = {
@@ -58,7 +60,7 @@ export type EncounterFrame = {
 
 export type NPC = {
   id: string;
-  type: Creatures;
+  type: AllTargets;
   distance: number; // in meters
   health: number;
   maxHealth: number;

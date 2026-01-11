@@ -2,11 +2,21 @@ import type { Attributes } from "../data/attributes/types";
 
 export type Creatures = "deer";
 
-export type CreatureDefinition = {
-  id: Creatures;
+export interface BaseNPCDefinition {
   name: string;
   attributes: Record<Attributes, number>;
   targets: Record<"head" | "body" | "legs", { armor_rating: number }>;
+}
+export interface CreatureDefinition extends BaseNPCDefinition {
+  id: Creatures;
+}
+
+const getTargets = (head = 0, body = 0, legs = 0) => {
+  return {
+    head: { armor_rating: head },
+    body: { armor_rating: body },
+    legs: { armor_rating: legs },
+  };
 };
 
 export const CREATURES: Record<Creatures, CreatureDefinition> = {
@@ -18,16 +28,35 @@ export const CREATURES: Record<Creatures, CreatureDefinition> = {
       constitution: 50,
       dexterity: 42,
     },
-    targets: {
-      head: {
-        armor_rating: 30,
-      },
-      body: {
-        armor_rating: 15,
-      },
-      legs: {
-        armor_rating: 10,
-      },
-    },
+    targets: getTargets(30, 15, 10),
   },
+};
+
+export type OtherTargets = "archeryTarget";
+
+export interface OtherTargetDefinition extends BaseNPCDefinition {
+  id: OtherTargets;
+}
+
+export const OTHER_TARGETS: Record<OtherTargets, OtherTargetDefinition> = {
+  archeryTarget: {
+    id: "archeryTarget",
+    name: "Archery Target",
+    attributes: {
+      strength: 0,
+      constitution: 10,
+      dexterity: 0,
+    },
+    targets: getTargets(15, 15, 15),
+  },
+};
+
+export type AllTargets = Creatures | OtherTargets;
+
+export const getTarget = (id: AllTargets) => {
+  if (id in CREATURES) {
+    return CREATURES[id as Creatures];
+  } else {
+    return OTHER_TARGETS[id as OtherTargets];
+  }
 };

@@ -1,8 +1,10 @@
-import { usePlayerStatus } from "../data/playerStatus/hooks";
+import { usePlayerRegenRates, usePlayerStatus } from "../data/playerStatus/hooks";
 import ProgressBar from "../components/ProgressBar";
+import TooltipWrapper from "../style/TooltipWrapper";
 
 const PlayerStatus = () => {
   const { data: status } = usePlayerStatus();
+  const { energyRegen } = usePlayerRegenRates();
 
   return (
     <div>
@@ -16,12 +18,16 @@ const PlayerStatus = () => {
         />
       </div>
       <div style={{ marginBottom: "0.5rem" }}>
-        <ProgressBar
-          current={status.energy}
-          max={status.maxEnergy}
-          label="Energy"
-          color="#64b5f6"
-        />
+        <TooltipWrapper
+          description={`Your energy regen is ${energyRegen.toFixed(2)} * satiation / h While resting`}
+        >
+          <ProgressBar
+            current={status.energy}
+            max={status.maxEnergy}
+            label="Energy"
+            color="#64b5f6"
+          />
+        </TooltipWrapper>
       </div>
       <div style={{ marginBottom: "0.5rem" }}>
         <ProgressBar

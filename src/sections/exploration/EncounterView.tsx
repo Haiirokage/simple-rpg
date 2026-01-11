@@ -11,10 +11,12 @@ import { useHandleResources } from "../../data/resources/hooks";
 import { useTime } from "../../data/time/hooks";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { useEquipment } from "../../data/equipment/hooks";
+import { useMutateDiscoveries } from "../../data/discoveries/hooks";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
   const exploration = useExploration();
+  const mutateDiscoveries = useMutateDiscoveries();
   const equipment = useEquipment();
   const { time } = useTime();
   const { addResources } = useHandleResources();
@@ -29,10 +31,13 @@ const EncounterView = () => {
   const frame = ENCOUNTER_FRAMES[encounter.encounterFrameId];
 
   const resolveOutcome = (outcome: Outcome, timePassed?: number) => {
-    const { nextFrameId, resourceYield, exitMessage } = outcome;
+    const { nextFrameId, resourceYield, exitMessage, discovery } = outcome;
 
     if (resourceYield) {
       addResources(resourceYield);
+    }
+    if (discovery) {
+      mutateDiscoveries({ [discovery]: 1 });
     }
 
     setEncounter(nextFrameId, timePassed, exitMessage);
@@ -50,7 +55,7 @@ const EncounterView = () => {
     }
     if (action.type === "attack") {
       const targetNPC = npcs[action.attack.target];
-      const result = handleAttack(action.attack.target, "body");
+      const result = handleAttack(encounter.npcs[action.attack.target], "body");
       if (result !== "failure") {
         const npcHealth = targetNPC.health - result.healthLost;
         mutateEncounter({

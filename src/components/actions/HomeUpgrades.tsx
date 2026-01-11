@@ -8,7 +8,11 @@ import { useTime, useUpdateTime } from "../../data/time/hooks";
 import { useHomeUpgrades, useUpdateHomeUpgrades } from "../../data/homeUpgrades/hooks";
 import { HOME_UPGRADES, type HomeUpgradeDefinition } from "../../data/homeUpgrades/definitions";
 import type { ResourceStore } from "../../data/resources/types";
-import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
+import {
+  usePlayerRegenRates,
+  usePlayerStatus,
+  useUpdatePlayerStatus,
+} from "../../data/playerStatus/hooks";
 import { getSeasonByDay } from "../../data/time/season-util";
 import { useDiscoveries } from "../../data/discoveries/hooks";
 import { useMemo } from "preact/hooks";
@@ -24,6 +28,7 @@ const HomeUpgrades = () => {
   const { data: homeUpgrades } = useHomeUpgrades();
   const updateHomeUpgrades = useUpdateHomeUpgrades();
   const { data: playerStatus } = usePlayerStatus();
+  const { energyRegen } = usePlayerRegenRates();
   const updatePlayerStatus = useUpdatePlayerStatus();
   const discoveries = useDiscoveries();
 
@@ -57,7 +62,7 @@ const HomeUpgrades = () => {
             const wakeupTime = 24 + month.sunrise;
             updatePlayerStatus({
               energy: Math.floor(
-                playerStatus.energy + 0.06 * (wakeupTime - time) * playerStatus.satiation,
+                playerStatus.energy + energyRegen * (wakeupTime - time) * playerStatus.satiation,
               ),
             });
             updateTime({ time: wakeupTime });
