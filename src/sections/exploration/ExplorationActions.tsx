@@ -115,10 +115,26 @@ const ExplorationActions = () => {
           onClick={() => {
             if (Math.random() < knowledgeLevel / 300) {
               setEncounter("deer_tracks_found");
+            } else {
+              advanceTime(1);
             }
           }}
         >
           Track down a deer
+        </button>
+      )}
+      {discoveries.find_tubers > 0 && (
+        <button
+          disabled={disabled}
+          onClick={() => {
+            if (Math.random() < knowledgeLevel / 250) {
+              setEncounter("edable_roots");
+            } else {
+              advanceTime(1);
+            }
+          }}
+        >
+          Find some tubers
         </button>
       )}
       <button disabled={preventLeaving} onClick={() => endExpedition()}>

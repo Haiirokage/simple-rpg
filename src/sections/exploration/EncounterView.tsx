@@ -12,6 +12,8 @@ import { useTime } from "../../data/time/hooks";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { useEquipment } from "../../data/equipment/hooks";
 import { useMutateDiscoveries } from "../../data/discoveries/hooks";
+import { useHandleEffect } from "../../data/effect-util";
+import TooltipWrapper from "../../style/TooltipWrapper";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
@@ -24,6 +26,7 @@ const EncounterView = () => {
   const setEncounter = useSetEncounter();
   const handleSkillCheck = useHandleSkillCheck();
   const handleAttack = useHandleAttack();
+  const handleEffect = useHandleEffect();
 
   if (!encounter.encounterFrameId) {
     return <div>{encounter.exitMessage || "No encounter active."}</div>;
@@ -31,8 +34,11 @@ const EncounterView = () => {
   const frame = ENCOUNTER_FRAMES[encounter.encounterFrameId];
 
   const resolveOutcome = (outcome: Outcome, timePassed?: number) => {
-    const { nextFrameId, resourceYield, exitMessage, discovery } = outcome;
+    const { nextFrameId, resourceYield, exitMessage, discovery, sideEffect } = outcome;
 
+    if (sideEffect) {
+      handleEffect(sideEffect);
+    }
     if (resourceYield) {
       addResources(resourceYield);
     }
@@ -105,15 +111,20 @@ const EncounterView = () => {
           const outOfEnergy = playerStatus.energy - (action.cost.energy || 0) < 0;
           const noWeapon = action.type === "attack" && equipment.tools.bow.level !== 1;
 
+          const message =
+            action.type === "skill" ? `Skill check vs. DC ${action.skillCheck.dc}` : "Attack roll";
+
           return (
-            <button
-              disabled={outOfTime || outOfEnergy || noWeapon}
-              onClick={() => handleActionClick(action)}
-              key={action.id}
-              style={{ marginRight: "0.5rem" }}
-            >
-              {action.label}
-            </button>
+            <TooltipWrapper description={message} inline>
+              <button
+                disabled={outOfTime || outOfEnergy || noWeapon}
+                onClick={() => handleActionClick(action)}
+                key={action.id}
+                style={{ marginRight: "0.5rem" }}
+              >
+                {action.label}
+              </button>
+            </TooltipWrapper>
           );
         })}
       </div>

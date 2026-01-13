@@ -58,6 +58,12 @@ export const EXPLORATION_EVENTS: Record<AllDiscoveryType, ExplorationEvent> = {
       "You find a cache of excellently-formed stones nestled in a rocky outcrop. Their substantial weight makes your arms and shoulders work as you collect them. The good ache that follows stays with you for hours, a satisfying reminder of effort turned to strength. You wonder if you could recreate that feeling intentionally, building yourself stronger for the winter ahead.",
     ],
   },
+  mysterious_roots: {
+    id: "mysterious_roots",
+    name: "Edable tubers?",
+    category: "exploration",
+    descriptions: [""],
+  },
 };
 
 export const buildExplorationEventLog = (

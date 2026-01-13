@@ -80,4 +80,33 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
       },
     ],
   },
+  edable_roots: {
+    id: "edable_roots",
+    title: "Mystery roots",
+    description:
+      "You find some roots that look like they could be a source of food. Do you check if they are edible?",
+    actions: [
+      {
+        type: "skill",
+        id: "taste_root",
+        label: "Taste the root",
+        skillCheck: { knowledge: true, dc: 10, skill: [] },
+        cost: { minutes: 60 },
+        outcomes: {
+          failure: {
+            nextFrameId: "exit",
+            exitMessage:
+              "You ate a poisonous plant, and lost your dinner. You should be more careful.",
+            sideEffect: "nausea",
+          },
+          success: {
+            nextFrameId: "exit",
+            exitMessage: "These tubers are good and seems nutritious, I should gather some",
+            resourceYield: { tuber: 5 },
+            discovery: "find_tubers",
+          },
+        },
+      },
+    ],
+  },
 };

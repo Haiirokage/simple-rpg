@@ -45,4 +45,12 @@ export const FOOD_STORAGE: ResourceDefinition[] = [
     nutritionType: "protein",
     mealSize: 1,
   },
+  {
+    key: "tuber",
+    baseCapacity: 20,
+    capacityPerPantry: 150,
+    decayRate: 0.02,
+    nutritionType: "carb",
+    mealSize: 2,
+  },
 ];

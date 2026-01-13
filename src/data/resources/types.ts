@@ -16,6 +16,7 @@ export const defaultResourceStore = {
   venison: 0,
   jerky: 0,
   fiber: 0,
+  tuber: 0,
 } as const;
 
 export type ResourceKeys = keyof typeof defaultResourceStore;

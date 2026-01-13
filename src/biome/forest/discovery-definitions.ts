@@ -2,7 +2,7 @@ import type { EncounterFrameId } from "../../data/encounters/types";
 import type { ResourceStore } from "../../data/resources/types";
 
 export type DiscoveryType = "berry_patch" | "willow_grove" | "rabbit_trail" | "strong_inspiration";
-export type RepeatableDiscoveryType = "deer_tracks";
+export type RepeatableDiscoveryType = "deer_tracks" | "mysterious_roots";
 export type AllDiscoveryType = DiscoveryType | RepeatableDiscoveryType;
 
 export interface DiscoveryDefinition {
@@ -60,5 +60,11 @@ export const REPEATABLE_DISCOVERIES: Record<
     rarity: 0.08,
     knowledgeRequirement: 80,
     triggerEncounter: "deer_tracks_found",
+  },
+  mysterious_roots: {
+    type: "mysterious_roots",
+    rarity: 0.08,
+    knowledgeRequirement: 120,
+    triggerEncounter: "edable_roots",
   },
 };

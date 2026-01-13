@@ -3,13 +3,19 @@ import type { ResourceStore } from "../resources/types";
 import type { Skills } from "../skills/types";
 import type { AllTargets, Creatures } from "../../npc/creature-definitions";
 import type { ExtraDiscoveries } from "../discoveries/types";
+import type { PlayerEffect } from "../effect-util";
 
-export type EncounterFrameId = "deer_tracks_found" | "deer_spotted" | "deer_killed"; // Add more frame IDs as they're created
+export type EncounterFrameId =
+  | "deer_tracks_found"
+  | "deer_spotted"
+  | "deer_killed"
+  | "edable_roots"; // Add more frame IDs as they're created
 
 export interface Outcome {
   nextFrameId: EncounterFrameId | "exit";
   resourceYield?: Partial<ResourceStore>;
   discovery?: ExtraDiscoveries;
+  sideEffect?: PlayerEffect;
   exitMessage?: string;
 }
 export type SkillCheck = {
@@ -30,6 +36,7 @@ export interface BaseAction {
   label: string;
   cost: {
     minutes?: number; // Time cost in minutes
+    /** an energy cost will not make it possible to mutate playerStatus in outcome */
     energy?: number; // Optional energy cost
   };
   outcomes: EncounterOutcomes;

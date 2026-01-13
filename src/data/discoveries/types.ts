@@ -1,6 +1,6 @@
 import type { DiscoveryType } from "../../biome/forest/discovery-definitions";
 
-export type ExtraDiscoveries = "successful_hunt" | "failed_hunt";
+export type ExtraDiscoveries = "successful_hunt" | "failed_hunt" | "find_tubers";
 
 export type AllUnlockableDiscoveries = DiscoveryType | ExtraDiscoveries;
 export type DiscoveriesStore = {
@@ -15,4 +15,5 @@ export const defaultDiscoveriesStore: DiscoveriesStore = {
   // Not from ForestDiscoveries
   successful_hunt: 0,
   failed_hunt: 0,
+  find_tubers: 0,
 };

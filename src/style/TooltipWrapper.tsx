@@ -17,12 +17,16 @@ const EventPopover = styled.div<{ $top?: number; $left?: number }>`
   z-index: 1000;
 `;
 
-const Wrapper = styled.span`
+const Wrapper = styled.span<{ inline: boolean }>`
   width: fit-content;
-  display: block;
+  display: ${(props) => (props.inline ? "inline-block" : "block")};
 `;
 
-const TooltipWrapper = (props: { children: React.ReactNode; description?: string }) => {
+const TooltipWrapper = (props: {
+  children: React.ReactNode;
+  description?: string;
+  inline?: boolean;
+}) => {
   const [showPopover, setShowPopover] = useState(false);
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLSpanElement>(null);
@@ -44,6 +48,7 @@ const TooltipWrapper = (props: { children: React.ReactNode; description?: string
         ref={triggerRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setShowPopover(false)}
+        inline={!!props.inline}
       >
         {props.children}
       </Wrapper>
