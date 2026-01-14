@@ -61,9 +61,7 @@ const HomeUpgrades = () => {
             const month = getSeasonByDay(nextDay);
             const wakeupTime = 24 + month.sunrise;
             updatePlayerStatus({
-              energy: Math.floor(
-                playerStatus.energy + energyRegen * (wakeupTime - time) * playerStatus.satiation,
-              ),
+              energy: Math.floor(energyRegen * (wakeupTime - time) * playerStatus.satiation),
             });
             updateTime({ time: wakeupTime });
           }}

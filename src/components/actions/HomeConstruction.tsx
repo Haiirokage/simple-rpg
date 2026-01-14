@@ -72,7 +72,7 @@ const HomeConstruction = () => {
   const clearGround = () => {
     mutate({ wood: resources.wood + 2, stone: resources.stone + 1 });
     mutatePlayerStatus({
-      energy: playerStatus.energy - CLEAR_GROUND_ACTION.energyCost,
+      energy: -CLEAR_GROUND_ACTION.energyCost,
     });
     updateTime({ time: time + CLEAR_GROUND_ACTION.timeCost });
 

@@ -152,11 +152,9 @@ export const useHandleNewDay = () => {
     const healthDamageFromStarvation = consumedFood.length === 0 && satiation === 0 ? 10 : 0;
 
     updatePlayerStatus({
-      satiation,
-      maxSatiation,
-      maxEnergy: satiation,
-      energy: Math.min(playerStatus.energy, satiation),
-      health: Math.max(0, playerStatus.health - healthDamageFromCold - healthDamageFromStarvation),
+      satiation: -5 + 8 * consumedFood.length,
+      maxSatiation: maxSatiation - playerStatus.maxSatiation,
+      health: -healthDamageFromCold - healthDamageFromStarvation,
     });
 
     // Log damage events

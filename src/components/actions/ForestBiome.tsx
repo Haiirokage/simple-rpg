@@ -110,7 +110,7 @@ const ForestBiome = () => {
 
               updateTime({ time: time + action.cost.time });
               updatePlayerStatus({
-                energy: Math.max(0, playerStatus.energy - energyCost),
+                energy: -energyCost,
               });
             }}
           />

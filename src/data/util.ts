@@ -1,4 +1,5 @@
 import {
+  QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
@@ -9,6 +10,7 @@ export const getStorage = <T extends Record<string, unknown>>(key: string, fallb
   const item = localStorage.getItem(key);
 
   if (!item) {
+    console.log("no item", key, item);
     return fallback;
   }
 
@@ -19,7 +21,7 @@ export const getStorage = <T extends Record<string, unknown>>(key: string, fallb
   return { ...fallback, ...parsed };
 };
 
-export const setStorage = <T>(key: string, value: T) => {
+export const setStorage = async <T>(key: string, value: T) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
@@ -33,12 +35,35 @@ export const useDataQuery = <T extends Record<string, unknown>>(key: string, fal
 
 export const useUpdateData = <T extends Record<string, unknown>>(key: string, defaultStore: T) => {
   const queryClient = useQueryClient();
-  const { data } = useDataQuery<T>(key, defaultStore);
 
   return useMutation<void, Error, Partial<T>>({
-    mutationFn: async (updates) => setStorage(key, { ...data, ...updates }),
+    mutationKey: [key],
+    mutationFn: async (updates) => {
+      const previousData = queryClient.getQueryData<T>([key]) || defaultStore;
+      setStorage(key, { ...previousData, ...updates });
+    },
     onMutate: (updates) => {
-      queryClient.setQueryData([key], { ...data, ...updates });
+      const previousData = queryClient.getQueryData<T>([key]) || defaultStore;
+      queryClient.setQueryData([key], { ...previousData, ...updates });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [key] });
     },
   });
+};
+
+export const waitForCache = async (queryClient: QueryClient, callback: () => void) => {
+  const pendingMutations = queryClient
+    .getMutationCache()
+    .getAll()
+    .filter((mutation) => mutation.state.status === "pending")
+    .map((m) => m.execute);
+  if (pendingMutations) {
+    try {
+      await Promise.all(pendingMutations);
+    } catch (e) {
+      console.log("fail", e);
+    }
+  }
+  callback();
 };

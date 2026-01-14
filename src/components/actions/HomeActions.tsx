@@ -33,7 +33,7 @@ const HomeActions = () => {
 
     // Consume energy
     updatePlayerStatus({
-      energy: Math.max(0, playerStatus.energy - energyCost),
+      energy: -energyCost,
     });
 
     const expGain = 10 * playerForce * energyCost;
@@ -51,7 +51,7 @@ const HomeActions = () => {
 
     // Consume energy
     updatePlayerStatus({
-      energy: Math.max(0, playerStatus.energy - energyCost),
+      energy: -energyCost,
     });
     const result = handleAttack(target, "body");
 

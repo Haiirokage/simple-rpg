@@ -51,7 +51,7 @@ const EncounterView = () => {
 
   const handleActionClick = (action: EncounterAction) => {
     if (action.cost.energy) {
-      updatePlayerStatus({ energy: playerStatus.energy - action.cost.energy });
+      updatePlayerStatus({ energy: -action.cost.energy });
     }
     const { npcs } = encounter;
     if (action.type === "skill") {
