@@ -28,7 +28,7 @@ export const HOME_UPGRADES: HomeUpgradeDefinition[] = [
     key: "archery_target",
     name: "Archery Target",
     timeCost: 4,
-    resourceCost: { wood: 15, fiber: 5 },
+    resourceCost: { wood: 15, fiber: 4 },
     discoveriesRequired: { failed_hunt: 1 },
   },
 ];

@@ -143,7 +143,7 @@ const ForestBiome = () => {
             gainLevels(expGain);
             updateTime({ time: time + 1 });
             updatePlayerStatus({
-              energy: Math.max(0, playerStatus.energy - (2 + energyModifier)),
+              energy: -(2 + energyModifier),
             });
           }}
         />

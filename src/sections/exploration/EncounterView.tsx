@@ -109,7 +109,7 @@ const EncounterView = () => {
         {frame.actions.map((action) => {
           const outOfTime = isOutOfTime(action.cost.minutes);
           const outOfEnergy = playerStatus.energy - (action.cost.energy || 0) < 0;
-          const noWeapon = action.type === "attack" && equipment.tools.bow.level !== 1;
+          const noWeapon = action.type === "attack" && !equipment.tools.bow;
 
           const message =
             action.type === "skill" ? `Skill check vs. DC ${action.skillCheck.dc}` : "Attack roll";

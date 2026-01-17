@@ -9,13 +9,16 @@ interface consumableStatus {
 export const tools = ["hatchet", "bow"] as const;
 export type ToolType = (typeof tools)[number];
 
+export type BowType = "crude" | "stone";
+
 interface ToolStatus {
+  type: BowType;
   level: number; // 0 = none, 1+ = tier index in definition
 }
 
 export type EquipmentStore = {
   consumables: Record<(typeof consumables)[number], consumableStatus>;
-  tools: Record<(typeof tools)[number], ToolStatus>;
+  tools: Partial<Record<ToolType, ToolStatus>>;
 };
 
 export const defaultEquipmentStore: EquipmentStore = {
@@ -25,14 +28,7 @@ export const defaultEquipmentStore: EquipmentStore = {
       active: 0,
     },
   },
-  tools: {
-    hatchet: {
-      level: 0,
-    },
-    bow: {
-      level: 0,
-    },
-  },
+  tools: {},
 };
 
 export type EquipmentKeyType = ConsumableType | ToolType;

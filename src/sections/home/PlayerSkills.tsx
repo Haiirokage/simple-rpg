@@ -43,6 +43,9 @@ const PlayerSkills = () => {
     <div>
       <h2>Skills</h2>
       {skillEntries.map(([name, skill]) => {
+        if (skill.level === 0) {
+          return null;
+        }
         const expThreshold = getExpThreshold(skill.level);
         const expProgress = (skill.exp / expThreshold) * 100;
 

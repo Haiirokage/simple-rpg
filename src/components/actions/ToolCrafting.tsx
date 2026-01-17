@@ -30,11 +30,12 @@ const ToolCrafting = () => {
     <div className="tool-crafting">
       {TOOL_DEFINITIONS.map((toolDef) => {
         const toolStatus = tools[toolDef.key];
-        const nextLevel = toolStatus.level + 1;
+        const toolLevel = toolStatus?.level || 0;
+        const nextLevel = toolLevel + 1;
         const hasNextLevel = nextLevel < toolDef.tiers.length;
 
         if (!hasNextLevel) {
-          const toolTier = toolDef.tiers[toolStatus.level];
+          const toolTier = toolDef.tiers[toolLevel];
           return (
             <div key={toolDef.key}>
               <p style={{ marginBottom: "0.25rem", opacity: 0.7 }}>

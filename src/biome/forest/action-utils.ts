@@ -26,14 +26,15 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
     return { berry: seasonalMultiplier * discoveryBonus * Math.random() };
   }, [yieldMultiplier.forage, discoveries.berry_patch]);
 
+  const toolLevel = tools.hatchet?.level || 0;
   const gatherWood = useCallback(() => {
     const hatchetDef = TOOL_DEFINITIONS.find((t) => t.key === "hatchet");
-    const tierDef = hatchetDef?.tiers[tools.hatchet.level];
+    const tierDef = hatchetDef?.tiers[toolLevel];
     const woodBonus = tierDef?.bonus.woodGathering ?? 1;
     const fiberBonus = 0.75 + discoveries.willow_grove * 0.5;
 
     return { fiber: yieldMultiplier.gatherWood * woodBonus * fiberBonus, wood: woodBonus };
-  }, [yieldMultiplier.gatherWood, tools.hatchet.level, discoveries.willow_grove]);
+  }, [yieldMultiplier.gatherWood, toolLevel, discoveries.willow_grove]);
 
   const gatherStone = useCallback(() => {
     const strengthMult = playerForce / 50;

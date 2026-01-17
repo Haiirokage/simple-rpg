@@ -64,7 +64,7 @@ const HomeConstruction = () => {
   // Hatchet multiplies chance by 50x per level
   const plotDifficulty = Math.pow(10, plots - 8);
   const basePlotChance = 0.2 / plotDifficulty;
-  const hatchetMultiplier = Math.max(tools.hatchet.level * 50, 1);
+  const hatchetMultiplier = tools.hatchet ? Math.max(tools.hatchet.level * 50, 1) : 1;
   const strengthMultiplier = 1 + playerForce / 100;
   const plotChance = Math.min(basePlotChance * hatchetMultiplier * strengthMultiplier, 1); // Cap at 100%
 

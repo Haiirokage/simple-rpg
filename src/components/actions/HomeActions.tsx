@@ -5,6 +5,9 @@ import { useGrantExperience, usePlayerForce } from "../../data/attributes/hooks"
 import ActionButton from "../ActionButton";
 import { useHandleAttack } from "../../combat/hooks";
 import { getBasicNPC } from "../../data/encounters/util";
+import { useState } from "preact/hooks";
+import { objectKeys } from "../../util";
+import { getDistanceMultiplier } from "../../combat/util";
 
 const trainStrengthAction = {
   timeCost: 1,
@@ -15,7 +18,14 @@ const trainRangedAction = {
   energyCost: 20,
 };
 
+const targets = {
+  100: getBasicNPC("archeryTarget", 100),
+  120: getBasicNPC("archeryTarget", 120),
+  150: getBasicNPC("archeryTarget", 150),
+};
+
 const HomeActions = () => {
+  const [rangeTarget, setRangeTarget] = useState("100");
   const { data: homeUpgrades } = useHomeUpgrades();
   const { time } = useTime();
   const updateTime = useUpdateTime();
@@ -45,7 +55,6 @@ const HomeActions = () => {
     updateTime({ time: time + timeCost });
   };
 
-  const target = getBasicNPC("archeryTarget", 140);
   const trainRanged = () => {
     const { timeCost, energyCost } = trainRangedAction;
 
@@ -53,7 +62,7 @@ const HomeActions = () => {
     updatePlayerStatus({
       energy: -energyCost,
     });
-    const result = handleAttack(target, "body");
+    const result = handleAttack(targets[rangeTarget as "100" | "120" | "150"], "body");
 
     // Advance time
     updateTime({ time: time + timeCost });
@@ -89,11 +98,30 @@ const HomeActions = () => {
         />
       )}
       {hasArcheryTarget && (
-        <ActionButton
-          action={{ ...trainRangedAction, name: "Train Archery" }}
-          disabled={playerStatus.energy < trainRangedAction.energyCost}
-          onClick={trainRanged}
-        />
+        <>
+          <ActionButton
+            action={{ ...trainRangedAction, name: "Train Archery" }}
+            disabled={playerStatus.energy < trainRangedAction.energyCost}
+            onClick={trainRanged}
+          />
+          <label for="range-select">Range</label>
+          <select
+            id="range-select"
+            value={rangeTarget}
+            onChange={(e) => {
+              if (e.target) {
+                setRangeTarget(e.currentTarget.value);
+                console.log(e.target);
+              }
+            }}
+          >
+            {objectKeys(targets).map((distance) => (
+              <option value={distance}>
+                {distance} ({Math.round(getDistanceMultiplier(distance * 1) * 100)}%)
+              </option>
+            ))}
+          </select>
+        </>
       )}
     </div>
   );

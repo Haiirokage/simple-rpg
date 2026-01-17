@@ -45,7 +45,7 @@ export const useHandleAttack = () => {
 
       if (healthLost > 0) {
         const skillExperience = {
-          ranged: (healthLost / 5) * Math.pow(npc.distance, 2 / 3),
+          ranged: (healthLost / 6) * Math.pow(npc.distance, 2 / 3),
         };
 
         console.info("Granting ranged experience:", skillExperience.ranged);

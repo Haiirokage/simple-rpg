@@ -2,6 +2,11 @@ import { clamp } from "lodash";
 
 const BOW_RANGE = 150; // in meters
 
+export const getDistanceMultiplier = (distance: number) => {
+  const confidentRange = BOW_RANGE / 5;
+  const linearDistanceMult = clamp((BOW_RANGE - distance) / (BOW_RANGE - confidentRange), 0, 1);
+  return Math.cbrt(linearDistanceMult);
+};
 /**
  * Calculate hit chance for a ranged attack.
  * @param playerDex - Player's dexterity level
@@ -18,9 +23,7 @@ export const calculateHit = (
   enemyDex: number,
   discovered?: boolean,
 ): number => {
-  const confidentRange = BOW_RANGE / 5;
-  const linearDistanceMult = clamp((BOW_RANGE - distance) / (BOW_RANGE - confidentRange), 0, 1);
-  const distanceMultiplier = Math.cbrt(linearDistanceMult);
+  const distanceMultiplier = getDistanceMultiplier(distance);
   const dexMult = 0.8 + playerDex / 100;
   const rangedMult = 0.05 + playerRanged / 30;
 
@@ -29,12 +32,12 @@ export const calculateHit = (
   if (discovered) {
     const enemyDexMult = clamp((playerDex - enemyDex + 30) / 40, 0, 1);
     const hitChance = clamp(distanceMultiplier * dexMult * rangedMult * enemyDexMult, 0, 1);
-    return Math.max(0, roll - hitChance + 0.5);
+    return Math.max(0, roll - hitChance + 0.4);
   }
 
   const hitChance = clamp(distanceMultiplier * dexMult * rangedMult, 0, 1);
   console.log("hit chance", hitChance, distanceMultiplier, dexMult, rangedMult, roll);
-  return Math.max(0, roll - hitChance + 0.5);
+  return Math.max(0, roll - hitChance + 0.4);
 };
 
 export const HIT_SEVERITY = ["critical", "severe", "miss"] as const;
