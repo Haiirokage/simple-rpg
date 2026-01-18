@@ -115,7 +115,7 @@ const EncounterView = () => {
             action.type === "skill" ? `Skill check vs. DC ${action.skillCheck.dc}` : "Attack roll";
 
           return (
-            <TooltipWrapper description={message} inline>
+            <TooltipWrapper description={noWeapon ? "You need a weapon" : message} inline>
               <button
                 disabled={outOfTime || outOfEnergy || noWeapon}
                 onClick={() => handleActionClick(action)}

@@ -18,6 +18,10 @@ const defaultAttributeStore: AttributeStore = {
     level: 20,
     exp: 0,
   },
+  wisdom: {
+    level: 15,
+    exp: 0,
+  },
 } as const;
 
 export const useAttributes = () => {

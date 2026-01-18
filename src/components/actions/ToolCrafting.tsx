@@ -1,27 +1,39 @@
 import { useResources, useMutateResources } from "../../data/resources/hooks";
 import { getAffordability, hasDiscoveredResources } from "../../data/resources/util";
-import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
+import { useHandleEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
 import { useAdvanceTime } from "../../data/time/hooks";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
 import type { ResourceStore } from "../../data/resources/types";
 import { objectEntries } from "../../util";
 import type { ToolType } from "../../data/equipment/types";
+import { getEquipmentLevel } from "../../data/equipment/util";
+import { useGrantSkillExperience, useSkills } from "../../data/skills/hooks";
 
 const ToolCrafting = () => {
+  const { skills } = useSkills();
+  const grantExperience = useGrantSkillExperience();
   const { resources, data } = useResources();
   const { mutate: mutateResources } = useMutateResources();
-  const { tools } = useEquipment();
+  const { getTool } = useHandleEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const advanceTime = useAdvanceTime();
 
-  const craftTool = (toolKey: ToolType, level: number, resourceResult: Partial<ResourceStore>) => {
+  const craftTool = (toolKey: ToolType, tier: number, resourceResult: Partial<ResourceStore>) => {
     // Subtract costs from resources
     mutateResources(resourceResult);
 
-    // Update tool to new level
-    mutateSpecific("tools", {
-      [toolKey]: { level },
-    });
+    const newLevel = getEquipmentLevel(skills.crafting.level, tier);
+    const tool = getTool(toolKey);
+    const improvement = newLevel > tool.level || tier > tool.tier;
+    if (improvement) {
+      // Update tool to new level
+      mutateSpecific("tools", {
+        [toolKey]: { tier, level: newLevel },
+      });
+    }
+
+    const exp = tier * 200 + newLevel;
+    grantExperience({ crafting: improvement ? exp : exp / 4 });
 
     advanceTime(1);
   };
@@ -29,40 +41,52 @@ const ToolCrafting = () => {
   return (
     <div className="tool-crafting">
       {TOOL_DEFINITIONS.map((toolDef) => {
-        const toolStatus = tools[toolDef.key];
-        const toolLevel = toolStatus?.level || 0;
-        const nextLevel = toolLevel + 1;
-        const hasNextLevel = nextLevel < toolDef.tiers.length;
+        const toolStatus = getTool(toolDef.key);
+        const toolTier = toolStatus?.tier || 0;
+        const nextTier = toolTier + 1;
+        const hasNextTier = nextTier < toolDef.tiers.length;
 
-        if (!hasNextLevel) {
-          const toolTier = toolDef.tiers[toolLevel];
+        const nextTierData = toolDef.tiers[nextTier];
+        const getNextTierButton = () => {
+          const costText = objectEntries(nextTierData.cost)
+            .map(([key, cost]) => `${cost} ${key}`)
+            .join(", ");
+          const { canAfford, resourceResult } = getAffordability(nextTierData.cost, resources);
           return (
-            <div key={toolDef.key}>
-              <p style={{ marginBottom: "0.25rem", opacity: 0.7 }}>
-                {toolDef.name} (current: {toolTier.name}) - Max level reached
-              </p>
-            </div>
-          );
-        }
-
-        const nextTierData = toolDef.tiers[nextLevel];
-        const { canAfford, resourceResult } = getAffordability(nextTierData.cost, resources);
-
-        const costText = objectEntries(nextTierData.cost)
-          .map(([key, cost]) => `${cost} ${key}`)
-          .join(", ");
-
-        const hasDiscovered = hasDiscoveredResources(nextTierData.cost, data);
-
-        return hasDiscovered ? (
-          <div key={toolDef.key}>
             <button
               disabled={!canAfford}
-              onClick={() => craftTool(toolDef.key, nextLevel, resourceResult)}
+              onClick={() => craftTool(toolDef.key, nextTier, resourceResult)}
               style={{ fontSize: "0.9em" }}
             >
               Craft {nextTierData.name} {toolDef.name} {costText ? `(${costText})` : "(free)"}
             </button>
+          );
+        };
+        const tierDefinition = toolDef.tiers[toolTier];
+        const reforgeAffordability = getAffordability(tierDefinition.cost, resources);
+
+        const hasDiscovered =
+          (hasNextTier && hasDiscoveredResources(nextTierData.cost, data)) || nextTier > 0;
+
+        return hasDiscovered ? (
+          <div key={toolDef.key}>
+            {hasNextTier ? (
+              getNextTierButton()
+            ) : (
+              <p style={{ marginBottom: "0.25rem", opacity: 0.7 }}>
+                {toolDef.name} (current: {tierDefinition.name}) - Max tier reached
+              </p>
+            )}
+            {toolTier !== 0 && (
+              <button
+                disabled={!reforgeAffordability.canAfford}
+                onClick={() =>
+                  craftTool(toolDef.key, toolTier, reforgeAffordability.resourceResult)
+                }
+              >
+                reforge
+              </button>
+            )}
           </div>
         ) : null;
       })}

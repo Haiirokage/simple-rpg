@@ -8,10 +8,15 @@ export type EquipmentDefinition = {
   maxCount: number;
 };
 
+export interface NumberRange {
+  min: number;
+  max?: number;
+}
+
 export interface ToolTier {
   name: string; // e.g. "wooden", "stone", "iron"
   cost: Partial<ResourceStore>;
-  bonus: Partial<Record<"woodGathering", number>>;
+  bonus: Partial<Record<"woodGathering" | "range", NumberRange>>;
 }
 
 export interface ToolDefinition {
@@ -22,17 +27,24 @@ export interface ToolDefinition {
 
 const NO_TOOL = { name: "none", cost: {}, bonus: {} };
 
+export const BOW_DEFINITION: ToolDefinition = {
+  key: "bow",
+  name: "Bow",
+  tiers: [
+    NO_TOOL,
+    { name: "crude", cost: { wood: 5, fiber: 8 }, bonus: { range: { min: 130, max: 170 } } },
+  ],
+};
 export const TOOL_DEFINITIONS: ToolDefinition[] = [
   {
     key: "hatchet",
     name: "Hatchet",
-    tiers: [NO_TOOL, { name: "stone", cost: { wood: 5, stone: 8 }, bonus: { woodGathering: 4 } }],
+    tiers: [
+      NO_TOOL,
+      { name: "stone", cost: { wood: 5, stone: 8 }, bonus: { woodGathering: { min: 3, max: 4 } } },
+    ],
   },
-  {
-    key: "bow",
-    name: "Bow",
-    tiers: [NO_TOOL, { name: "crude", cost: { wood: 5, fiber: 10 }, bonus: {} }],
-  },
+  BOW_DEFINITION,
 ];
 
 export const EQUIPMENT_DEFINITIONS: EquipmentDefinition[] = [

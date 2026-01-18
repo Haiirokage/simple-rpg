@@ -9,6 +9,7 @@ const ATTRIBUTE_COLORS: Record<Attributes, string> = {
   strength: "#ff6b6b",
   constitution: "#4a90e2",
   dexterity: "#f5a623",
+  wisdom: "hsl(61, 97%, 60%)",
 };
 
 const AttributeBox = styled.div`

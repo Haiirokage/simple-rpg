@@ -10,12 +10,15 @@ const PlayerEquipment = () => {
       <ul style={{ fontFamily: "monospace" }}>
         {TOOL_DEFINITIONS.map((toolDef) => {
           const toolStatus = tools[toolDef.key];
-          const toolLevel = toolStatus?.level || 0;
-          const tierName = toolDef.tiers[toolLevel].name;
-          return tierName === "none" ? null : (
+          if (!toolStatus) {
+            return null;
+          }
+          const { tier, level } = toolStatus;
+          const tierName = toolDef.tiers[tier].name;
+          return (
             <li key={toolDef.key}>
               <span style={{ display: "inline-block", width: "6em" }}>{toolDef.name}</span>
-              {tierName}
+              {tierName} lvl {level}
             </li>
           );
         })}

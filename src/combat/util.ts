@@ -1,10 +1,9 @@
 import { clamp } from "lodash";
 
-const BOW_RANGE = 150; // in meters
-
-export const getDistanceMultiplier = (distance: number) => {
-  const confidentRange = BOW_RANGE / 5;
-  const linearDistanceMult = clamp((BOW_RANGE - distance) / (BOW_RANGE - confidentRange), 0, 1);
+/** multiplier based on distance and range in meters */
+export const getDistanceMultiplier = (distance: number, bowRange = 150) => {
+  const confidentRange = bowRange / 5;
+  const linearDistanceMult = clamp((bowRange - distance) / (bowRange - confidentRange), 0, 1);
   return Math.cbrt(linearDistanceMult);
 };
 /**
@@ -21,11 +20,12 @@ export const calculateHit = (
   playerRanged: number,
   distance: number,
   enemyDex: number,
+  bowRange: number,
   discovered?: boolean,
 ): number => {
-  const distanceMultiplier = getDistanceMultiplier(distance);
+  const distanceMultiplier = getDistanceMultiplier(distance, bowRange);
   const dexMult = 0.8 + playerDex / 100;
-  const rangedMult = 0.05 + playerRanged / 30;
+  const rangedMult = 0.1 + playerRanged / 30;
 
   const roll = Math.random();
 

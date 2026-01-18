@@ -10,7 +10,7 @@ import {
 import { useMemo } from "preact/hooks";
 import { STRUCTURES, type StructureDefinition } from "../../data/structures/definitions";
 import type { ResourceStore } from "../../data/resources/types";
-import { useEquipment } from "../../data/equipment/hooks";
+import { useHandleEquipment } from "../../data/equipment/hooks";
 import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
 import ActionButton from "../ActionButton";
 import { CLEAR_GROUND_ACTION } from "./definitions";
@@ -39,7 +39,7 @@ const HomeConstruction = () => {
   const { data: playerStatus } = usePlayerStatus();
   const { time, day } = useTime();
   const updateTime = useUpdateTime();
-  const { tools } = useEquipment();
+  const { getTool } = useHandleEquipment();
 
   const berryIncomeMultiplier = useMemo(() => getBerryIncomeMultiplier(day), [day]);
 
@@ -64,8 +64,9 @@ const HomeConstruction = () => {
   // Hatchet multiplies chance by 50x per level
   const plotDifficulty = Math.pow(10, plots - 8);
   const basePlotChance = 0.2 / plotDifficulty;
-  const hatchetMultiplier = tools.hatchet ? Math.max(tools.hatchet.level * 50, 1) : 1;
-  const strengthMultiplier = 1 + playerForce / 100;
+  const hatchet = getTool("hatchet");
+  const hatchetMultiplier = Math.max(hatchet.tier * hatchet.level, 1);
+  const strengthMultiplier = 1 + playerForce / 80;
   const plotChance = Math.min(basePlotChance * hatchetMultiplier * strengthMultiplier, 1); // Cap at 100%
 
   // Clear ground action

@@ -11,9 +11,9 @@ export type ToolType = (typeof tools)[number];
 
 export type BowType = "crude" | "stone";
 
-interface ToolStatus {
-  type: BowType;
-  level: number; // 0 = none, 1+ = tier index in definition
+export interface ToolStatus {
+  tier: number; // 0 = none, 1+ = tier index in definition
+  level: number; // 1-100, decides scaling of stats
 }
 
 export type EquipmentStore = {

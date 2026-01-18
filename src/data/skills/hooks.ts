@@ -7,15 +7,14 @@ import { getAttributeBySkill } from "./definitions";
 import type { AttributeStore } from "../attributes/types";
 import { useAttributes, useMutateAttributes } from "../attributes/hooks";
 
+const defaultSkill = { level: 0, exp: 0 };
 const defaultSkillStore: SkillStore = {
   hunter: {
     level: 10,
     exp: 0,
   },
-  ranged: {
-    level: 0,
-    exp: 0,
-  },
+  ranged: { ...defaultSkill },
+  crafting: { ...defaultSkill },
 } as const;
 
 export const useSkills = () => {

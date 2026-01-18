@@ -21,7 +21,7 @@ export const HOME_UPGRADES: HomeUpgradeDefinition[] = [
     key: "stoneGym",
     name: "Stone Gym",
     timeCost: 6,
-    resourceCost: { stone: 30, fiber: 10, wood: 20 },
+    resourceCost: { stone: 30, fiber: 7, wood: 20 },
     discoveriesRequired: { strong_inspiration: 1 },
   },
   {

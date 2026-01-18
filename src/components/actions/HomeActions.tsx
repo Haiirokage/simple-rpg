@@ -8,6 +8,9 @@ import { getBasicNPC } from "../../data/encounters/util";
 import { useState } from "preact/hooks";
 import { objectKeys } from "../../util";
 import { getDistanceMultiplier } from "../../combat/util";
+import { useHandleEquipment } from "../../data/equipment/hooks";
+import { getValueByLevel } from "../../data/equipment/util";
+import { BOW_DEFINITION } from "../../data/equipment/definitions";
 
 const trainStrengthAction = {
   timeCost: 1,
@@ -19,12 +22,13 @@ const trainRangedAction = {
 };
 
 const targets = {
+  50: getBasicNPC("archeryTarget", 50),
   100: getBasicNPC("archeryTarget", 100),
-  120: getBasicNPC("archeryTarget", 120),
   150: getBasicNPC("archeryTarget", 150),
 };
 
 const HomeActions = () => {
+  const { getTool } = useHandleEquipment();
   const [rangeTarget, setRangeTarget] = useState("100");
   const { data: homeUpgrades } = useHomeUpgrades();
   const { time } = useTime();
@@ -37,6 +41,10 @@ const HomeActions = () => {
 
   const hasStoneGym = homeUpgrades.stoneGym;
   const hasArcheryTarget = homeUpgrades.archery_target;
+
+  const bowState = getTool("bow");
+  const bowTier = BOW_DEFINITION.tiers[bowState.tier];
+  const bowRange = getValueByLevel(bowState.level, bowTier.bonus.range || { min: 100 });
 
   const trainStrength = () => {
     const { timeCost, energyCost } = trainStrengthAction;
@@ -62,7 +70,7 @@ const HomeActions = () => {
     updatePlayerStatus({
       energy: -energyCost,
     });
-    const result = handleAttack(targets[rangeTarget as "100" | "120" | "150"], "body");
+    const result = handleAttack(targets[rangeTarget as "50" | "100" | "150"], "body");
 
     // Advance time
     updateTime({ time: time + timeCost });
@@ -117,7 +125,7 @@ const HomeActions = () => {
           >
             {objectKeys(targets).map((distance) => (
               <option value={distance}>
-                {distance} ({Math.round(getDistanceMultiplier(distance * 1) * 100)}%)
+                {distance} ({Math.round(getDistanceMultiplier(distance * 1, bowRange) * 100)}%)
               </option>
             ))}
           </select>

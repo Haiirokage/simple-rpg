@@ -1,4 +1,4 @@
-export type Skills = "hunter" | "ranged";
+export type Skills = "hunter" | "ranged" | "crafting";
 
 export type Skill = {
   /** Current level 1-100 */

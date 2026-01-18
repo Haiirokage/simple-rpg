@@ -4,12 +4,16 @@ import { useGrantSkillExperience, useHandleSkills } from "../data/skills/hooks";
 import { getTarget } from "../npc/creature-definitions";
 import { calculateHit, getHealthLost, getHitSeverityByTarget } from "./util";
 import type { NPC } from "../data/encounters/types";
+import { useHandleEquipment } from "../data/equipment/hooks";
+import { getValueByLevel } from "../data/equipment/util";
+import { BOW_DEFINITION } from "../data/equipment/definitions";
 
 /**
  * Hook that returns a function to handle ranged attacks.
  * Calculates hit chance, damage, and updates NPC health.
  */
 export const useHandleAttack = () => {
+  const { getTool } = useHandleEquipment();
   const { attributes } = useAttributes();
   const { skills } = useHandleSkills();
   const grantSkillExperience = useGrantSkillExperience();
@@ -22,11 +26,18 @@ export const useHandleAttack = () => {
       const creatureDefinition = getTarget(npc.type);
       if (!creatureDefinition) return "failure";
 
+      const bowState = getTool("bow");
+      const bowDefinition = BOW_DEFINITION;
+      const bowTier = bowDefinition.tiers[bowState.tier];
+      const bowRange = getValueByLevel(bowState.level, bowTier.bonus.range || { min: 100 });
+      console.log("range", bowRange);
+
       const hitQuality = calculateHit(
         attributes.dexterity.level,
         skills.ranged?.level || 0,
         npc.distance,
         creatureDefinition.attributes.dexterity,
+        bowRange,
       );
       const hitSeverity = getHitSeverityByTarget(target, hitQuality);
 
@@ -54,6 +65,6 @@ export const useHandleAttack = () => {
 
       return { healthLost, hitSeverity };
     },
-    [attributes, skills, grantSkillExperience],
+    [attributes, skills, grantSkillExperience, getTool],
   );
 };

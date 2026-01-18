@@ -1,5 +1,10 @@
 import { useDataQuery, useUpdateData } from "../util";
-import { defaultEquipmentStore, type EquipmentStore } from "./types";
+import {
+  defaultEquipmentStore,
+  type EquipmentStore,
+  type ToolStatus,
+  type ToolType,
+} from "./types";
 
 export const useEquipment = () => {
   const { data } = useDataQuery<EquipmentStore>("EQUIPMENT", defaultEquipmentStore);
@@ -20,6 +25,15 @@ export const useUpdateEquipment = () => {
   };
 
   return { mutateSpecific, mutate };
+};
+
+export const useHandleEquipment = () => {
+  const equipment = useEquipment();
+
+  const getTool = (toolType: ToolType): ToolStatus => {
+    return equipment.tools[toolType] || { tier: 0, level: 1 };
+  };
+  return { equipment, getTool };
 };
 
 export const useResetTraps = () => {
