@@ -25,4 +25,6 @@ export const MATERIAL_STORAGE: MaterialResourceDefinition[] = [
     baseCapacity: 20,
     decayRate: 0.01, // 1% decay per day
   },
+  { key: "leather", baseCapacity: 8, decayRate: 0 },
+  { key: "hide", baseCapacity: 2, decayRate: 0.01 },
 ];

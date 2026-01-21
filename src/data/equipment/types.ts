@@ -6,7 +6,7 @@ interface consumableStatus {
   active: number;
 }
 
-export const tools = ["hatchet", "bow"] as const;
+export const tools = ["hatchet", "knife", "bow", "shoes"] as const;
 export type ToolType = (typeof tools)[number];
 
 export type BowType = "crude" | "stone";
@@ -28,7 +28,9 @@ export const defaultEquipmentStore: EquipmentStore = {
       active: 0,
     },
   },
-  tools: {},
+  tools: {
+    shoes: { level: 1, tier: 1 },
+  },
 };
 
 export type EquipmentKeyType = ConsumableType | ToolType;

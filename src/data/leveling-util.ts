@@ -4,7 +4,7 @@ export type LeveledStat = {
 };
 
 export const getExpThreshold = (level: number): number => {
-  return Math.floor(100 + Math.pow(1.45, level));
+  return Math.floor(50 + Math.pow(1.5, level));
 };
 /**
  * Recursively levels up a stat based on experience accumulation.

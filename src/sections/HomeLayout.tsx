@@ -67,7 +67,7 @@ const HomeLayout = () => {
         <HomeConstruction />
       </GameSection>
       <GameSection area="actions">
-        <h2>Actions</h2>
+        <h2>Crafting</h2>
         <PlayerActions />
       </GameSection>
     </HomeGameContainer>

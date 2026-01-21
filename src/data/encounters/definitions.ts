@@ -14,7 +14,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
         skillCheck: {
           knowledge: true,
           skill: ["hunter"],
-          dc: 14,
+          dc: 15,
         },
         outcomes: {
           failure: {
@@ -64,7 +64,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
         id: "butcher_deer",
         label: "Butcher the deer",
         cost: { minutes: 60, energy: 5 },
-        skillCheck: { skill: ["hunter"], knowledge: true, dc: 15 },
+        skillCheck: { skill: ["hunter"], knowledge: true, dc: 16 },
         outcomes: {
           failure: {
             nextFrameId: "exit",
@@ -73,7 +73,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
           },
           success: {
             nextFrameId: "exit",
-            resourceYield: { venison: 20 },
+            resourceYield: { venison: 20, hide: 1 },
             exitMessage: "You butchered the deer and gathered valuable materials.",
           },
         },

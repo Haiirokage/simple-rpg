@@ -15,6 +15,8 @@ import { useAddEventLogEntry } from "../../data/eventLog/hooks";
 import { buildExplorationEventLog } from "../../events/exploration-events";
 import { useEncounter, useSetEncounter } from "../../data/encounters/hooks";
 import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
+import { useHandleEquipment } from "../../data/equipment/hooks";
+import { getValueByLevel } from "../../data/equipment/util";
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -34,6 +36,7 @@ const LookAroundButton = styled.button<{ hasViable: boolean }>`
 const ExplorationActions = () => {
   const { exploration, mutateExploration } = useHandleExploration();
   const setEncounter = useSetEncounter();
+  const { getTool } = useHandleEquipment();
   const { data: encounterState } = useEncounter();
   const { time, day, year } = useTime();
   const endExpedition = useEndExpedition();
@@ -48,7 +51,17 @@ const ExplorationActions = () => {
   const timeRemaining = exploration.endTime ? exploration.endTime - time : 0;
 
   const lookAround = useCallback(() => {
-    const { discovery, repeatable } = pickRandomDiscovery(knowledgeLevel, discoveries);
+    const { toolDefinition, toolStatus } = getTool("shoes");
+    const tierDefinition = toolDefinition.tiers[toolStatus.tier];
+    const discoveryMultiplier = getValueByLevel(
+      toolStatus.level,
+      tierDefinition.bonus.explorationChance,
+    );
+    const { discovery, repeatable } = pickRandomDiscovery(
+      knowledgeLevel,
+      discoveries,
+      discoveryMultiplier,
+    );
     const foundDiscoveryCount = discovery ? discoveries[discovery] || 0 : 0;
 
     if (repeatable) {
@@ -89,6 +102,7 @@ const ExplorationActions = () => {
     addEventLogEntry,
     gainLevels,
     setEncounter,
+    getTool,
   ]);
 
   const encounterFrame = encounterState.encounterFrameId

@@ -9,16 +9,14 @@ import { useState } from "preact/hooks";
 import { objectKeys } from "../../util";
 import { getDistanceMultiplier } from "../../combat/util";
 import { useHandleEquipment } from "../../data/equipment/hooks";
-import { getValueByLevel } from "../../data/equipment/util";
-import { BOW_DEFINITION } from "../../data/equipment/definitions";
 
 const trainStrengthAction = {
   timeCost: 1,
   energyCost: 30,
 };
 const trainRangedAction = {
-  timeCost: 1,
-  energyCost: 20,
+  timeCost: 2,
+  energyCost: 15,
 };
 
 const targets = {
@@ -28,7 +26,7 @@ const targets = {
 };
 
 const HomeActions = () => {
-  const { getTool } = useHandleEquipment();
+  const { getEquipmentBonus } = useHandleEquipment();
   const [rangeTarget, setRangeTarget] = useState("100");
   const { data: homeUpgrades } = useHomeUpgrades();
   const { time } = useTime();
@@ -42,9 +40,7 @@ const HomeActions = () => {
   const hasStoneGym = homeUpgrades.stoneGym;
   const hasArcheryTarget = homeUpgrades.archery_target;
 
-  const bowState = getTool("bow");
-  const bowTier = BOW_DEFINITION.tiers[bowState.tier];
-  const bowRange = getValueByLevel(bowState.level, bowTier.bonus.range || { min: 100 });
+  const bowRange = getEquipmentBonus("bow", "range");
 
   const trainStrength = () => {
     const { timeCost, energyCost } = trainStrengthAction;

@@ -1,10 +1,13 @@
 import type { NumberRange } from "./definitions";
 
-export const getValueByLevel = (level = 1, range: NumberRange) => {
+export const getValueByLevel = (level = 1, range: NumberRange = { min: 1 }) => {
   if (range.max) {
     const diff = range.max - range.min;
     const incrPerLevel = diff / 100;
-    return range.min + Math.round(incrPerLevel * level);
+    const rawValue = range.min + incrPerLevel * level;
+    const factor = Math.pow(10, range.decimals || 0);
+    const roundedValue = Math.round(rawValue * factor) / factor;
+    return roundedValue;
   }
   return range.min;
 };

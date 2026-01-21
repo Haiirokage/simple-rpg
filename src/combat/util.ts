@@ -25,7 +25,7 @@ export const calculateHit = (
 ): number => {
   const distanceMultiplier = getDistanceMultiplier(distance, bowRange);
   const dexMult = 0.8 + playerDex / 100;
-  const rangedMult = 0.1 + playerRanged / 30;
+  const rangedMult = 0.15 + playerRanged / 35;
 
   const roll = Math.random();
 

@@ -5,15 +5,13 @@ import { getTarget } from "../npc/creature-definitions";
 import { calculateHit, getHealthLost, getHitSeverityByTarget } from "./util";
 import type { NPC } from "../data/encounters/types";
 import { useHandleEquipment } from "../data/equipment/hooks";
-import { getValueByLevel } from "../data/equipment/util";
-import { BOW_DEFINITION } from "../data/equipment/definitions";
 
 /**
  * Hook that returns a function to handle ranged attacks.
  * Calculates hit chance, damage, and updates NPC health.
  */
 export const useHandleAttack = () => {
-  const { getTool } = useHandleEquipment();
+  const { getEquipmentBonus } = useHandleEquipment();
   const { attributes } = useAttributes();
   const { skills } = useHandleSkills();
   const grantSkillExperience = useGrantSkillExperience();
@@ -26,10 +24,7 @@ export const useHandleAttack = () => {
       const creatureDefinition = getTarget(npc.type);
       if (!creatureDefinition) return "failure";
 
-      const bowState = getTool("bow");
-      const bowDefinition = BOW_DEFINITION;
-      const bowTier = bowDefinition.tiers[bowState.tier];
-      const bowRange = getValueByLevel(bowState.level, bowTier.bonus.range || { min: 100 });
+      const bowRange = getEquipmentBonus("bow", "range");
       console.log("range", bowRange);
 
       const hitQuality = calculateHit(
@@ -55,8 +50,9 @@ export const useHandleAttack = () => {
       );
 
       if (healthLost > 0) {
+        const distanceFactor = Math.pow(npc.distance - bowRange / 5, 3 / 2);
         const skillExperience = {
-          ranged: (healthLost / 6) * Math.pow(npc.distance, 2 / 3),
+          ranged: ((healthLost / 100) * distanceFactor) / 5,
         };
 
         console.info("Granting ranged experience:", skillExperience.ranged);
@@ -65,6 +61,6 @@ export const useHandleAttack = () => {
 
       return { healthLost, hitSeverity };
     },
-    [attributes, skills, grantSkillExperience, getTool],
+    [attributes, skills, grantSkillExperience, getEquipmentBonus],
   );
 };

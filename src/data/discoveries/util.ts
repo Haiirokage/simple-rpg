@@ -23,6 +23,7 @@ import { useMemo } from "preact/hooks";
 export const pickRandomDiscovery = (
   knowledgeLevel: number,
   discoveries: DiscoveriesStore,
+  discoveryMultiplier = 1,
 ): { discovery?: DiscoveryType; repeatable?: RepeatableDiscoveryType } => {
   // Get all discovery types and shuffle
   const discoveryTypes = objectKeys(FOREST_DISCOVERIES);
@@ -37,8 +38,9 @@ export const pickRandomDiscovery = (
     if (discoveredCount >= definition.maxCount) {
       continue;
     }
-
-    const chance = calculateDiscoveryChance(knowledgeLevel, definition, discoveredCount);
+    console.log(discoveryMultiplier);
+    const chance =
+      calculateDiscoveryChance(knowledgeLevel, definition, discoveredCount) * discoveryMultiplier;
 
     if (Math.random() < chance) {
       return { discovery: discoveryType };

@@ -1,10 +1,7 @@
 import { useDataQuery, useUpdateData } from "../util";
-import {
-  defaultEquipmentStore,
-  type EquipmentStore,
-  type ToolStatus,
-  type ToolType,
-} from "./types";
+import { TOOL_DEFINITIONS, type EquipmentBonusType } from "./definitions";
+import { defaultEquipmentStore, type EquipmentStore, type ToolType } from "./types";
+import { getValueByLevel } from "./util";
 
 export const useEquipment = () => {
   const { data } = useDataQuery<EquipmentStore>("EQUIPMENT", defaultEquipmentStore);
@@ -30,10 +27,18 @@ export const useUpdateEquipment = () => {
 export const useHandleEquipment = () => {
   const equipment = useEquipment();
 
-  const getTool = (toolType: ToolType): ToolStatus => {
-    return equipment.tools[toolType] || { tier: 0, level: 1 };
+  const getTool = (toolType: ToolType) => {
+    const toolStatus = equipment.tools[toolType] || { tier: 0, level: 1 };
+    return { toolStatus, toolDefinition: TOOL_DEFINITIONS[toolType] };
   };
-  return { equipment, getTool };
+  const getEquipmentBonus = (toolType: ToolType, bonusType: EquipmentBonusType) => {
+    const { toolStatus, toolDefinition } = getTool(toolType);
+    const tierDefinition = toolDefinition.tiers[toolStatus.tier];
+
+    return getValueByLevel(toolStatus.level, tierDefinition.bonus[bonusType]);
+  };
+
+  return { equipment, getTool, getEquipmentBonus };
 };
 
 export const useResetTraps = () => {
