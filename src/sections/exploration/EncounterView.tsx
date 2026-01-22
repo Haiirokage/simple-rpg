@@ -1,5 +1,5 @@
 import { useHandleAttack } from "../../combat/hooks";
-import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
+import { COMBAT_FRAMES, ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 import {
   useSetEncounter,
   useHandleSkillCheck,
@@ -28,10 +28,14 @@ const EncounterView = () => {
   const handleAttack = useHandleAttack();
   const handleEffect = useHandleEffect();
 
-  if (!encounter.encounterFrameId) {
+  const combatFrame = COMBAT_FRAMES.combat;
+  const frame = encounter.encounterFrameId
+    ? ENCOUNTER_FRAMES[encounter.encounterFrameId]
+    : combatFrame;
+  console.log(frame, encounter.npcs);
+  if (!encounter.encounterFrameId && Object.keys(encounter.npcs).length === 0) {
     return <div>{encounter.exitMessage || "No encounter active."}</div>;
   }
-  const frame = ENCOUNTER_FRAMES[encounter.encounterFrameId];
 
   const resolveOutcome = (outcome: Outcome, timePassed?: number) => {
     const { nextFrameId, resourceYield, exitMessage, discovery, sideEffect } = outcome;

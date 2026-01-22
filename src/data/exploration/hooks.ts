@@ -3,6 +3,7 @@ import { useDataQuery, useUpdateData } from "../util";
 import { useAdvanceTime } from "../time/hooks";
 import type { ExplorationStore } from "./types";
 import { defaultExplorationStore } from "./types";
+import { useUpdateEncounter } from "../encounters/hooks";
 
 export const useExploration = () => {
   const { data } = useDataQuery<ExplorationStore>("EXPLORATION", defaultExplorationStore);
@@ -41,11 +42,12 @@ export const useStartExpedition = () => {
 
 export const useEndExpedition = () => {
   const { addResources } = useHandleResources();
+  const { mutate } = useUpdateEncounter();
   const { exploration, mutateExploration } = useHandleExploration();
 
   return () => {
     addResources(exploration.inventory);
-
+    mutate({ exitMessage: undefined });
     mutateExploration({
       active: false,
       inventory: {},

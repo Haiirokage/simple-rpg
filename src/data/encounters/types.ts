@@ -56,14 +56,22 @@ export interface AttackAction extends BaseAction {
 
 export type EncounterAction = SkillAction | AttackAction;
 
-export type EncounterFrame = {
-  id: EncounterFrameId;
+export interface BaseEncounterFrame {
   title: string;
   description: string;
   spawnCreatures?: { type: Creatures; id: string; distance: number }[];
   actions: EncounterAction[];
   preventLeaving?: boolean; // If true, player cannot leave this frame (default: false)
-};
+}
+export interface EncounterFrame extends BaseEncounterFrame {
+  id: EncounterFrameId;
+}
+
+export type CombatFrameId = "combat";
+
+export interface CombatEncounterFrame extends BaseEncounterFrame {
+  id: CombatFrameId;
+}
 
 export type NPC = {
   id: string;

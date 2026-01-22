@@ -1,4 +1,9 @@
-import type { EncounterFrame, EncounterFrameId } from "./types";
+import type {
+  CombatEncounterFrame,
+  CombatFrameId,
+  EncounterFrame,
+  EncounterFrameId,
+} from "./types";
 
 export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
   deer_tracks_found: {
@@ -110,3 +115,12 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
     ],
   },
 };
+
+export const COMBAT_FRAMES: Record<CombatFrameId, CombatEncounterFrame> = {
+  combat: {
+    id: "combat",
+    title: "Combat",
+    description: "Fight for your life.",
+    actions: [],
+  },
+} as const;

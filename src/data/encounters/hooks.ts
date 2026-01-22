@@ -8,7 +8,7 @@ import { useGrantSkillExperience, useSkills } from "../skills/hooks";
 import { getAttributeBySkill } from "../skills/definitions";
 import { useAdvanceTime } from "../time/hooks";
 
-const defaultEncounterStore: EncounterStore = {
+export const defaultEncounterStore: EncounterStore = {
   active: false,
   biome: "forest",
   npcs: {},
