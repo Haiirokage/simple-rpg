@@ -8,7 +8,15 @@ export interface BaseNPCDefinition {
   targets: Record<"head" | "body" | "legs", { armor_rating: number }>;
 }
 export interface CreatureDefinition extends BaseNPCDefinition {
-  id: Creatures;
+  type: Creatures;
+}
+
+export interface CreatureIntance extends CreatureDefinition {
+  id: string;
+  distance: number;
+  health: number;
+  maxHealth: number;
+  hostile: boolean;
 }
 
 const getTargets = (head = 0, body = 0, legs = 0) => {
@@ -21,7 +29,7 @@ const getTargets = (head = 0, body = 0, legs = 0) => {
 
 export const CREATURES: Record<Creatures, CreatureDefinition> = {
   deer: {
-    id: "deer",
+    type: "deer",
     name: "Deer",
     attributes: {
       strength: 25,

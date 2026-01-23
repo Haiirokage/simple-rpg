@@ -32,6 +32,15 @@ export const calculateHit = (
   if (discovered) {
     const enemyDexMult = clamp((playerDex - enemyDex + 30) / 40, 0, 1);
     const hitChance = clamp(distanceMultiplier * dexMult * rangedMult * enemyDexMult, 0, 1);
+    console.log(
+      "hit chance",
+      hitChance,
+      enemyDexMult,
+      distanceMultiplier,
+      dexMult,
+      rangedMult,
+      roll,
+    );
     return Math.max(0, roll - hitChance + 0.4);
   }
 

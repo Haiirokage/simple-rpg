@@ -17,7 +17,7 @@ export const useHandleAttack = () => {
   const grantSkillExperience = useGrantSkillExperience();
 
   return useCallback(
-    (targetNpc: NPC, target: "head" | "body" | "legs") => {
+    (targetNpc: NPC, target: "head" | "body" | "legs", discovered = false) => {
       const npc = targetNpc;
       if (!npc) return "failure";
 
@@ -33,6 +33,7 @@ export const useHandleAttack = () => {
         npc.distance,
         creatureDefinition.attributes.dexterity,
         bowRange,
+        discovered,
       );
       const hitSeverity = getHitSeverityByTarget(target, hitQuality);
 
@@ -51,8 +52,9 @@ export const useHandleAttack = () => {
 
       if (healthLost > 0) {
         const distanceFactor = Math.pow(npc.distance - bowRange / 5, 3 / 2);
+        const discFactor = discovered ? 2 : 1;
         const skillExperience = {
-          ranged: ((healthLost / 100) * distanceFactor) / 5,
+          ranged: ((healthLost / 100) * distanceFactor * discFactor) / 5,
         };
 
         console.info("Granting ranged experience:", skillExperience.ranged);

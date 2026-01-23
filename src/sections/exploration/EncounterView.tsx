@@ -1,5 +1,5 @@
 import { useHandleAttack } from "../../combat/hooks";
-import { COMBAT_FRAMES, ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
+import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 import {
   useSetEncounter,
   useHandleSkillCheck,
@@ -14,6 +14,8 @@ import { useEquipment } from "../../data/equipment/hooks";
 import { useMutateDiscoveries } from "../../data/discoveries/hooks";
 import { useHandleEffect } from "../../data/effect-util";
 import TooltipWrapper from "../../style/TooltipWrapper";
+import { objectKeys } from "../../util";
+import CombatView from "./CombatView";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
@@ -28,14 +30,14 @@ const EncounterView = () => {
   const handleAttack = useHandleAttack();
   const handleEffect = useHandleEffect();
 
-  const combatFrame = COMBAT_FRAMES.combat;
-  const frame = encounter.encounterFrameId
-    ? ENCOUNTER_FRAMES[encounter.encounterFrameId]
-    : combatFrame;
-  console.log(frame, encounter.npcs);
-  if (!encounter.encounterFrameId && Object.keys(encounter.npcs).length === 0) {
+  const enemies = objectKeys(encounter.enemies);
+  if (enemies.length > 0) {
+    return <CombatView enemies={encounter.enemies} />;
+  }
+  if (!encounter.encounterFrameId) {
     return <div>{encounter.exitMessage || "No encounter active."}</div>;
   }
+  const frame = ENCOUNTER_FRAMES[encounter.encounterFrameId];
 
   const resolveOutcome = (outcome: Outcome, timePassed?: number) => {
     const { nextFrameId, resourceYield, exitMessage, discovery, sideEffect } = outcome;

@@ -1,7 +1,7 @@
 import type { KnowledgeBiome } from "../knowledge/types";
 import type { ResourceStore } from "../resources/types";
 import type { Skills } from "../skills/types";
-import type { AllTargets, Creatures } from "../../npc/creature-definitions";
+import type { AllTargets, CreatureIntance, Creatures } from "../../npc/creature-definitions";
 import type { ExtraDiscoveries } from "../discoveries/types";
 import type { PlayerEffect } from "../effect-util";
 
@@ -86,6 +86,7 @@ export type EncounterStore = {
   biome: KnowledgeBiome;
   encounterFrameId?: EncounterFrameId;
   npcs: Record<string, NPC>;
+  enemies: Record<string, CreatureIntance>;
   timePassed: number; // in minutes
   exitMessage?: string;
 };

@@ -10,6 +10,8 @@ export const objectEntries = <T extends object>(
   return Object.entries(obj) as [keyof T, Exclude<T[keyof T], undefined>][];
 };
 
+export type AtLeast<T, K extends keyof T> = Partial<T> & Pick<T, K>;
+
 /**
  * Convert a fractional value to an integer using probability.
  * Floor value is guaranteed, fractional part is probability for +1 bonus.

@@ -7,11 +7,17 @@ import { useCallback } from "preact/hooks";
 import { useGrantSkillExperience, useSkills } from "../skills/hooks";
 import { getAttributeBySkill } from "../skills/definitions";
 import { useAdvanceTime } from "../time/hooks";
+import type {
+  CreatureDefinition,
+  CreatureIntance as CreatureInstance,
+} from "../../npc/creature-definitions";
+import type { AtLeast } from "../../util";
 
 export const defaultEncounterStore: EncounterStore = {
   active: false,
   biome: "forest",
   npcs: {},
+  enemies: {},
   timePassed: 0,
 } as const;
 
@@ -46,10 +52,44 @@ const spawnNpcsFromFrame = (frameId: EncounterFrameId) => {
         distance: config.distance,
         health: 100,
         maxHealth: 100,
+        attributes: {},
+        targets: {},
       },
     }),
     {} as Record<string, NPC>,
   );
+};
+
+const getNPCFromDefinition = (definition: CreatureDefinition, id?: string): CreatureInstance => {
+  const npcId = id || `${definition.type}1`;
+  return { ...definition, id: npcId, distance: 100, health: 100, maxHealth: 100, hostile: true };
+};
+
+export const useSpawnEnemy = () => {
+  const { mutateEncounter, encounter } = useHandleEncounter();
+
+  return (definition: CreatureDefinition) => {
+    const npcId = `${definition.type}1`;
+    mutateEncounter({
+      enemies: {
+        ...encounter.enemies,
+        [npcId]: getNPCFromDefinition(definition, npcId),
+        [`${npcId}1`]: getNPCFromDefinition(definition, `${npcId}1`),
+      },
+    });
+  };
+};
+
+export const useUpdateEnemies = () => {
+  const { mutateEncounter, encounter } = useHandleEncounter();
+
+  return (enemyStates: AtLeast<CreatureInstance, "id">[]) => {
+    mutateEncounter({
+      enemies: enemyStates.reduce((acc, e) => {
+        return { ...acc, [e.id]: { ...acc[e.id], ...e } };
+      }, encounter.enemies),
+    });
+  };
 };
 
 /**
@@ -71,6 +111,7 @@ export const useSetEncounter = () => {
         active: false,
         encounterFrameId: undefined,
         npcs: {},
+        enemies: {},
         timePassed: 0,
         exitMessage: exitMessage,
       });

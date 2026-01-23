@@ -13,10 +13,11 @@ import { useCallback } from "preact/hooks";
 import { objectEntries } from "../../util";
 import { useAddEventLogEntry } from "../../data/eventLog/hooks";
 import { buildExplorationEventLog } from "../../events/exploration-events";
-import { useEncounter, useSetEncounter } from "../../data/encounters/hooks";
+import { useEncounter, useSetEncounter, useSpawnEnemy } from "../../data/encounters/hooks";
 import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import { getValueByLevel } from "../../data/equipment/util";
+import { CREATURES } from "../../npc/creature-definitions";
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -35,6 +36,7 @@ const LookAroundButton = styled.button<{ hasViable: boolean }>`
 
 const ExplorationActions = () => {
   const { exploration, mutateExploration } = useHandleExploration();
+  const spawnNPC = useSpawnEnemy();
   const setEncounter = useSetEncounter();
   const { getTool } = useHandleEquipment();
   const { data: encounterState } = useEncounter();
@@ -151,6 +153,7 @@ const ExplorationActions = () => {
           Find some tubers
         </button>
       )}
+      <button onClick={() => spawnNPC(CREATURES.deer)}>test combat</button>
       <button disabled={preventLeaving} onClick={() => endExpedition()}>
         Return Home
       </button>
