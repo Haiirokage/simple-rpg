@@ -4,7 +4,7 @@ import { clamp } from "lodash";
 export const getDistanceMultiplier = (distance: number, bowRange = 150) => {
   const confidentRange = bowRange / 5;
   const linearDistanceMult = clamp((bowRange - distance) / (bowRange - confidentRange), 0, 1);
-  return Math.cbrt(linearDistanceMult);
+  return Math.sqrt(linearDistanceMult);
 };
 /**
  * Calculate hit chance for a ranged attack.
@@ -12,10 +12,11 @@ export const getDistanceMultiplier = (distance: number, bowRange = 150) => {
  * @param playerRanged - Player's ranged skill level
  * @param distance - Distance to target in meters
  * @param enemyDex - Enemy's dexterity level
+ * @param bowRange - Maximum effective range of the bow in meters
  * @param discovered - Whether the target is aware of the attack
- * @returns how far you got from the exact target.
+ * @returns hit chance as a probability between 0 and 1
  */
-export const calculateHit = (
+export const calculateHitChance = (
   playerDex: number,
   playerRanged: number,
   distance: number,
@@ -25,36 +26,36 @@ export const calculateHit = (
 ): number => {
   const distanceMultiplier = getDistanceMultiplier(distance, bowRange);
   const dexMult = 0.8 + playerDex / 100;
-  const rangedMult = 0.15 + playerRanged / 35;
-
-  const roll = Math.random();
+  const rangedMult = 0.15 + playerRanged / 30;
 
   if (discovered) {
     const enemyDexMult = clamp((playerDex - enemyDex + 30) / 40, 0, 1);
     const hitChance = clamp(distanceMultiplier * dexMult * rangedMult * enemyDexMult, 0, 1);
-    console.log(
-      "hit chance",
-      hitChance,
-      enemyDexMult,
-      distanceMultiplier,
-      dexMult,
-      rangedMult,
-      roll,
-    );
-    return Math.max(0, roll - hitChance + 0.4);
+    console.log("hit chance", hitChance, enemyDexMult, distanceMultiplier, dexMult, rangedMult);
+    return hitChance;
   }
 
   const hitChance = clamp(distanceMultiplier * dexMult * rangedMult, 0, 1);
-  console.log("hit chance", hitChance, distanceMultiplier, dexMult, rangedMult, roll);
-  return Math.max(0, roll - hitChance + 0.4);
+  console.log("hit chance", hitChance, distanceMultiplier, dexMult, rangedMult);
+  return hitChance;
 };
 
 export const HIT_SEVERITY = ["critical", "severe", "miss"] as const;
-export const getHitSeverityByTarget = (
+
+/**
+ * Rolls to determine hit severity based on hit chance and target.
+ * @param target - The body part being targeted
+ * @param hitChance - The probability of hitting (0-1)
+ * @returns The severity of the hit: critical, severe, or miss
+ */
+export const calculateHitSeverity = (
   target: "head" | "body" | "legs",
-  hitMargin: number,
+  hitChance: number,
 ): "critical" | "severe" | "miss" => {
-  console.log("hit margin", hitMargin);
+  const roll = Math.random();
+  const hitMargin = Math.max(0, roll - hitChance + 0.4);
+
+  console.log("hit margin", hitMargin, "roll", roll);
   const getHitType = (multiplier: number) =>
     HIT_SEVERITY[Math.min(Math.floor(hitMargin * multiplier), 2)];
   switch (target) {
@@ -66,6 +67,18 @@ export const getHitSeverityByTarget = (
     default:
       return getHitType(10);
   }
+};
+
+/**
+ * Calculate exp multiplier based on shot difficulty.
+ * Easy shots (high hit chance) teach you less than challenging shots.
+ * Full exp at 5% hit chance, decreasing linearly to 10% exp at 95%+ hit chance.
+ * @param hitChance - The probability of hitting (0-1)
+ * @returns multiplier for experience gain (0.1-1.0)
+ */
+export const getDifficultyMultiplier = (hitChance: number): number => {
+  // 5% = 1.0x, 25% = 0.8x, 50% = 0.55x, 75% = 0.3x, 95% = 0.1x
+  return Math.max(0.1, 1.0 - Math.max(0, hitChance - 0.05));
 };
 
 const force = 30; // something random for now

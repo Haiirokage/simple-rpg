@@ -2,7 +2,12 @@ import { useCallback } from "preact/hooks";
 import { useAttributes } from "../data/attributes/hooks";
 import { useGrantSkillExperience, useHandleSkills } from "../data/skills/hooks";
 import { getTarget } from "../npc/creature-definitions";
-import { calculateHit, getHealthLost, getHitSeverityByTarget } from "./util";
+import {
+  calculateHitChance,
+  calculateHitSeverity,
+  getDifficultyMultiplier,
+  getHealthLost,
+} from "./util";
 import type { NPC } from "../data/encounters/types";
 import { useHandleEquipment } from "../data/equipment/hooks";
 
@@ -27,7 +32,7 @@ export const useHandleAttack = () => {
       const bowRange = getEquipmentBonus("bow", "range");
       console.log("range", bowRange);
 
-      const hitQuality = calculateHit(
+      const hitChance = calculateHitChance(
         attributes.dexterity.level,
         skills.ranged?.level || 0,
         npc.distance,
@@ -35,7 +40,7 @@ export const useHandleAttack = () => {
         bowRange,
         discovered,
       );
-      const hitSeverity = getHitSeverityByTarget(target, hitQuality);
+      const hitSeverity = calculateHitSeverity(target, hitChance);
 
       const targetBaseDamage = target === "head" ? 25 : target === "body" ? 15 : 5;
       const damageMultiplier =
@@ -51,13 +56,20 @@ export const useHandleAttack = () => {
       );
 
       if (healthLost > 0) {
-        const distanceFactor = Math.pow(npc.distance - bowRange / 5, 3 / 2);
+        const distanceFactor = Math.max(0.1, (npc.distance - 20) / 100);
         const discFactor = discovered ? 2 : 1;
+        const difficultyMultiplier = getDifficultyMultiplier(hitChance);
+        const severityBonus = hitSeverity === "critical" ? 2 : 1;
         const skillExperience = {
-          ranged: ((healthLost / 100) * distanceFactor * discFactor) / 5,
+          ranged: healthLost * distanceFactor * discFactor * difficultyMultiplier * severityBonus,
         };
 
-        console.info("Granting ranged experience:", skillExperience.ranged);
+        console.info("Granting ranged experience:", skillExperience.ranged, {
+          hitChance,
+          difficultyMultiplier,
+          distanceFactor,
+          severityBonus,
+        });
         grantSkillExperience(skillExperience);
       }
 
