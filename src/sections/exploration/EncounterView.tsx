@@ -4,6 +4,7 @@ import {
   useSetEncounter,
   useHandleSkillCheck,
   useHandleEncounter,
+  useInitiateCombat,
 } from "../../data/encounters/hooks";
 import type { EncounterAction, Outcome } from "../../data/encounters/types";
 import { useExploration } from "../../data/exploration/hooks";
@@ -29,6 +30,7 @@ const EncounterView = () => {
   const handleSkillCheck = useHandleSkillCheck();
   const handleAttack = useHandleAttack();
   const handleEffect = useHandleEffect();
+  const initiateCombat = useInitiateCombat();
 
   const enemies = objectKeys(encounter.enemies);
   if (enemies.length > 0) {
@@ -40,7 +42,7 @@ const EncounterView = () => {
   const frame = ENCOUNTER_FRAMES[encounter.encounterFrameId];
 
   const resolveOutcome = (outcome: Outcome, timePassed?: number) => {
-    const { nextFrameId, resourceYield, exitMessage, discovery, sideEffect } = outcome;
+    const { resourceYield, discovery, sideEffect } = outcome;
 
     if (sideEffect) {
       handleEffect(sideEffect);
@@ -52,7 +54,11 @@ const EncounterView = () => {
       mutateDiscoveries({ [discovery]: 1 });
     }
 
-    setEncounter(nextFrameId, timePassed, exitMessage);
+    if (outcome.nextFrameId === "combat") {
+      initiateCombat(outcome);
+    } else {
+      setEncounter(outcome.nextFrameId, timePassed, outcome.exitMessage);
+    }
   };
 
   const handleActionClick = (action: EncounterAction) => {

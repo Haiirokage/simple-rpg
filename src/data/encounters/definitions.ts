@@ -26,7 +26,16 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
             nextFrameId: "exit",
             exitMessage: "You lost the tracks and spent some time finding your way back.",
           },
-          success: { nextFrameId: "deer_spotted", discovery: "successful_hunt" },
+          success: {
+            nextFrameId: "combat",
+            spawnCreatures: [{ type: "deer", id: "deer1", distance: 100 }],
+            combatConfig: {
+              flavorText:
+                "After careful tracking, you spot a deer grazing some distance away. It hasn't noticed you yet.",
+              exitMessage: "The deer escaped into the forest, never to be seen again.",
+              onKill: { discovery: "successful_hunt" },
+            },
+          },
         },
       },
     ],

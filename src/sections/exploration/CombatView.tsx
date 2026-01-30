@@ -2,8 +2,12 @@ import styled from "styled-components";
 import type { CreatureIntance } from "../../npc/creature-definitions";
 import { objectEntries } from "../../util";
 import { useState } from "preact/hooks";
-import { useSetEncounter, useUpdateEnemies } from "../../data/encounters/hooks";
+import { useSetEncounter, useUpdateEnemies, useEncounter } from "../../data/encounters/hooks";
 import { useHandleAttack } from "../../combat/hooks";
+import { useEquipment } from "../../data/equipment/hooks";
+import { useMutateDiscoveries } from "../../data/discoveries/hooks";
+import TooltipWrapper from "../../style/TooltipWrapper";
+import CombatResolution from "./CombatResolution";
 
 const EnemyCard = styled.div<{ borderColor: string; selected?: boolean }>`
   display: inline-block;
@@ -79,19 +83,43 @@ const CombatView = ({ enemies }: Props) => {
   const updateEnemies = useUpdateEnemies();
   const handleAttack = useHandleAttack();
   const setEncounter = useSetEncounter();
+  const { data: encounter } = useEncounter();
+  const equipment = useEquipment();
+  const mutateDiscoveries = useMutateDiscoveries();
   const [selectedEnemy, setSelectedEnemy] = useState<string>();
+  const noWeapon = !equipment.tools.bow;
 
+  const combatContext = encounter.combatContext;
   const enemy = selectedEnemy && enemies[selectedEnemy];
   const enemyEntries = objectEntries(enemies);
+  const allDead = enemyEntries.every(([, e]) => e.health <= 0);
 
-  const enemyTurn = () => {
-    const newEnemyStates = enemyEntries.map(([id, enemy]) => {
-      return { id, distance: enemy.distance + 10 };
+  const handleShoot = () => {
+    if (!enemy) return;
+    const result = handleAttack(enemy, "body", !!enemy.discovered);
+    const healthLost = result !== "failure" ? result.healthLost : 0;
+
+    if (healthLost === 0) {
+      mutateDiscoveries({ failed_hunt: 1 });
+    }
+
+    const updatedEnemies = enemyEntries.map(([id, e]) => {
+      if (id === selectedEnemy) {
+        return { id, health: e.health - healthLost, discovered: true };
+      }
+      return { id, discovered: true };
     });
-    return newEnemyStates;
+
+    updateEnemies(updatedEnemies);
   };
+
+  if (allDead) {
+    return <CombatResolution enemies={enemies} combatContext={combatContext} />;
+  }
+
   return (
     <>
+      {combatContext?.flavorText && <p>{combatContext.flavorText}</p>}
       {enemyEntries.map(([id, enemy]) => {
         const config = statusConfig(enemy.health / enemy.maxHealth);
         return (
@@ -112,28 +140,13 @@ const CombatView = ({ enemies }: Props) => {
           </EnemyCard>
         );
       })}
-      <button onClick={() => setEncounter("exit")}>leave</button>
+      <button onClick={() => setEncounter("exit", 10, combatContext?.exitMessage)}>Flee</button>
       {enemy && (
-        <button
-          onClick={() => {
-            const newEnemyStates = enemyTurn();
-            const x = handleAttack(enemy, "body", true);
-            console.log(x, enemy);
-            const damagedEnemies =
-              x !== "failure"
-                ? newEnemyStates.map((e) => {
-                    if (e.id === selectedEnemy) {
-                      return { ...e, health: enemy.health - x.healthLost };
-                    }
-                    return e;
-                  })
-                : newEnemyStates;
-
-            updateEnemies(damagedEnemies);
-          }}
-        >
-          shoot
-        </button>
+        <TooltipWrapper description={noWeapon ? "You need a weapon" : "Attack roll"} inline>
+          <button disabled={noWeapon} onClick={handleShoot}>
+            Shoot
+          </button>
+        </TooltipWrapper>
       )}
     </>
   );

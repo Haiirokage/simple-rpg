@@ -1,6 +1,7 @@
 import { useDataQuery, useUpdateData } from "../util";
-import type { EncounterStore, EncounterFrameId, SkillCheck, NPC } from "./types";
+import type { EncounterStore, EncounterFrameId, SkillCheck, NPC, CombatOutcome } from "./types";
 import { ENCOUNTER_FRAMES } from "./definitions";
+import { CREATURES } from "../../npc/creature-definitions";
 import { useHandleKnowledge } from "../knowledge/hooks";
 import { useAttributes } from "../attributes/hooks";
 import { useCallback } from "preact/hooks";
@@ -112,6 +113,7 @@ export const useSetEncounter = () => {
         encounterFrameId: undefined,
         npcs: {},
         enemies: {},
+        combatContext: undefined,
         timePassed: 0,
         exitMessage: exitMessage,
       });
@@ -128,30 +130,53 @@ export const useSetEncounter = () => {
   };
 };
 
+export const useInitiateCombat = () => {
+  const { mutateEncounter } = useHandleEncounter();
+
+  return (combatOutcome: CombatOutcome) => {
+    const { spawnCreatures, combatConfig } = combatOutcome;
+    const enemies = spawnCreatures.reduce(
+      (acc, config) => {
+        const definition = CREATURES[config.type];
+        return {
+          ...acc,
+          [config.id]: getNPCFromDefinition(definition, config.id),
+        };
+      },
+      {} as Record<string, CreatureInstance>,
+    );
+
+    mutateEncounter({
+      encounterFrameId: undefined,
+      enemies,
+      combatContext: combatConfig,
+    });
+  };
+};
+
 const KNOWLEDGE_SCALE = 50;
+
 /**
- * Hook that returns a function to resolve skill checks.
- * Returns "success" or "failure" based on d20 roll + bonuses vs DC.
+ * Hook that returns a function to roll d20 + skill/attribute/knowledge bonuses.
  *
  * bonus from levels(1-100) is sqrt(level) / 2, this gives the same 5 bonus at level 100 as level / 20, but earlier levels give a larger bonus
  */
-export const useHandleSkillCheck = () => {
+export const useSkillRoll = () => {
   const { data } = useEncounter();
   const { biome } = data;
-  const { knowledge, gainLevels } = useHandleKnowledge(biome);
+  const { knowledge } = useHandleKnowledge(biome);
   const { skills } = useSkills();
-  const grantExperience = useGrantSkillExperience();
   const { attributes } = useAttributes();
 
   return useCallback(
-    (skillCheck: SkillCheck): "success" | "failure" => {
+    (config: Pick<SkillCheck, "skill" | "knowledge">) => {
       const roll = Math.floor(Math.random() * 20) + 1;
 
       const { level, tier } = knowledge;
       const score = tier * 100 + level;
-      const knowledgeBonus = skillCheck.knowledge ? Math.floor(score / KNOWLEDGE_SCALE) : 0;
+      const knowledgeBonus = config.knowledge ? Math.floor(score / KNOWLEDGE_SCALE) : 0;
 
-      const skillBonus = skillCheck.skill.reduce((sum, skill) => {
+      const skillBonus = config.skill.reduce((sum, skill) => {
         const connectedAttribute = getAttributeBySkill(skill);
         const attributeLevel = attributes[connectedAttribute].level;
         const { level } = skills[skill];
@@ -159,6 +184,26 @@ export const useHandleSkillCheck = () => {
       }, 0);
 
       const bonus = knowledgeBonus + skillBonus;
+      return { roll, bonus, skillBonus, knowledgeBonus };
+    },
+    [knowledge, attributes, skills],
+  );
+};
+
+/**
+ * Hook that returns a function to resolve skill checks.
+ * Returns "success" or "failure" based on d20 roll + bonuses vs DC.
+ */
+export const useHandleSkillCheck = () => {
+  const skillRoll = useSkillRoll();
+  const { data } = useEncounter();
+  const { biome } = data;
+  const { knowledge, gainLevels } = useHandleKnowledge(biome);
+  const grantExperience = useGrantSkillExperience();
+
+  return useCallback(
+    (skillCheck: SkillCheck): "success" | "failure" => {
+      const { roll, bonus, skillBonus, knowledgeBonus } = skillRoll(skillCheck);
       const success = roll + bonus >= skillCheck.dc;
 
       console.info(`Roll:${roll} + Bonus:${bonus} vs DC:${skillCheck.dc}`);
@@ -170,14 +215,14 @@ export const useHandleSkillCheck = () => {
           grantExperience({ [skill]: expReward });
         });
         const knowledgeContribution = Math.max(0.1, knowledgeBonus / bonus);
-        if (skillCheck.dc / 9 >= tier) {
-          const levels = 1 + skillCheck.dc / 9 - tier;
+        if (skillCheck.dc / 9 >= knowledge.tier) {
+          const levels = 1 + skillCheck.dc / 9 - knowledge.tier;
           console.info(`Gained ${Math.round(levels / knowledgeContribution)} knowledge levels.`);
           gainLevels(Math.round(levels / knowledgeContribution));
         }
       }
       return success ? "success" : "failure";
     },
-    [knowledge, attributes, skills, grantExperience, gainLevels],
+    [skillRoll, knowledge, grantExperience, gainLevels],
   );
 };

@@ -11,13 +11,33 @@ export type EncounterFrameId =
   | "deer_killed"
   | "edable_roots"; // Add more frame IDs as they're created
 
-export interface Outcome {
-  nextFrameId: EncounterFrameId | "exit";
+export interface BaseOutcome {
   resourceYield?: Partial<ResourceStore>;
   discovery?: ExtraDiscoveries;
   sideEffect?: PlayerEffect;
   exitMessage?: string;
 }
+
+export interface FrameOutcome extends BaseOutcome {
+  nextFrameId: EncounterFrameId | "exit";
+}
+
+export interface CombatConfig {
+  flavorText: string;
+  exitMessage?: string;
+  onKill?: Partial<{
+    frameId: EncounterFrameId;
+    discovery: ExtraDiscoveries;
+  }>;
+}
+
+export interface CombatOutcome extends BaseOutcome {
+  nextFrameId: "combat";
+  spawnCreatures: { type: Creatures; id: string; distance: number }[];
+  combatConfig: CombatConfig;
+}
+
+export type Outcome = FrameOutcome | CombatOutcome;
 export type SkillCheck = {
   knowledge?: boolean;
   skill: Skills[];
@@ -87,6 +107,7 @@ export type EncounterStore = {
   encounterFrameId?: EncounterFrameId;
   npcs: Record<string, NPC>;
   enemies: Record<string, CreatureIntance>;
+  combatContext?: CombatConfig;
   timePassed: number; // in minutes
   exitMessage?: string;
 };

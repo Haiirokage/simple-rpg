@@ -124,3 +124,69 @@ rangedMult = 0.15 + playerRanged / 35
 - **Use /35** if you want sqrt to prevent hit saturation as intended
 - **Use /30** if you prioritize faster progression and accept that players will eventually saturate
 - The current /30 somewhat defeats the purpose of switching from cbrt to sqrt
+
+## Archery Target vs Discovered Deer Comparison
+
+### Target Stats
+- **Archery Target**: 0 dex, 15 body armor, undiscovered
+- **Deer**: 42 dex, 15 body armor, discovered (2x exp multiplier)
+- **Player**: 20 dex
+
+### Enemy Dex Multiplier Impact
+When shooting discovered enemies:
+```
+enemyDexMult = clamp((playerDex - enemyDex + 30) / 40, 0, 1)
+            = clamp((20 - 42 + 30) / 40, 0, 1) = 0.2
+```
+Deer are much harder to hit (0.2x hit chance) but give 2x exp when discovered.
+
+### Comparison Table
+
+| Level | Target       | Dist | Hit% | Diff Mult | Dist Factor | Disc Factor | Exp/Shot | Notes                    |
+|-------|--------------|------|------|-----------|-------------|-------------|----------|--------------------------|
+| 1     | Archery      | 100m | 10.3%| 0.947     | 0.8         | 1x          | **41.6** | Easy to practice         |
+| 1     | Deer         | 50m  | 3.2% | 1.000     | 0.3         | 2x          | **32.9** | Very hard, full exp      |
+| 1     | Deer         | 75m  | 2.2% | 1.000     | 0.55        | 2x          | **60.4** | Extremely hard           |
+| 1     | Deer         | 100m | 2.1% | 1.000     | 0.8         | 2x          | **87.8** | Nearly impossible        |
+| 5     | Archery      | 100m | 17.8%| 0.872     | 0.8         | 1x          | **38.3** | Reliable practice        |
+| 5     | Deer         | 50m  | 8.9% | 0.961     | 0.3         | 2x          | **31.6** | Difficult                |
+| 5     | Deer         | 75m  | 6.1% | 0.989     | 0.55        | 2x          | **59.5** | Very difficult           |
+| 5     | Deer         | 100m | 4.6% | 1.000     | 0.8         | 2x          | **87.8** | Extremely difficult      |
+| 10    | Archery      | 100m | 27.2%| 0.778     | 0.8         | 1x          | **16.7** | Consistent hits          |
+| 10    | Deer         | 50m  | 8.6% | 0.964     | 0.3         | 2x          | **31.7** | Very difficult           |
+| 10    | Deer         | 75m  | 5.9% | 0.991     | 0.55        | 2x          | **59.7** | Extremely difficult      |
+| 10    | Deer         | 100m | 5.4% | 1.000     | 0.8         | 2x          | **87.8** | Nearly impossible        |
+| 12    | Archery      | 100m | 31.4%| 0.736     | 0.8         | 1x          | **14.8** | Good practice            |
+| 12    | Deer         | 50m  | 9.7% | 0.953     | 0.3         | 2x          | **31.3** | Very difficult           |
+| 12    | Deer         | 100m | 6.4% | 0.986     | 0.8         | 2x          | **86.2** | Extremely challenging    |
+| 20    | Archery      | 100m | 48.0%| 0.570     | 0.8         | 1x          | **9.7**  | Too easy                 |
+| 20    | Deer         | 50m  | 37.3%| 0.677     | 0.3         | 2x          | **22.2** | Farmable                 |
+| 20    | Deer         | 75m  | 25.6%| 0.794     | 0.55        | 2x          | **47.9** | Good exp                 |
+| 20    | Deer         | 100m | 19.2%| 0.858     | 0.8         | 2x          | **75.1** | Best option              |
+| 30    | Archery      | 100m | 68.7%| 0.363     | 0.8         | 1x          | **7.8**  | Saturated                |
+| 30    | Deer         | 50m  | 57.5%| 0.475     | 0.3         | 2x          | **15.6** | Easy                     |
+| 30    | Deer         | 75m  | 39.5%| 0.655     | 0.55        | 2x          | **39.5** | Moderate                 |
+| 30    | Deer         | 100m | 29.7%| 0.753     | 0.8         | 2x          | **66.0** | Best option              |
+
+### Key Insights
+
+1. **Early Game (Level 1-5)**: Archery target at 100m is better for learning
+   - More consistent hits (10-18%) vs deer (2-9%)
+   - Similar or better exp per successful shot
+   - Deer at 100m gives highest exp but extremely low hit chance makes it frustrating
+
+2. **Mid Game (Level 10-20)**: Deer at 75-100m becomes viable and rewarding
+   - Level 10: Deer at 100m gives **5x more exp** than archery target (84 vs 17)
+   - Hit chances become reasonable (9-19%)
+   - Distance matters a lot for deer - 100m is nearly 3x better than 50m
+
+3. **Late Game (Level 20+)**: Deer hunting becomes necessary
+   - Archery target exp drops below 10/shot due to high hit chance
+   - Deer at 100m gives **8-10x more exp** than archery target
+   - Deer remain challenging even at high levels due to their dexterity
+
+4. **Natural Progression Path**:
+   - Levels 0-5: Practice on archery target at 50-100m
+   - Levels 5-10: Transition to deer at 50-75m
+   - Levels 10+: Hunt deer at 100m for optimal exp
+   - Discovered bonus (2x) makes seeking out and engaging enemies essential for progression

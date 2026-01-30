@@ -1,6 +1,12 @@
 import type { Attributes } from "../data/attributes/types";
+import type { ResourceStore } from "../data/resources/types";
 
 export type Creatures = "deer";
+
+export interface LootEntry {
+  resources: Partial<ResourceStore>;
+  dc?: number;
+}
 
 export interface BaseNPCDefinition {
   name: string;
@@ -9,6 +15,7 @@ export interface BaseNPCDefinition {
 }
 export interface CreatureDefinition extends BaseNPCDefinition {
   type: Creatures;
+  loot: LootEntry[];
 }
 
 export interface CreatureIntance extends CreatureDefinition {
@@ -17,6 +24,7 @@ export interface CreatureIntance extends CreatureDefinition {
   health: number;
   maxHealth: number;
   hostile: boolean;
+  discovered?: boolean;
 }
 
 const getTargets = (head = 0, body = 0, legs = 0) => {
@@ -38,6 +46,7 @@ export const CREATURES: Record<Creatures, CreatureDefinition> = {
       wisdom: 1,
     },
     targets: getTargets(30, 15, 10),
+    loot: [{ resources: { venison: 15 } }, { resources: { hide: 1, venison: 5 }, dc: 16 }],
   },
 };
 
