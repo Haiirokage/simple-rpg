@@ -86,13 +86,14 @@ const CombatView = ({ enemies }: Props) => {
   const { data: encounter } = useEncounter();
   const equipment = useEquipment();
   const mutateDiscoveries = useMutateDiscoveries();
-  const [selectedEnemy, setSelectedEnemy] = useState<string>();
+  const [selectedEnemy, setSelectedEnemy] = useState(Object.keys(enemies)[0]);
   const noWeapon = !equipment.tools.bow;
 
   const combatContext = encounter.combatContext;
   const enemy = selectedEnemy && enemies[selectedEnemy];
   const enemyEntries = objectEntries(enemies);
   const allDead = enemyEntries.every(([, e]) => e.health <= 0);
+  const aware = enemyEntries.some(([, e]) => e.discovered);
 
   const handleShoot = () => {
     if (!enemy) return;
@@ -119,7 +120,12 @@ const CombatView = ({ enemies }: Props) => {
 
   return (
     <>
-      {combatContext?.flavorText && <p>{combatContext.flavorText}</p>}
+      {combatContext?.flavorText && (
+        <p>
+          {combatContext.flavorText}
+          {!aware && " It hasn't noticed you yet."}
+        </p>
+      )}
       {enemyEntries.map(([id, enemy]) => {
         const config = statusConfig(enemy.health / enemy.maxHealth);
         return (

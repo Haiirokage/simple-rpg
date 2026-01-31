@@ -30,8 +30,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
             nextFrameId: "combat",
             spawnCreatures: [{ type: "deer", id: "deer1", distance: 100 }],
             combatConfig: {
-              flavorText:
-                "After careful tracking, you spot a deer grazing some distance away. It hasn't noticed you yet.",
+              flavorText: "After careful tracking, you spot a deer grazing some distance away.",
               exitMessage: "The deer escaped into the forest, never to be seen again.",
               onKill: { discovery: "successful_hunt" },
             },
