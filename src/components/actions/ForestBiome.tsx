@@ -1,5 +1,5 @@
-import { useHandleResources, useResources } from "../../data/resources/hooks";
-import { useTime, useUpdateTime } from "../../data/time/hooks";
+import { useHandleResources } from "../../data/resources/hooks";
+import { useTime } from "../../data/time/hooks";
 import { isActionWithinDaylight } from "../../data/time/season-util";
 import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
 import { useHandleKnowledge } from "../../data/knowledge/hooks";
@@ -8,7 +8,6 @@ import { useMemo } from "preact/hooks";
 import { FOREST_ACTIONS } from "../../biome/forest/action-definitions";
 import { useDiscoveries } from "../../data/discoveries/hooks";
 import ActionButton from "../ActionButton";
-import { getAffordability } from "../../data/resources/util";
 import type { ResourceStore } from "../../data/resources/types";
 import { Paragraph } from "../../style/elements";
 import { useGrantExperience } from "../../data/attributes/hooks";
@@ -19,11 +18,8 @@ import ExploreButton from "../ExploreButton";
 import TooltipWrapper from "../../style/TooltipWrapper";
 
 const ForestBiome = () => {
-  const { resources } = useResources();
-
   const { addResources } = useHandleResources();
   const { time, day } = useTime();
-  const updateTime = useUpdateTime();
   const { consumables } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const { knowledge, gainLevels } = useHandleKnowledge("forest");
@@ -62,45 +58,42 @@ const ForestBiome = () => {
         const { id, name, cost, resourceYield, experienceGrant } = action;
         const multiplier = multipliers[id]();
         const energyCost = cost.energy + energyModifier;
-        const { canAfford, resourceResult } = getAffordability(cost.resources, resources);
 
         const disabled = !isActionWithinDaylight(time, cost.time, day);
 
-        const resourceYieldDiff = resourceYield
-          ? objectEntries(resourceYield).reduce((acc, [key, yieldDef]) => {
-              const adjustedYield = yieldDef * (multiplier[key] ?? 1);
-              return {
+        const yieldEntries = resourceYield
+          ? objectEntries(resourceYield).reduce(
+              (acc, [key, yieldDef]) => ({
                 ...acc,
-                [key]: adjustedYield,
-              };
-            }, resourceResult as Partial<ResourceStore>)
-          : resourceResult;
-        const resourceAmount = sum(Object.values(resourceYieldDiff || {}).filter((v) => v > 0));
+                [key]: yieldDef * (multiplier[key] ?? 1),
+              }),
+              {} as Partial<ResourceStore>,
+            )
+          : undefined;
+        const resourceAmount = sum(Object.values(yieldEntries || {}).filter((v) => v > 0));
 
         return (
           <ActionButton
             key={id}
             name={name}
             cost={{ ...cost, energy: energyCost }}
-            disabled={!canAfford || disabled}
+            disabled={disabled}
             onClick={() => {
-              addResources(resourceYieldDiff);
+              if (yieldEntries) {
+                addResources(yieldEntries);
+              }
               gainLevels(expGain);
 
               if (experienceGrant && resourceAmount > 0) {
                 const scaledExperienceGrant = objectEntries(experienceGrant).reduce(
-                  (acc, [key, value]) => {
-                    return {
-                      ...acc,
-                      [key]: value * resourceAmount,
-                    };
-                  },
+                  (acc, [key, value]) => ({
+                    ...acc,
+                    [key]: value * resourceAmount,
+                  }),
                   {},
                 );
                 grantExperience(scaledExperienceGrant);
               }
-
-              updateTime({ time: time + action.cost.time });
             }}
           />
         );
@@ -113,11 +106,9 @@ const ForestBiome = () => {
           cost={{ time: 1, energy: 2 + energyModifier, resources: { berry: 4 } }}
           disabled={
             consumables.trap.count <= consumables.trap.active ||
-            resources.berry < 4 ||
             !isActionWithinDaylight(time, 1, day)
           }
           onClick={() => {
-            addResources({ berry: -4 });
             mutateSpecific("consumables", {
               trap: {
                 ...consumables.trap,
@@ -125,7 +116,6 @@ const ForestBiome = () => {
               },
             });
             gainLevels(expGain);
-            updateTime({ time: time + 1 });
           }}
         />
       )}

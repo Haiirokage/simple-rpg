@@ -68,6 +68,71 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
       },
     ],
   },
+  wolf_encounter: {
+    id: "wolf_encounter",
+    title: "A Lone Wolf",
+    description:
+      "A gaunt wolf stands between the trees, watching you with wary eyes. Its ribs are showing — it must be desperate to approach a human.",
+    actions: [
+      {
+        type: "skill",
+        id: "stand_ground",
+        label: "Stand your ground",
+        cost: { minutes: 10 },
+        skillCheck: {
+          knowledge: true,
+          skill: ["stealth", "hunter"],
+          dc: 15,
+        },
+        outcomes: {
+          failure: {
+            nextFrameId: "combat",
+            spawnCreatures: [
+              { type: "wolf", id: "wolf1", distance: 30, hostile: true, discovered: true },
+            ],
+            combatConfig: {
+              flavorText: "The wolf snarls and lunges forward. It's not backing down.",
+            },
+          },
+          success: {
+            nextFrameId: "exit",
+            exitMessage:
+              "You hold your ground, making yourself look large. The wolf hesitates, then slinks away into the undergrowth.",
+          },
+        },
+      },
+      {
+        type: "skill",
+        id: "sneak_on_wolf",
+        label: "Try to catch it unaware",
+        cost: { minutes: 15 },
+        skillCheck: {
+          knowledge: true,
+          skill: ["stealth"],
+          dc: 14,
+        },
+        outcomes: {
+          failure: {
+            nextFrameId: "combat",
+            spawnCreatures: [
+              { type: "wolf", id: "wolf1", distance: 40, hostile: true, discovered: true },
+            ],
+            combatConfig: {
+              flavorText: "The wolf spots your movement and bares its teeth.",
+            },
+          },
+          success: {
+            nextFrameId: "combat",
+            spawnCreatures: [{ type: "wolf", id: "wolf1", distance: 40, hostile: true }],
+            combatConfig: {
+              flavorText:
+                "You manage to ready your bow without the wolf noticing. It's still watching the treeline.",
+            },
+          },
+        },
+      },
+    ],
+  },
 };
 
 export const COMBAT_FRAMES: Record<CombatFrameId, CombatEncounterFrame> = {

@@ -15,6 +15,7 @@ const defaultSkillStore: SkillStore = {
   },
   ranged: { ...defaultSkill },
   crafting: { ...defaultSkill },
+  stealth: { ...defaultSkill },
 } as const;
 
 export const useSkills = () => {

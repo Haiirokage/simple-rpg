@@ -64,6 +64,14 @@ export const EXPLORATION_EVENTS: Record<AllDiscoveryType, ExplorationEvent> = {
     category: "exploration",
     descriptions: [""],
   },
+  wolf_sighting: {
+    id: "wolf_sighting",
+    name: "Wolf Spotted",
+    category: "exploration",
+    descriptions: [
+      "A flash of grey between the trees catches your eye. A lone wolf watches you from a distance, its yellow eyes gleaming with a mix of hunger and caution.",
+    ],
+  },
 };
 
 export const buildExplorationEventLog = (

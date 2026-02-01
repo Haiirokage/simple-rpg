@@ -17,6 +17,7 @@ import { getEndOfDayEvent } from "../../events/util";
 import { useAddEventLogEntry } from "../eventLog/hooks";
 import { clamp } from "lodash";
 import { useGrantSkillExperience, useSkills } from "../skills/hooks";
+import { useGrantAcuityExp } from "../acuity/hooks";
 
 /**
  * TODO: Add resource discoverability tracking
@@ -104,6 +105,7 @@ export const useHandleNewDay = () => {
   const addEntry = useAddEventLogEntry();
   const { skills } = useSkills();
   const grantExperience = useGrantSkillExperience();
+  const grantAcuityExp = useGrantAcuityExp();
 
   // Check for end-of-day events (month is 0-indexed from day)
 
@@ -206,6 +208,7 @@ export const useHandleNewDay = () => {
     );
     if (rabbitMeat > 0) {
       grantExperience({ hunter: rabbitMeat });
+      grantAcuityExp("combat", rabbitMeat * 0.2);
     }
 
     const berry = materialsAfterDecay.berry + Math.floor(getBerryIncome(day) * berryMultiplier);

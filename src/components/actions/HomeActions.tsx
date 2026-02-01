@@ -1,5 +1,4 @@
 import { useHomeUpgrades } from "../../data/homeUpgrades/hooks";
-import { useTime, useUpdateTime } from "../../data/time/hooks";
 import { useGrantExperience, usePlayerForce } from "../../data/attributes/hooks";
 import ActionButton from "../ActionButton";
 import { useHandleAttack } from "../../combat/hooks";
@@ -28,8 +27,6 @@ const HomeActions = () => {
   const { getEquipmentBonus } = useHandleEquipment();
   const [rangeTarget, setRangeTarget] = useState("100");
   const { data: homeUpgrades } = useHomeUpgrades();
-  const { time } = useTime();
-  const updateTime = useUpdateTime();
   const grantExperience = useGrantExperience();
   const playerForce = usePlayerForce();
   const handleAttack = useHandleAttack();
@@ -44,16 +41,10 @@ const HomeActions = () => {
 
     // Grant strength experience
     grantExperience({ strength: expGain, constitution: expGain / 5 });
-
-    // Advance time
-    updateTime({ time: time + trainStrengthCost.time });
   };
 
   const trainRanged = () => {
     const result = handleAttack(targets[rangeTarget as "50" | "100" | "150"], "body");
-
-    // Advance time
-    updateTime({ time: time + trainRangedCost.time });
 
     if (result === "failure") {
       return;

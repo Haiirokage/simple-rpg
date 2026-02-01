@@ -1,7 +1,7 @@
 import type { Attributes } from "../data/attributes/types";
 import type { ResourceStore } from "../data/resources/types";
 
-export type Creatures = "deer";
+export type Creatures = "deer" | "wolf";
 
 export interface LootEntry {
   resources: Partial<ResourceStore>;
@@ -25,7 +25,7 @@ export interface CreatureIntance extends CreatureDefinition {
   health: number;
   maxHealth: number;
   hostile: boolean;
-  discovered?: boolean;
+  discovered: boolean;
 }
 
 const getTargets = (head = 0, body = 0, legs = 0) => {
@@ -49,6 +49,19 @@ export const CREATURES: Record<Creatures, CreatureDefinition> = {
     },
     targets: getTargets(30, 15, 10),
     loot: [{ resources: { venison: 15 } }, { resources: { hide: 1, venison: 5 }, dc: 16 }],
+  },
+  wolf: {
+    type: "wolf",
+    name: "Wolf",
+    speedFactor: 5,
+    attributes: {
+      strength: 35,
+      constitution: 40,
+      dexterity: 50,
+      wisdom: 8,
+    },
+    targets: getTargets(12, 10, 8),
+    loot: [{ resources: { fur: 1 } }],
   },
 };
 

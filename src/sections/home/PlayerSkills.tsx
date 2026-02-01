@@ -1,4 +1,5 @@
 import { useSkills } from "../../data/skills/hooks";
+import { useAcuity } from "../../data/acuity/hooks";
 import { objectEntries } from "../../util";
 import styled from "styled-components";
 import { useMemo } from "preact/hooks";
@@ -9,6 +10,7 @@ const SKILL_COLORS: Record<Skills, string> = {
   hunter: "#2ecc71",
   ranged: "#3498db",
   crafting: "#777777",
+  stealth: "#9b59b6",
 };
 
 const SkillBox = styled.div`
@@ -35,10 +37,17 @@ const ExperienceBar = styled.div<{ color: string }>`
   }
 `;
 
+const ACUITY_COLOR = "#e67e22";
+
 const PlayerSkills = () => {
   const { skills } = useSkills();
+  const acuity = useAcuity();
 
   const skillEntries = useMemo(() => objectEntries(skills), [skills]);
+
+  const combatAcuity = acuity.combat;
+  const acuityThreshold = getExpThreshold(combatAcuity.level);
+  const acuityProgress = (combatAcuity.exp / acuityThreshold) * 100;
 
   return (
     <div>
@@ -61,6 +70,17 @@ const PlayerSkills = () => {
           </SkillBox>
         );
       })}
+      <hr />
+      {combatAcuity.level > 0 && (
+        <>
+          <SkillBox>
+            <div>Combat acuity: {combatAcuity.level}</div>
+            <ExperienceBar color={ACUITY_COLOR}>
+              <div style={{ width: `${acuityProgress}%` }} />
+            </ExperienceBar>
+          </SkillBox>
+        </>
+      )}
     </div>
   );
 };

@@ -1,14 +1,15 @@
 import { useCallback } from "preact/hooks";
+import { useAcuity } from "../data/acuity/hooks";
 import { useAttributes } from "../data/attributes/hooks";
 import { useGrantSkillExperience, useHandleSkills } from "../data/skills/hooks";
-import { getTarget } from "../npc/creature-definitions";
+import type { CreatureIntance } from "../npc/creature-definitions";
 import {
   calculateHitChance,
   calculateHitSeverity,
   getDifficultyMultiplier,
+  getEffectiveDex,
   getHealthLost,
 } from "./util";
-import type { NPC } from "../data/encounters/types";
 import { useHandleEquipment } from "../data/equipment/hooks";
 
 /**
@@ -20,25 +21,23 @@ export const useHandleAttack = () => {
   const { attributes } = useAttributes();
   const { skills } = useHandleSkills();
   const grantSkillExperience = useGrantSkillExperience();
+  const acuity = useAcuity();
 
   return useCallback(
-    (targetNpc: NPC, target: "head" | "body" | "legs", discovered = false) => {
-      const npc = targetNpc;
-      if (!npc) return "failure";
-
-      const creatureDefinition = getTarget(npc.type);
-      if (!creatureDefinition) return "failure";
+    (creature: CreatureIntance, target: "head" | "body" | "legs", discovered = false) => {
+      if (!creature) return "failure";
 
       const bowRange = getEquipmentBonus("bow", "range");
       console.log("range", bowRange);
 
       const hitChance = calculateHitChance(
         attributes.dexterity.level,
-        skills.ranged?.level || 0,
-        npc.distance,
-        creatureDefinition.attributes.dexterity,
+        skills.ranged.level,
+        creature.distance,
+        getEffectiveDex(creature),
         bowRange,
         discovered,
+        acuity.combat.level,
       );
       const hitSeverity = calculateHitSeverity(target, hitChance);
 
@@ -50,13 +49,10 @@ export const useHandleAttack = () => {
             ? 0.5 * targetBaseDamage
             : 0;
 
-      const healthLost = getHealthLost(
-        creatureDefinition.targets[target].armor_rating,
-        damageMultiplier,
-      );
+      const healthLost = getHealthLost(creature.targets[target].armor_rating, damageMultiplier);
 
       if (healthLost > 0) {
-        const distanceFactor = Math.max(0.1, (npc.distance - 20) / 100);
+        const distanceFactor = Math.max(0.1, (creature.distance - 20) / 100);
         const discFactor = discovered ? 2 : 1;
         const difficultyMultiplier = getDifficultyMultiplier(hitChance);
         const severityBonus = hitSeverity === "critical" ? 2 : 1;
@@ -75,6 +71,6 @@ export const useHandleAttack = () => {
 
       return { healthLost, hitSeverity };
     },
-    [attributes, skills, grantSkillExperience, getEquipmentBonus],
+    [attributes, skills, acuity, grantSkillExperience, getEquipmentBonus],
   );
 };

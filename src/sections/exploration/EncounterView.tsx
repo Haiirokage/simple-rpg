@@ -65,27 +65,23 @@ const EncounterView = () => {
     if (action.cost.energy) {
       updatePlayerStatus({ energy: -action.cost.energy });
     }
-    const { npcs } = encounter;
     if (action.type === "skill") {
       const outcome = action.skillCheck ? handleSkillCheck(action.skillCheck) : "success";
 
       resolveOutcome(action.outcomes[outcome], action.cost.minutes);
     }
     if (action.type === "attack") {
-      const targetNPC = npcs[action.attack.target];
-      const result = handleAttack(encounter.npcs[action.attack.target], "body");
+      const target = encounter.enemies[action.attack.target];
+      const result = handleAttack(target, "body");
       if (result !== "failure") {
-        const npcHealth = targetNPC.health - result.healthLost;
+        const newHealth = Math.max(0, target.health - result.healthLost);
         mutateEncounter({
-          npcs: {
-            ...npcs,
-            [action.attack.target]: {
-              ...targetNPC,
-              health: Math.max(0, npcHealth),
-            },
+          enemies: {
+            ...encounter.enemies,
+            [action.attack.target]: { ...target, health: newHealth },
           },
         });
-        if (npcHealth <= 0) {
+        if (newHealth <= 0) {
           resolveOutcome(action.outcomes.success);
         } else {
           resolveOutcome(action.outcomes.failure);

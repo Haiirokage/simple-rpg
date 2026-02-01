@@ -9,5 +9,7 @@ export const getAttributeBySkill = (skill: Skills): Attributes => {
       return "dexterity";
     case "crafting":
       return "wisdom";
+    case "stealth":
+      return "dexterity";
   }
 };

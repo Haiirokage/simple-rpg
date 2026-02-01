@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import type { CreatureIntance } from "../../npc/creature-definitions";
 import { objectEntries } from "../../util";
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import {
   useSetEncounter,
   useUpdateEnemies,
@@ -9,7 +9,13 @@ import {
   useHandleSkillCheck,
 } from "../../data/encounters/hooks";
 import { useHandleAttack } from "../../combat/hooks";
-import { getSprintDistance, getWoundStatus, type WoundStatus } from "../../combat/util";
+import { useAcuity, useGrantAcuityExp } from "../../data/acuity/hooks";
+import {
+  getHealthLost,
+  getSprintDistance,
+  getWoundStatus,
+  type WoundStatus,
+} from "../../combat/util";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import { useAttributes } from "../../data/attributes/hooks";
 import { useSkills } from "../../data/skills/hooks";
@@ -69,7 +75,8 @@ const STATUS_CONFIG: Record<WoundStatus, { label: string; borderColor: string; i
   critical: { label: "Critically Wounded", borderColor: "#ef4444", icon: "💀" },
 };
 
-const getShootInterval = (rangedLevel: number) => Math.max(5, 10 * (1 - rangedLevel / 200));
+const getShootInterval = (rangedLevel = 0, combatAcuity = 0) =>
+  Math.max(5, 10 * (1 - rangedLevel / 200) * (1 - combatAcuity / 200));
 
 interface Props {
   enemies: Record<string, CreatureIntance>;
@@ -84,9 +91,11 @@ const CombatView = ({ enemies }: Props) => {
   const { skills } = useSkills();
   const mutateDiscoveries = useMutateDiscoveries();
   const handleSkillCheck = useHandleSkillCheck();
-  const { updatePlayerStatus } = useHandlePlayerStatus();
+  const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const { attributes } = useAttributes();
   const [selectedEnemy, setSelectedEnemy] = useState(Object.keys(enemies)[0]);
+  const grantAcuityExp = useGrantAcuityExp();
+  const acuity = useAcuity();
 
   const noWeapon = !getEquipmentBonus("bow", "range");
   const bowRange = getEquipmentBonus("bow", "range");
@@ -95,34 +104,51 @@ const CombatView = ({ enemies }: Props) => {
   const enemyEntries = objectEntries(enemies);
   const allDead = enemyEntries.every(([, e]) => e.health <= 0);
   const aware = enemyEntries.some(([, e]) => e.discovered);
+  const anyHostile = enemyEntries.some(([, e]) => e.hostile);
   const outOfRange = enemy && enemy.health > 0 && enemy.distance > bowRange;
+
+  useEffect(() => {
+    if (allDead) {
+      const acuityExp = anyHostile ? 50 : 10;
+      grantAcuityExp("combat", acuityExp);
+      console.info(`Combat acuity +${acuityExp}`);
+    }
+  }, [allDead, anyHostile, grantAcuityExp]);
 
   const handleShoot = () => {
     if (!enemy) return;
-    const result = handleAttack(enemy, "body", !!enemy.discovered);
+    const result = handleAttack(enemy, "body", enemy.discovered);
     const healthLost = result !== "failure" ? result.healthLost : 0;
 
     if (healthLost === 0) {
       mutateDiscoveries({ failed_hunt: 1 });
     }
 
-    const shootInterval = getShootInterval(skills.ranged?.level || 0);
+    const shootInterval = getShootInterval(skills.ranged.level, acuity.combat.level);
 
     const updatedEnemies = enemyEntries.map(([id, e]) => {
       const newHealth = id === selectedEnemy ? e.health - healthLost : e.health;
       const isAlive = newHealth > 0;
       const wounded = { ...e, health: newHealth };
-      const fleeDistance = isAlive && !e.hostile ? getSprintDistance(wounded, shootInterval) : 0;
+
+      if (e.hostile && isAlive) {
+        const closingDistance = getSprintDistance(wounded, shootInterval);
+        const newDistance = Math.max(0, e.distance - closingDistance);
+        if (newDistance <= 0) {
+          const lungeDamage = getHealthLost(0, e.attributes.strength / 5);
+          updatePlayerStatus({ health: -lungeDamage });
+          console.info(`${e.name} lunges at you for ${lungeDamage} damage!`);
+          return { id, health: newHealth, distance: 5, discovered: true };
+        }
+        return { id, health: newHealth, distance: newDistance, discovered: true };
+      }
+
+      const fleeDistance = isAlive ? getSprintDistance(wounded, shootInterval) : 0;
       const newDistance = e.distance + fleeDistance;
       const outOfBowRange = newDistance > bowRange;
-      const bonusFlee = outOfBowRange && isAlive && !e.hostile ? getSprintDistance(wounded, 30) : 0;
+      const bonusFlee = outOfBowRange && isAlive ? getSprintDistance(wounded, 30) : 0;
 
-      return {
-        id,
-        health: newHealth,
-        distance: newDistance + bonusFlee,
-        discovered: true,
-      };
+      return { id, health: newHealth, distance: newDistance + bonusFlee, discovered: true };
     });
 
     updateEnemies(updatedEnemies);
@@ -144,6 +170,15 @@ const CombatView = ({ enemies }: Props) => {
       setEncounter("exit", trackingMinutes + 30, combatContext?.exitMessage);
     }
   };
+
+  if (playerStatus.health <= 0) {
+    return (
+      <>
+        <p>You have been slain.</p>
+        <button onClick={() => setEncounter("exit", 0)}>Accept your fate</button>
+      </>
+    );
+  }
 
   if (allDead) {
     return <CombatResolution enemies={enemies} combatContext={combatContext} />;
@@ -177,10 +212,14 @@ const CombatView = ({ enemies }: Props) => {
           </EnemyCard>
         );
       })}
-      <button onClick={() => setEncounter("exit", 10, combatContext?.exitMessage)}>
-        {outOfRange ? "Give up" : "Flee"}
-      </button>
-      {outOfRange && aware && enemy && <button onClick={() => handleTrack(enemy)}>Track</button>}
+      {!anyHostile && (
+        <button onClick={() => setEncounter("exit", 10, combatContext?.exitMessage)}>
+          {outOfRange ? "Give up" : "Flee"}
+        </button>
+      )}
+      {outOfRange && aware && enemy && !anyHostile && (
+        <button onClick={() => handleTrack(enemy)}>Track</button>
+      )}
       {!outOfRange && enemy && (
         <TooltipWrapper description={noWeapon ? "You need a weapon" : "Attack roll"} inline>
           <button disabled={noWeapon} onClick={handleShoot}>

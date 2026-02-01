@@ -70,8 +70,6 @@ const HomeConstruction = () => {
   const clearGround = () => {
     mutate({ wood: resources.wood + 2, stone: resources.stone + 1 });
 
-    updateTime({ time: time + (CLEAR_GROUND_ACTION.cost?.time ?? 0) });
-
     if (Math.random() < plotChance) {
       updateStructures({ plots: plots + 1 });
     }

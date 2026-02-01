@@ -1,11 +1,11 @@
 import type { KnowledgeBiome } from "../knowledge/types";
 import type { ResourceStore } from "../resources/types";
 import type { Skills } from "../skills/types";
-import type { AllTargets, CreatureIntance, Creatures } from "../../npc/creature-definitions";
+import type { CreatureIntance, Creatures } from "../../npc/creature-definitions";
 import type { ExtraDiscoveries } from "../discoveries/types";
 import type { PlayerEffect } from "../effect-util";
 
-export type EncounterFrameId = "deer_tracks_found" | "edable_roots"; // Add more frame IDs as they're created
+export type EncounterFrameId = "deer_tracks_found" | "edable_roots" | "wolf_encounter";
 
 export interface BaseOutcome {
   resourceYield?: Partial<ResourceStore>;
@@ -29,7 +29,13 @@ export interface CombatConfig {
 
 export interface CombatOutcome extends BaseOutcome {
   nextFrameId: "combat";
-  spawnCreatures: { type: Creatures; id: string; distance: number }[];
+  spawnCreatures: {
+    type: Creatures;
+    id: string;
+    distance: number;
+    hostile?: boolean;
+    discovered?: boolean;
+  }[];
   combatConfig: CombatConfig;
 }
 
@@ -89,19 +95,10 @@ export interface CombatEncounterFrame extends BaseEncounterFrame {
   id: CombatFrameId;
 }
 
-export type NPC = {
-  id: string;
-  type: AllTargets;
-  distance: number; // in meters
-  health: number;
-  maxHealth: number;
-};
-
 export type EncounterStore = {
   active: boolean;
   biome: KnowledgeBiome;
   encounterFrameId?: EncounterFrameId;
-  npcs: Record<string, NPC>;
   enemies: Record<string, CreatureIntance>;
   combatContext?: CombatConfig;
   timePassed: number; // in minutes

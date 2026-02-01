@@ -1,6 +1,5 @@
 import { useDataQuery, useUpdateData } from "../util";
-import type { EncounterStore, EncounterFrameId, SkillCheck, NPC, CombatOutcome } from "./types";
-import { ENCOUNTER_FRAMES } from "./definitions";
+import type { EncounterStore, EncounterFrameId, SkillCheck, CombatOutcome } from "./types";
 import { CREATURES } from "../../npc/creature-definitions";
 import { useHandleKnowledge } from "../knowledge/hooks";
 import { useAttributes } from "../attributes/hooks";
@@ -18,7 +17,6 @@ import type { AtLeast } from "../../util";
 export const defaultEncounterStore: EncounterStore = {
   active: false,
   biome: "forest",
-  npcs: {},
   enemies: {},
   timePassed: 0,
 } as const;
@@ -38,47 +36,18 @@ export const useHandleEncounter = () => {
   return { encounter, mutateEncounter: mutate };
 };
 
-/**
- * Generate NPC instances from spawnCreatures config.
- */
-const spawnNpcsFromFrame = (frameId: EncounterFrameId) => {
-  const frame = ENCOUNTER_FRAMES[frameId];
-  if (!frame.spawnCreatures) return {};
-
-  return frame.spawnCreatures.reduce(
-    (npcs, config) => ({
-      ...npcs,
-      [config.id]: {
-        id: config.id,
-        type: config.type,
-        distance: config.distance,
-        health: 100,
-        maxHealth: 100,
-        attributes: {},
-        targets: {},
-      },
-    }),
-    {} as Record<string, NPC>,
-  );
-};
-
-const getNPCFromDefinition = (definition: CreatureDefinition, id?: string): CreatureInstance => {
-  const npcId = id || `${definition.type}1`;
-  return { ...definition, id: npcId, distance: 100, health: 100, maxHealth: 100, hostile: false };
-};
-
-export const useSpawnEnemy = () => {
-  const { mutateEncounter, encounter } = useHandleEncounter();
-
-  return (definition: CreatureDefinition) => {
-    const npcId = `${definition.type}1`;
-    mutateEncounter({
-      enemies: {
-        ...encounter.enemies,
-        [npcId]: getNPCFromDefinition(definition, npcId),
-        [`${npcId}1`]: getNPCFromDefinition(definition, `${npcId}1`),
-      },
-    });
+const createCreatureInstance = (
+  definition: CreatureDefinition,
+  config: { id?: string; distance?: number; hostile?: boolean; discovered?: boolean } = {},
+): CreatureInstance => {
+  return {
+    ...definition,
+    id: config.id || `${definition.type}1`,
+    distance: config.distance ?? 100,
+    health: 100,
+    maxHealth: 100,
+    hostile: config.hostile ?? false,
+    discovered: config.discovered || false,
   };
 };
 
@@ -117,7 +86,6 @@ export const useSetEncounter = () => {
       mutateEncounter({
         active: false,
         encounterFrameId: undefined,
-        npcs: {},
         enemies: {},
         combatContext: undefined,
         timePassed: 0,
@@ -129,7 +97,6 @@ export const useSetEncounter = () => {
     mutateEncounter({
       active: true,
       encounterFrameId: startFrameId,
-      npcs: spawnNpcsFromFrame(startFrameId),
       timePassed: timePassedTotal,
       exitMessage: undefined,
     });
@@ -146,7 +113,7 @@ export const useInitiateCombat = () => {
         const definition = CREATURES[config.type];
         return {
           ...acc,
-          [config.id]: getNPCFromDefinition(definition, config.id),
+          [config.id]: createCreatureInstance(definition, config),
         };
       },
       {} as Record<string, CreatureInstance>,

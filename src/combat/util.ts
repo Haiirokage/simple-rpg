@@ -7,6 +7,10 @@ export const getDistanceMultiplier = (distance: number, bowRange = 150) => {
   const linearDistanceMult = clamp((bowRange - distance) / (bowRange - confidentRange), 0, 1);
   return Math.sqrt(linearDistanceMult);
 };
+
+/** Composure multiplier from combat acuity. 0.8x at level 0, ~1.27x at level 10, ~2.3x at level 100. */
+export const getComposureMultiplier = (acuity: number) => 0.8 + Math.sqrt(acuity) * 0.15;
+
 /**
  * Calculate hit chance for a ranged attack.
  * @param playerDex - Player's dexterity level
@@ -24,20 +28,34 @@ export const calculateHitChance = (
   enemyDex: number,
   bowRange: number,
   discovered?: boolean,
+  acuity = 0,
 ): number => {
   const distanceMultiplier = getDistanceMultiplier(distance, bowRange);
   const dexMult = 0.8 + playerDex / 100;
   const rangedMult = 0.15 + playerRanged / 30;
+  const composureMult = getComposureMultiplier(acuity);
 
   if (discovered) {
     const enemyDexMult = clamp((playerDex - enemyDex + 30) / 40, 0, 1);
-    const hitChance = clamp(distanceMultiplier * dexMult * rangedMult * enemyDexMult, 0, 1);
-    console.log("hit chance", hitChance, enemyDexMult, distanceMultiplier, dexMult, rangedMult);
+    const hitChance = clamp(
+      distanceMultiplier * dexMult * rangedMult * composureMult * enemyDexMult,
+      0,
+      1,
+    );
+    console.log(
+      "hit chance",
+      hitChance,
+      enemyDexMult,
+      composureMult,
+      distanceMultiplier,
+      dexMult,
+      rangedMult,
+    );
     return hitChance;
   }
 
-  const hitChance = clamp(distanceMultiplier * dexMult * rangedMult, 0, 1);
-  console.log("hit chance", hitChance, distanceMultiplier, dexMult, rangedMult);
+  const hitChance = clamp(distanceMultiplier * dexMult * rangedMult * composureMult, 0, 1);
+  console.log("hit chance", hitChance, composureMult, distanceMultiplier, dexMult, rangedMult);
   return hitChance;
 };
 
