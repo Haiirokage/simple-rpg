@@ -9,3 +9,4 @@
 - Don't make fields optional when an empty value (e.g. `[]`) is equivalent
 - Don't wrap simple data transformations in hooks or abstractions; plain functions and reduces are fine
 - When mutating store state, only pass the keys that change - the mutation does a shallow merge
+- Never change imports as a separate edit - include import changes together with the usage changes they support

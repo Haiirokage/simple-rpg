@@ -1,10 +1,11 @@
-import type { ActionDefinition } from "./actions/definitions";
+import type { ActionCost } from "./actions/types";
 import { formatResourceCost } from "../data/resources/util";
+import { useHandlePlayerStatus } from "../data/playerStatus/hooks";
 import styled from "styled-components";
 
 interface ActionButtonProps {
-  action: Omit<ActionDefinition, "id">;
-  energyModifier?: number;
+  name: string;
+  cost: ActionCost;
   disabled?: boolean;
   onClick: () => void;
 }
@@ -50,31 +51,42 @@ const ClockHand = styled.div<{ angle: number }>`
   }
 `;
 
-const ActionButton = ({
-  action,
-  energyModifier = 0,
-  disabled = false,
-  onClick,
-}: ActionButtonProps) => {
-  const resourceCostStr = formatResourceCost(action.resourceCost);
+const ActionButton = ({ name, cost, disabled = false, onClick }: ActionButtonProps) => {
+  const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
+  const energyCost = cost?.energy ?? 0;
+  const timeCost = cost?.time ?? 0;
+  const resourceCost = cost?.resources ?? {};
+  const notEnoughEnergy = energyCost > 0 && playerStatus.energy < energyCost;
+  const resourceCostStr = formatResourceCost(resourceCost);
+
+  const handleClick = () => {
+    if (energyCost > 0) {
+      updatePlayerStatus({ energy: -energyCost });
+    }
+    onClick();
+  };
 
   return (
-    <button disabled={disabled} onClick={onClick}>
+    <button disabled={disabled || notEnoughEnergy} onClick={handleClick}>
       <div>
-        {action.name}
+        {name}
         {resourceCostStr && <span> ({resourceCostStr})</span>}
       </div>
-      <CostIndicator>
-        <span>{action.energyCost + energyModifier}</span>
-        <EnergyCircle />
-      </CostIndicator>
-      <CostIndicator>
-        <span>{action.timeCost}</span>
-        <ClockFace>
-          <ClockHand angle={45} />
-          <ClockHand angle={-45} />
-        </ClockFace>
-      </CostIndicator>
+      {energyCost > 0 && (
+        <CostIndicator>
+          <span>{energyCost}</span>
+          <EnergyCircle />
+        </CostIndicator>
+      )}
+      {timeCost && (
+        <CostIndicator>
+          <span>{timeCost}</span>
+          <ClockFace>
+            <ClockHand angle={45} />
+            <ClockHand angle={-45} />
+          </ClockFace>
+        </CostIndicator>
+      )}
     </button>
   );
 };

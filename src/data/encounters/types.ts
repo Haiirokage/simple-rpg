@@ -5,11 +5,7 @@ import type { AllTargets, CreatureIntance, Creatures } from "../../npc/creature-
 import type { ExtraDiscoveries } from "../discoveries/types";
 import type { PlayerEffect } from "../effect-util";
 
-export type EncounterFrameId =
-  | "deer_tracks_found"
-  | "deer_spotted"
-  | "deer_killed"
-  | "edable_roots"; // Add more frame IDs as they're created
+export type EncounterFrameId = "deer_tracks_found" | "edable_roots"; // Add more frame IDs as they're created
 
 export interface BaseOutcome {
   resourceYield?: Partial<ResourceStore>;

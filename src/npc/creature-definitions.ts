@@ -15,6 +15,7 @@ export interface BaseNPCDefinition {
 }
 export interface CreatureDefinition extends BaseNPCDefinition {
   type: Creatures;
+  speedFactor: number; // species speed multiplier: cbrt(dex) * speedFactor = m/s
   loot: LootEntry[];
 }
 
@@ -39,6 +40,7 @@ export const CREATURES: Record<Creatures, CreatureDefinition> = {
   deer: {
     type: "deer",
     name: "Deer",
+    speedFactor: 4.5,
     attributes: {
       strength: 25,
       constitution: 50,

@@ -8,6 +8,7 @@ import { useCallback } from "preact/hooks";
 import { useGrantSkillExperience, useSkills } from "../skills/hooks";
 import { getAttributeBySkill } from "../skills/definitions";
 import { useAdvanceTime } from "../time/hooks";
+import { useHandlePlayerStatus } from "../playerStatus/hooks";
 import type {
   CreatureDefinition,
   CreatureIntance as CreatureInstance,
@@ -63,7 +64,7 @@ const spawnNpcsFromFrame = (frameId: EncounterFrameId) => {
 
 const getNPCFromDefinition = (definition: CreatureDefinition, id?: string): CreatureInstance => {
   const npcId = id || `${definition.type}1`;
-  return { ...definition, id: npcId, distance: 100, health: 100, maxHealth: 100, hostile: true };
+  return { ...definition, id: npcId, distance: 100, health: 100, maxHealth: 100, hostile: false };
 };
 
 export const useSpawnEnemy = () => {
@@ -100,13 +101,18 @@ export const useUpdateEnemies = () => {
 export const useSetEncounter = () => {
   const { mutateEncounter, encounter } = useHandleEncounter();
   const advanceTime = useAdvanceTime();
+  const { updatePlayerStatus } = useHandlePlayerStatus();
 
-  return (startFrameId: EncounterFrameId | "exit", timePassed?: number, exitMessage?: string) => {
-    const timePassedTotal = encounter.timePassed + (timePassed || 0);
+  return (startFrameId: EncounterFrameId | "exit", timePassed = 0, exitMessage?: string) => {
+    const timePassedTotal = encounter.timePassed + timePassed;
     if (startFrameId === "exit") {
       const hoursPassed = Math.round(timePassedTotal / 60);
       if (hoursPassed > 0) {
         advanceTime(hoursPassed);
+      }
+      const returnEnergy = Math.ceil((timePassed * 5) / 60);
+      if (returnEnergy > 0) {
+        updatePlayerStatus({ energy: -returnEnergy });
       }
       mutateEncounter({
         active: false,

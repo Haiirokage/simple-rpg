@@ -1,4 +1,5 @@
 import { clamp } from "lodash";
+import type { CreatureIntance } from "../npc/creature-definitions";
 
 /** multiplier based on distance and range in meters */
 export const getDistanceMultiplier = (distance: number, bowRange = 150) => {
@@ -79,6 +80,33 @@ export const calculateHitSeverity = (
 export const getDifficultyMultiplier = (hitChance: number): number => {
   // 5% = 1.0x, 25% = 0.8x, 50% = 0.55x, 75% = 0.3x, 95% = 0.1x
   return Math.max(0.1, 1.0 - Math.max(0, hitChance - 0.05));
+};
+
+export type WoundStatus = "healthy" | "wounded" | "critical";
+
+export const getWoundStatus = (npc: { health: number; maxHealth: number }): WoundStatus => {
+  const ratio = npc.health / npc.maxHealth;
+  if (ratio > 0.7) return "healthy";
+  if (ratio > 0.3) return "wounded";
+  return "critical";
+};
+
+const DEX_PENALTY: Record<WoundStatus, number> = {
+  healthy: 1,
+  wounded: 0.9,
+  critical: 0.5,
+};
+
+/** Effective dex after wound penalties. */
+export const getEffectiveDex = (creature: CreatureIntance) => {
+  return creature.attributes.dexterity * DEX_PENALTY[getWoundStatus(creature)];
+};
+
+/** Sprint distance in meters for a creature over a time interval.
+ * Speed = cbrt(effectiveDex) * speedFactor. */
+export const getSprintDistance = (creature: CreatureIntance, seconds: number) => {
+  const speed = Math.cbrt(getEffectiveDex(creature)) * creature.speedFactor;
+  return Math.round(speed * seconds);
 };
 
 const force = 30; // something random for now

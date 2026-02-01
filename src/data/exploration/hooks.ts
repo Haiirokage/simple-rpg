@@ -1,6 +1,7 @@
 import { useHandleResources } from "../resources/hooks";
 import { useDataQuery, useUpdateData } from "../util";
 import { useAdvanceTime } from "../time/hooks";
+import { useHandlePlayerStatus } from "../playerStatus/hooks";
 import type { ExplorationStore } from "./types";
 import { defaultExplorationStore } from "./types";
 import { useUpdateEncounter } from "../encounters/hooks";
@@ -29,9 +30,11 @@ export const useHandleExploration = () => {
 export const useStartExpedition = () => {
   const { mutateExploration } = useMutateExploration();
   const advanceTime = useAdvanceTime();
+  const { updatePlayerStatus } = useHandlePlayerStatus();
 
   return (endTime: number) => {
     advanceTime(1); // 1 hour travel time
+    updatePlayerStatus({ energy: -5 });
     mutateExploration({
       active: true,
       endTime,

@@ -10,7 +10,6 @@ export const getStorage = <T extends Record<string, unknown>>(key: string, fallb
   const item = localStorage.getItem(key);
 
   if (!item) {
-    console.log("no item", key, item);
     return fallback;
   }
 

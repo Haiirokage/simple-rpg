@@ -18,6 +18,7 @@ import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import { getValueByLevel } from "../../data/equipment/util";
 import { CREATURES } from "../../npc/creature-definitions";
+import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -49,6 +50,7 @@ const ExplorationActions = () => {
   const advanceTime = useAdvanceTime();
   const addEventLogEntry = useAddEventLogEntry();
   const hasViableDiscoveries = useHasViableDiscoveries(knowledgeLevel, discoveries);
+  const { updatePlayerStatus } = useHandlePlayerStatus();
 
   const timeRemaining = exploration.endTime ? exploration.endTime - time : 0;
 
@@ -92,6 +94,7 @@ const ExplorationActions = () => {
       console.log("found nothing");
     }
     advanceTime(1);
+    updatePlayerStatus({ energy: -5 });
   }, [
     knowledgeLevel,
     discoveries,
@@ -105,6 +108,7 @@ const ExplorationActions = () => {
     gainLevels,
     setEncounter,
     getTool,
+    updatePlayerStatus,
   ]);
 
   const encounterFrame = encounterState.encounterFrameId
@@ -129,6 +133,7 @@ const ExplorationActions = () => {
         <button
           disabled={disabled}
           onClick={() => {
+            updatePlayerStatus({ energy: -5 });
             if (Math.random() < knowledgeLevel / 300) {
               setEncounter("deer_tracks_found");
             } else {
@@ -143,6 +148,7 @@ const ExplorationActions = () => {
         <button
           disabled={disabled}
           onClick={() => {
+            updatePlayerStatus({ energy: -5 });
             if (Math.random() < knowledgeLevel / 250) {
               setEncounter("edable_roots");
             } else {

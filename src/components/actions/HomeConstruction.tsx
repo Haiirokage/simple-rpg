@@ -11,7 +11,6 @@ import { useMemo } from "preact/hooks";
 import { STRUCTURES, type StructureDefinition } from "../../data/structures/definitions";
 import type { ResourceStore } from "../../data/resources/types";
 import { useHandleEquipment } from "../../data/equipment/hooks";
-import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
 import ActionButton from "../ActionButton";
 import { CLEAR_GROUND_ACTION } from "./definitions";
 import { Paragraph, Button } from "../../style/elements";
@@ -35,8 +34,6 @@ const HomeConstruction = () => {
   const playerForce = usePlayerForce();
   const updateStructures = useUpdateStructures();
   const { mutate } = useMutateResources();
-  const mutatePlayerStatus = useUpdatePlayerStatus();
-  const { data: playerStatus } = usePlayerStatus();
   const { time, day } = useTime();
   const updateTime = useUpdateTime();
   const { getTool } = useHandleEquipment();
@@ -72,10 +69,8 @@ const HomeConstruction = () => {
   // Clear ground action
   const clearGround = () => {
     mutate({ wood: resources.wood + 2, stone: resources.stone + 1 });
-    mutatePlayerStatus({
-      energy: -CLEAR_GROUND_ACTION.energyCost,
-    });
-    updateTime({ time: time + CLEAR_GROUND_ACTION.timeCost });
+
+    updateTime({ time: time + (CLEAR_GROUND_ACTION.cost?.time ?? 0) });
 
     if (Math.random() < plotChance) {
       updateStructures({ plots: plots + 1 });
@@ -87,9 +82,10 @@ const HomeConstruction = () => {
       <div>
         <div style={{ marginBottom: "0.5rem" }}>
           <ActionButton
-            action={CLEAR_GROUND_ACTION}
+            name={CLEAR_GROUND_ACTION.name}
+            cost={CLEAR_GROUND_ACTION.cost}
             onClick={clearGround}
-            disabled={!isActionWithinDaylight(time, 8, day) || playerStatus.energy < 70}
+            disabled={!isActionWithinDaylight(time, 8, day)}
           />
           <Paragraph margin="0.25rem 0 0 0">
             Chance of new plot: {(plotChance * 100).toFixed(1)}%

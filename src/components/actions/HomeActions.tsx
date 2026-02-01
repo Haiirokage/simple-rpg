@@ -1,6 +1,5 @@
 import { useHomeUpgrades } from "../../data/homeUpgrades/hooks";
 import { useTime, useUpdateTime } from "../../data/time/hooks";
-import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
 import { useGrantExperience, usePlayerForce } from "../../data/attributes/hooks";
 import ActionButton from "../ActionButton";
 import { useHandleAttack } from "../../combat/hooks";
@@ -10,13 +9,13 @@ import { objectKeys } from "../../util";
 import { getDistanceMultiplier } from "../../combat/util";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 
-const trainStrengthAction = {
-  timeCost: 1,
-  energyCost: 30,
+const trainStrengthCost = {
+  time: 1,
+  energy: 30,
 };
-const trainRangedAction = {
-  timeCost: 2,
-  energyCost: 15,
+const trainRangedCost = {
+  time: 2,
+  energy: 15,
 };
 
 const targets = {
@@ -31,8 +30,6 @@ const HomeActions = () => {
   const { data: homeUpgrades } = useHomeUpgrades();
   const { time } = useTime();
   const updateTime = useUpdateTime();
-  const { data: playerStatus } = usePlayerStatus();
-  const updatePlayerStatus = useUpdatePlayerStatus();
   const grantExperience = useGrantExperience();
   const playerForce = usePlayerForce();
   const handleAttack = useHandleAttack();
@@ -43,33 +40,20 @@ const HomeActions = () => {
   const bowRange = getEquipmentBonus("bow", "range");
 
   const trainStrength = () => {
-    const { timeCost, energyCost } = trainStrengthAction;
-
-    // Consume energy
-    updatePlayerStatus({
-      energy: -energyCost,
-    });
-
-    const expGain = 10 * playerForce * energyCost;
+    const expGain = 10 * playerForce * trainStrengthCost.energy;
 
     // Grant strength experience
     grantExperience({ strength: expGain, constitution: expGain / 5 });
 
     // Advance time
-    updateTime({ time: time + timeCost });
+    updateTime({ time: time + trainStrengthCost.time });
   };
 
   const trainRanged = () => {
-    const { timeCost, energyCost } = trainRangedAction;
-
-    // Consume energy
-    updatePlayerStatus({
-      energy: -energyCost,
-    });
     const result = handleAttack(targets[rangeTarget as "50" | "100" | "150"], "body");
 
     // Advance time
-    updateTime({ time: time + timeCost });
+    updateTime({ time: time + trainRangedCost.time });
 
     if (result === "failure") {
       return;
@@ -95,19 +79,11 @@ const HomeActions = () => {
     <div>
       <h3>Home actions</h3>
       {hasStoneGym && (
-        <ActionButton
-          action={{ ...trainStrengthAction, name: "Train Strength" }}
-          disabled={playerStatus.energy < trainStrengthAction.energyCost}
-          onClick={trainStrength}
-        />
+        <ActionButton name="Train Strength" cost={trainStrengthCost} onClick={trainStrength} />
       )}
       {hasArcheryTarget && (
         <>
-          <ActionButton
-            action={{ ...trainRangedAction, name: "Train Archery" }}
-            disabled={playerStatus.energy < trainRangedAction.energyCost}
-            onClick={trainRanged}
-          />
+          <ActionButton name="Train Archery" cost={trainRangedCost} onClick={trainRanged} />
           <label for="range-select">Range</label>
           <select
             id="range-select"

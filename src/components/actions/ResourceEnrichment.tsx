@@ -1,5 +1,4 @@
 import { useHandleEquipment } from "../../data/equipment/hooks";
-import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { LEATHER_ENRICHMENT } from "../../data/resources/enrichment-definitions";
 import { useHandleResources } from "../../data/resources/hooks";
 import { getAffordability, hasDiscoveredResources } from "../../data/resources/util";
@@ -13,12 +12,10 @@ const ResourceEnrichment = () => {
   const advanceTime = useAdvanceTime();
   const { skills } = useSkills();
   const grantExperience = useGrantSkillExperience();
-  const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const { resources, data, addResources } = useHandleResources();
   const { getTool } = useHandleEquipment();
 
   const { energyCost, cost, timeCost } = LEATHER_ENRICHMENT;
-  const hasEnergy = playerStatus.energy >= energyCost;
   const { canAfford } = getAffordability(cost, resources);
   const knife = getTool("knife");
   const tanHide = () => {
@@ -26,13 +23,12 @@ const ResourceEnrichment = () => {
     const toolBonus = 1 + (knife.toolStatus.tier * knife.toolStatus.level) / 50;
     const leatherYield = Math.round(2 * craftingBonus * toolBonus);
     addResources({ hide: -1, leather: leatherYield });
-    updatePlayerStatus({ energy: -energyCost });
     advanceTime(timeCost);
     grantExperience({ crafting: 10 });
   };
   const hasDiscovered = hasDiscoveredResources(cost, data);
 
-  const disabled = !hasEnergy || !canAfford || knife.toolStatus.tier === 0;
+  const disabled = !canAfford || knife.toolStatus.tier === 0;
   return (
     <>
       {hasDiscovered ? (
@@ -41,12 +37,9 @@ const ResourceEnrichment = () => {
 
           <TooltipWrapper description="Clean the hide with a knife, treat it with a mixture of intestines and water, then smoke it.">
             <ActionButton
+              name="Tan hide"
+              cost={{ energy: energyCost, time: timeCost, resources: cost }}
               disabled={disabled}
-              action={{
-                name: "Tan hide",
-                energyCost: energyCost,
-                timeCost: timeCost,
-              }}
               onClick={tanHide}
             />
           </TooltipWrapper>

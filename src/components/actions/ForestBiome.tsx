@@ -6,7 +6,6 @@ import { useHandleKnowledge } from "../../data/knowledge/hooks";
 
 import { useMemo } from "preact/hooks";
 import { FOREST_ACTIONS } from "../../biome/forest/action-definitions";
-import { usePlayerStatus, useUpdatePlayerStatus } from "../../data/playerStatus/hooks";
 import { useDiscoveries } from "../../data/discoveries/hooks";
 import ActionButton from "../ActionButton";
 import { getAffordability } from "../../data/resources/util";
@@ -33,8 +32,6 @@ const ForestBiome = () => {
   const multipliers = useActionMultipliers();
   const grantExperience = useGrantExperience();
 
-  const { data: playerStatus } = usePlayerStatus();
-  const updatePlayerStatus = useUpdatePlayerStatus();
   const discoveries = useDiscoveries();
 
   const discoveredActions = useMemo(
@@ -83,16 +80,11 @@ const ForestBiome = () => {
         return (
           <ActionButton
             key={id}
-            action={{
-              name,
-              timeCost: cost.time,
-              energyCost,
-              resourceCost: cost.resources,
-            }}
-            disabled={playerStatus.energy < energyCost || !canAfford || disabled}
+            name={name}
+            cost={{ ...cost, energy: energyCost }}
+            disabled={!canAfford || disabled}
             onClick={() => {
               addResources(resourceYieldDiff);
-              // Small knowledge bonus: 1 level per action
               gainLevels(expGain);
 
               if (experienceGrant && resourceAmount > 0) {
@@ -109,9 +101,6 @@ const ForestBiome = () => {
               }
 
               updateTime({ time: time + action.cost.time });
-              updatePlayerStatus({
-                energy: -energyCost,
-              });
             }}
           />
         );
@@ -120,14 +109,9 @@ const ForestBiome = () => {
       {/* setTrap - unique consumable deployment action */}
       {consumables.trap.count > 0 && (
         <ActionButton
-          action={{
-            name: "Set trap",
-            timeCost: 1,
-            energyCost: 2 + energyModifier,
-            resourceCost: { berry: 4 },
-          }}
+          name="Set trap"
+          cost={{ time: 1, energy: 2 + energyModifier, resources: { berry: 4 } }}
           disabled={
-            playerStatus.energy < 2 + energyModifier ||
             consumables.trap.count <= consumables.trap.active ||
             resources.berry < 4 ||
             !isActionWithinDaylight(time, 1, day)
@@ -142,9 +126,6 @@ const ForestBiome = () => {
             });
             gainLevels(expGain);
             updateTime({ time: time + 1 });
-            updatePlayerStatus({
-              energy: -(2 + energyModifier),
-            });
           }}
         />
       )}

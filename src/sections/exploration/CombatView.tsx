@@ -2,10 +2,19 @@ import styled from "styled-components";
 import type { CreatureIntance } from "../../npc/creature-definitions";
 import { objectEntries } from "../../util";
 import { useState } from "preact/hooks";
-import { useSetEncounter, useUpdateEnemies, useEncounter } from "../../data/encounters/hooks";
+import {
+  useSetEncounter,
+  useUpdateEnemies,
+  useHandleEncounter,
+  useHandleSkillCheck,
+} from "../../data/encounters/hooks";
 import { useHandleAttack } from "../../combat/hooks";
-import { useEquipment } from "../../data/equipment/hooks";
+import { getSprintDistance, getWoundStatus, type WoundStatus } from "../../combat/util";
+import { useHandleEquipment } from "../../data/equipment/hooks";
+import { useAttributes } from "../../data/attributes/hooks";
+import { useSkills } from "../../data/skills/hooks";
 import { useMutateDiscoveries } from "../../data/discoveries/hooks";
+import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import TooltipWrapper from "../../style/TooltipWrapper";
 import CombatResolution from "./CombatResolution";
 
@@ -54,26 +63,13 @@ const StatusLabel = styled.span`
   color: #666;
 `;
 
-const statusConfig = (healthRatio: number) => {
-  if (healthRatio > 0.7) {
-    return {
-      label: "Healthy",
-      borderColor: "#10b981",
-      icon: "⚔️",
-    };
-  } else if (healthRatio > 0.3) {
-    return {
-      label: "Wounded",
-      borderColor: "#f59e0b",
-      icon: "🩹",
-    };
-  }
-  return {
-    label: "Critically Wounded",
-    borderColor: "#ef4444",
-    icon: "💀",
-  };
+const STATUS_CONFIG: Record<WoundStatus, { label: string; borderColor: string; icon: string }> = {
+  healthy: { label: "Healthy", borderColor: "#10b981", icon: "⚔️" },
+  wounded: { label: "Wounded", borderColor: "#f59e0b", icon: "🩹" },
+  critical: { label: "Critically Wounded", borderColor: "#ef4444", icon: "💀" },
 };
+
+const getShootInterval = (rangedLevel: number) => Math.max(5, 10 * (1 - rangedLevel / 200));
 
 interface Props {
   enemies: Record<string, CreatureIntance>;
@@ -83,17 +79,23 @@ const CombatView = ({ enemies }: Props) => {
   const updateEnemies = useUpdateEnemies();
   const handleAttack = useHandleAttack();
   const setEncounter = useSetEncounter();
-  const { data: encounter } = useEncounter();
-  const equipment = useEquipment();
+  const { encounter, mutateEncounter } = useHandleEncounter();
+  const { getEquipmentBonus } = useHandleEquipment();
+  const { skills } = useSkills();
   const mutateDiscoveries = useMutateDiscoveries();
+  const handleSkillCheck = useHandleSkillCheck();
+  const { updatePlayerStatus } = useHandlePlayerStatus();
+  const { attributes } = useAttributes();
   const [selectedEnemy, setSelectedEnemy] = useState(Object.keys(enemies)[0]);
-  const noWeapon = !equipment.tools.bow;
 
+  const noWeapon = !getEquipmentBonus("bow", "range");
+  const bowRange = getEquipmentBonus("bow", "range");
   const combatContext = encounter.combatContext;
   const enemy = selectedEnemy && enemies[selectedEnemy];
   const enemyEntries = objectEntries(enemies);
   const allDead = enemyEntries.every(([, e]) => e.health <= 0);
   const aware = enemyEntries.some(([, e]) => e.discovered);
+  const outOfRange = enemy && enemy.health > 0 && enemy.distance > bowRange;
 
   const handleShoot = () => {
     if (!enemy) return;
@@ -104,14 +106,43 @@ const CombatView = ({ enemies }: Props) => {
       mutateDiscoveries({ failed_hunt: 1 });
     }
 
+    const shootInterval = getShootInterval(skills.ranged?.level || 0);
+
     const updatedEnemies = enemyEntries.map(([id, e]) => {
-      if (id === selectedEnemy) {
-        return { id, health: e.health - healthLost, discovered: true };
-      }
-      return { id, discovered: true };
+      const newHealth = id === selectedEnemy ? e.health - healthLost : e.health;
+      const isAlive = newHealth > 0;
+      const wounded = { ...e, health: newHealth };
+      const fleeDistance = isAlive && !e.hostile ? getSprintDistance(wounded, shootInterval) : 0;
+      const newDistance = e.distance + fleeDistance;
+      const outOfBowRange = newDistance > bowRange;
+      const bonusFlee = outOfBowRange && isAlive && !e.hostile ? getSprintDistance(wounded, 30) : 0;
+
+      return {
+        id,
+        health: newHealth,
+        distance: newDistance + bonusFlee,
+        discovered: true,
+      };
     });
 
     updateEnemies(updatedEnemies);
+  };
+
+  const handleTrack = (target: CreatureIntance) => {
+    const dc = Math.floor(Math.sqrt(target.distance / 4));
+    const closedDistance = target.distance - 100;
+    const playerSpeed = Math.cbrt(attributes.dexterity.level) / 2;
+    const trackingSeconds = closedDistance / playerSpeed;
+    const trackingMinutes = Math.round(trackingSeconds / 60);
+    const result = handleSkillCheck({ skill: ["hunter"], knowledge: true, dc });
+
+    if (result === "success") {
+      updateEnemies([{ id: target.id, distance: 100 }]);
+      mutateEncounter({ timePassed: encounter.timePassed + trackingMinutes });
+      updatePlayerStatus({ energy: -Math.ceil((trackingMinutes * 5) / 60) });
+    } else {
+      setEncounter("exit", trackingMinutes + 30, combatContext?.exitMessage);
+    }
   };
 
   if (allDead) {
@@ -127,7 +158,7 @@ const CombatView = ({ enemies }: Props) => {
         </p>
       )}
       {enemyEntries.map(([id, enemy]) => {
-        const config = statusConfig(enemy.health / enemy.maxHealth);
+        const config = STATUS_CONFIG[getWoundStatus(enemy)];
         return (
           <EnemyCard
             borderColor={config.borderColor}
@@ -146,8 +177,11 @@ const CombatView = ({ enemies }: Props) => {
           </EnemyCard>
         );
       })}
-      <button onClick={() => setEncounter("exit", 10, combatContext?.exitMessage)}>Flee</button>
-      {enemy && (
+      <button onClick={() => setEncounter("exit", 10, combatContext?.exitMessage)}>
+        {outOfRange ? "Give up" : "Flee"}
+      </button>
+      {outOfRange && aware && enemy && <button onClick={() => handleTrack(enemy)}>Track</button>}
+      {!outOfRange && enemy && (
         <TooltipWrapper description={noWeapon ? "You need a weapon" : "Attack roll"} inline>
           <button disabled={noWeapon} onClick={handleShoot}>
             Shoot
