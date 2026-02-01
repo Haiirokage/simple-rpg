@@ -12,6 +12,7 @@ import type { ResourceStore } from "../../data/resources/types";
 import { Paragraph } from "../../style/elements";
 import { useGrantExperience } from "../../data/attributes/hooks";
 import { objectEntries } from "../../util";
+import { meetsDiscoveryRequirements } from "../../data/discoveries/util";
 import { useActionMultipliers } from "../../biome/forest/action-utils";
 import { sum } from "lodash";
 import ExploreButton from "../ExploreButton";
@@ -32,12 +33,8 @@ const ForestBiome = () => {
 
   const discoveredActions = useMemo(
     () =>
-      Object.values(FOREST_ACTIONS).filter(
-        (action) =>
-          !action.discoveriesRequired ||
-          Object.entries(action.discoveriesRequired).every(
-            ([discoveryType, required]) => discoveries[discoveryType as never] >= required,
-          ),
+      Object.values(FOREST_ACTIONS).filter((action) =>
+        meetsDiscoveryRequirements(action.discoveriesRequired, discoveries),
       ),
     [discoveries],
   );

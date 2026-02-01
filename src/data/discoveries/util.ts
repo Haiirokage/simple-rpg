@@ -10,6 +10,12 @@ import { calculateDiscoveryChance } from "./hooks";
 import type { DiscoveriesStore } from "./types";
 import { useMemo } from "preact/hooks";
 
+/** Check if all required discovery counts are met. */
+export const meetsDiscoveryRequirements = (
+  requirements: Partial<Record<keyof DiscoveriesStore, number>> | undefined,
+  discoveries: DiscoveriesStore,
+) => !requirements || objectEntries(requirements).every(([key, req]) => discoveries[key] >= req);
+
 /**
  * TODO: Make biome-agnostic once multiple biomes exist
  * Currently hardcoded to forest discoveries. Should accept discoveries parameter.

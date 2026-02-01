@@ -9,8 +9,12 @@ import {
   getDifficultyMultiplier,
   getEffectiveDex,
   getHealthLost,
+  type HitSeverity,
 } from "./util";
 import { useHandleEquipment } from "../data/equipment/hooks";
+
+const TARGET_DAMAGE: Record<string, number> = { head: 25, body: 15, legs: 5 };
+const SEVERITY_MULT: Record<HitSeverity, number> = { critical: 1, severe: 0.5, miss: 0 };
 
 /**
  * Hook that returns a function to handle ranged attacks.
@@ -41,13 +45,7 @@ export const useHandleAttack = () => {
       );
       const hitSeverity = calculateHitSeverity(target, hitChance);
 
-      const targetBaseDamage = target === "head" ? 25 : target === "body" ? 15 : 5;
-      const damageMultiplier =
-        hitSeverity === "critical"
-          ? 1 * targetBaseDamage
-          : hitSeverity === "severe"
-            ? 0.5 * targetBaseDamage
-            : 0;
+      const damageMultiplier = TARGET_DAMAGE[target] * SEVERITY_MULT[hitSeverity];
 
       const healthLost = getHealthLost(creature.targets[target].armor_rating, damageMultiplier);
 

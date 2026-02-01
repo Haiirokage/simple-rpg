@@ -17,7 +17,7 @@ import { getSeasonByDay } from "../../data/time/season-util";
 import { useDiscoveries } from "../../data/discoveries/hooks";
 import { useMemo } from "preact/hooks";
 import { Button } from "../../style/elements";
-import { objectEntries } from "../../util";
+import { meetsDiscoveryRequirements } from "../../data/discoveries/util";
 import TooltipWrapper from "../../style/TooltipWrapper";
 
 const HomeUpgrades = () => {
@@ -33,15 +33,11 @@ const HomeUpgrades = () => {
   const discoveries = useDiscoveries();
 
   const discoveredUpgrades = useMemo(() => {
-    return HOME_UPGRADES.filter((upgrade) => {
-      // Show upgrade if no discoveries required, or if all required discoveries are met
-      if (!upgrade.discoveriesRequired) return true;
-      const hasDiscovered = hasDiscoveredResources(upgrade.resourceCost, resources);
-      if (!hasDiscovered) return false;
-      return objectEntries(upgrade.discoveriesRequired).every(
-        ([discoveryType, required]) => discoveries[discoveryType] >= required,
-      );
-    });
+    return HOME_UPGRADES.filter(
+      (upgrade) =>
+        hasDiscoveredResources(upgrade.resourceCost, resources) &&
+        meetsDiscoveryRequirements(upgrade.discoveriesRequired, discoveries),
+    );
   }, [discoveries, resources]);
 
   const buildUpgrade = (upgrade: HomeUpgradeDefinition, resourceResult: Partial<ResourceStore>) => {

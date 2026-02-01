@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "preact/hooks";
+import { mergeWith } from "lodash";
 
 export const objectKeys = <T extends object>(obj: T): (keyof T)[] => {
   return Object.keys(obj) as (keyof T)[];
@@ -11,6 +12,14 @@ export const objectEntries = <T extends object>(
 };
 
 export type AtLeast<T, K extends keyof T> = Partial<T> & Pick<T, K>;
+
+const addValues = (a = 0, b = 0) => a + b;
+
+/** Merge two partial numeric records, summing values for shared keys. */
+export const mergeNumericRecords = <T extends Record<string, number>>(
+  base: Partial<T>,
+  additions: Partial<T>,
+): Partial<T> => mergeWith({}, base, additions, addValues);
 
 /**
  * Convert a fractional value to an integer using probability.

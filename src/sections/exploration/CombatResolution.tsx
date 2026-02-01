@@ -1,5 +1,4 @@
 import { useState } from "preact/hooks";
-import { mergeWith } from "lodash";
 import type { CreatureIntance, LootEntry } from "../../npc/creature-definitions";
 import { useHandleEncounter, useSetEncounter, useSkillRoll } from "../../data/encounters/hooks";
 import { useHandleExploration } from "../../data/exploration/hooks";
@@ -8,11 +7,9 @@ import { useGrantSkillExperience } from "../../data/skills/hooks";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { useEquipment } from "../../data/equipment/hooks";
 import TooltipWrapper from "../../style/TooltipWrapper";
-import { objectEntries } from "../../util";
+import { mergeNumericRecords, objectEntries } from "../../util";
 import type { ResourceStore } from "../../data/resources/types";
 import type { CombatConfig } from "../../data/encounters/types";
-
-const addValues = (a = 0, b = 0) => a + b;
 
 interface Props {
   enemies: Record<string, CreatureIntance>;
@@ -46,20 +43,14 @@ const CombatResolution = ({ enemies, combatContext }: Props) => {
     const successfulEntries = allLootEntries.filter((entry) => total >= (entry.dc ?? 0));
 
     const totalLoot = successfulEntries.reduce<Partial<ResourceStore>>(
-      (acc, entry) => mergeWith(acc, entry.resources, addValues),
+      (acc, entry) => mergeNumericRecords(acc, entry.resources),
       {},
     );
 
     const lootEntries = objectEntries(totalLoot).filter(([, v]) => v && v > 0);
     setLoot(lootEntries as [string, number][]);
 
-    const newInventory = objectEntries(totalLoot).reduce(
-      (acc, [key, value]) => ({
-        ...acc,
-        [key]: (acc[key] || 0) + (value || 0),
-      }),
-      exploration.inventory,
-    );
+    const newInventory = mergeNumericRecords(exploration.inventory, totalLoot);
 
     mutateExploration({ inventory: newInventory });
     mutateEncounter({ timePassed: encounter.timePassed + 60 });

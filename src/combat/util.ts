@@ -34,32 +34,26 @@ export const calculateHitChance = (
   const dexMult = 0.8 + playerDex / 100;
   const rangedMult = 0.15 + playerRanged / 30;
   const composureMult = getComposureMultiplier(acuity);
+  const enemyDexMult = discovered ? clamp((playerDex - enemyDex + 30) / 40, 0, 1) : 1;
 
-  if (discovered) {
-    const enemyDexMult = clamp((playerDex - enemyDex + 30) / 40, 0, 1);
-    const hitChance = clamp(
-      distanceMultiplier * dexMult * rangedMult * composureMult * enemyDexMult,
-      0,
-      1,
-    );
-    console.log(
-      "hit chance",
-      hitChance,
-      enemyDexMult,
-      composureMult,
-      distanceMultiplier,
-      dexMult,
-      rangedMult,
-    );
-    return hitChance;
-  }
-
-  const hitChance = clamp(distanceMultiplier * dexMult * rangedMult * composureMult, 0, 1);
-  console.log("hit chance", hitChance, composureMult, distanceMultiplier, dexMult, rangedMult);
+  const hitChance = clamp(
+    distanceMultiplier * dexMult * rangedMult * composureMult * enemyDexMult,
+    0,
+    1,
+  );
+  console.log("hit chance", {
+    hitChance,
+    enemyDexMult,
+    composureMult,
+    distanceMultiplier,
+    dexMult,
+    rangedMult,
+  });
   return hitChance;
 };
 
 export const HIT_SEVERITY = ["critical", "severe", "miss"] as const;
+export type HitSeverity = (typeof HIT_SEVERITY)[number];
 
 /**
  * Rolls to determine hit severity based on hit chance and target.
