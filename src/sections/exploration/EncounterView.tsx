@@ -17,6 +17,7 @@ import { useHandleEffect } from "../../data/effect-util";
 import TooltipWrapper from "../../style/TooltipWrapper";
 import { objectKeys } from "../../util";
 import CombatView from "./CombatView";
+import NPCInteractionView from "./NPCInteractionView";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
@@ -35,6 +36,9 @@ const EncounterView = () => {
   const enemies = objectKeys(encounter.enemies);
   if (enemies.length > 0) {
     return <CombatView enemies={encounter.enemies} />;
+  }
+  if (encounter.npcs.length > 0) {
+    return <NPCInteractionView />;
   }
   if (!encounter.encounterFrameId) {
     return <div>{encounter.exitMessage || "No encounter active."}</div>;

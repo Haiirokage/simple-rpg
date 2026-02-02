@@ -10,6 +10,9 @@ export const defaultResourceStore = {
   leather: 0,
   tuber: 0,
   fur: 0,
+  iron: 0,
+  // Currency
+  coin: 0,
 } as const;
 
 export type ResourceKeys = keyof typeof defaultResourceStore;

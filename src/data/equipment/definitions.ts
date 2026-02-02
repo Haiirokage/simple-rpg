@@ -70,6 +70,11 @@ export const TOOL_DEFINITIONS: Record<ToolType, ToolDefinition> = {
     tiers: [
       NO_TOOL,
       { name: "stone", cost: { wood: 2, fiber: 1, stone: 4 }, bonus: { skinning: { min: 1 } } },
+      {
+        name: "iron",
+        cost: { wood: 1, iron: 3, leather: 2 },
+        bonus: { skinning: { min: 1, max: 2 } },
+      },
     ],
   },
 } as const;

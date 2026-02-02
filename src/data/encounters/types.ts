@@ -4,8 +4,18 @@ import type { Skills } from "../skills/types";
 import type { CreatureIntance, Creatures } from "../../npc/creature-definitions";
 import type { ExtraDiscoveries } from "../discoveries/types";
 import type { PlayerEffect } from "../effect-util";
+import type { HumanType } from "../../npc/human-definitions";
 
-export type EncounterFrameId = "deer_tracks_found" | "edable_roots" | "wolf_encounter";
+export interface EncounterNPC {
+  type: HumanType;
+  id: string;
+}
+
+export type EncounterFrameId =
+  | "deer_tracks_found"
+  | "edable_roots"
+  | "wolf_encounter"
+  | "npc_encounter";
 
 export interface BaseOutcome {
   resourceYield?: Partial<ResourceStore>;
@@ -83,6 +93,7 @@ export interface BaseEncounterFrame {
   description: string;
   spawnCreatures?: { type: Creatures; id: string; distance: number }[];
   actions: EncounterAction[];
+  npc?: EncounterNPC;
   preventLeaving?: boolean; // If true, player cannot leave this frame (default: false)
 }
 export interface EncounterFrame extends BaseEncounterFrame {
@@ -100,6 +111,7 @@ export type EncounterStore = {
   biome: KnowledgeBiome;
   encounterFrameId?: EncounterFrameId;
   enemies: Record<string, CreatureIntance>;
+  npcs: string[]; // NPC store ids present in this encounter
   combatContext?: CombatConfig;
   timePassed: number; // in minutes
   exitMessage?: string;

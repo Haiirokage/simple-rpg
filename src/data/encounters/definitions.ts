@@ -133,6 +133,14 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
       },
     ],
   },
+  npc_encounter: {
+    id: "npc_encounter",
+    title: "A Familiar Face",
+    description:
+      "You discover a young woman kneeling in the bushes near a patch of berries. She looks up, startled but not afraid. She says she's from a village not far from here.",
+    npc: { type: "barmaid", id: "village_barmaid" },
+    actions: [],
+  },
 };
 
 export const COMBAT_FRAMES: Record<CombatFrameId, CombatEncounterFrame> = {

@@ -6,6 +6,7 @@ import type { ResourceKeys } from "../../data/resources/types";
 import { objectKeys } from "../../util";
 import { getStorageCapacity } from "../../data/resources/util";
 import { FOOD_STORAGE } from "../../data/resources/food-definitions";
+import CurrencyDisplay from "../../components/CurrencyDisplay";
 import styled from "styled-components";
 
 const ResourceList = styled.ul`
@@ -31,8 +32,9 @@ const ResourceBox = () => {
   );
 
   const discovered = objectKeys(data);
+  const hasCoin = "coin" in data;
   const foodKeys = discovered.filter((k) => FOOD_KEYS.has(k));
-  const materialKeys = discovered.filter((k) => !FOOD_KEYS.has(k));
+  const materialKeys = discovered.filter((k) => !FOOD_KEYS.has(k) && k !== "coin");
 
   const renderResource = (resource: ResourceKeys) => {
     const capacityDisplay = getCapacityDisplay(resource);
@@ -49,6 +51,12 @@ const ResourceBox = () => {
 
   return (
     <div style={{ fontFamily: "monospace" }}>
+      {hasCoin && (
+        <div>
+          <span style={{ display: "inline-block", width: "10em" }}>Coins</span>
+          <CurrencyDisplay amount={resources.coin} />
+        </div>
+      )}
       {foodKeys.length > 0 && <ResourceList>{foodKeys.map(renderResource)}</ResourceList>}
       {materialKeys.length > 0 && <ResourceList>{materialKeys.map(renderResource)}</ResourceList>}
     </div>

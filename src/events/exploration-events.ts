@@ -72,6 +72,14 @@ export const EXPLORATION_EVENTS: Record<AllDiscoveryType, ExplorationEvent> = {
       "A flash of grey between the trees catches your eye. A lone wolf watches you from a distance, its yellow eyes gleaming with a mix of hunger and caution.",
     ],
   },
+  foraging_npc: {
+    id: "foraging_npc",
+    name: "Forager Encountered",
+    category: "exploration",
+    descriptions: [
+      "You spot someone crouching near a berry bush ahead. As you approach, a young woman looks up with a cautious smile. She seems to know these woods well enough.",
+    ],
+  },
 };
 
 export const buildExplorationEventLog = (

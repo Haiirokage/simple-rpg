@@ -1,6 +1,8 @@
 import { useDataQuery, useUpdateData } from "../util";
 import type { EncounterStore, EncounterFrameId, SkillCheck, CombatOutcome } from "./types";
+import { ENCOUNTER_FRAMES } from "./definitions";
 import { CREATURES } from "../../npc/creature-definitions";
+import { useGetOrCreateNPC } from "../../npc/npc-hooks";
 import { useHandleKnowledge } from "../knowledge/hooks";
 import { useAttributes } from "../attributes/hooks";
 import { useCallback } from "preact/hooks";
@@ -18,6 +20,7 @@ export const defaultEncounterStore: EncounterStore = {
   active: false,
   biome: "forest",
   enemies: {},
+  npcs: [],
   timePassed: 0,
 } as const;
 
@@ -71,6 +74,7 @@ export const useSetEncounter = () => {
   const { mutateEncounter, encounter } = useHandleEncounter();
   const advanceTime = useAdvanceTime();
   const { updatePlayerStatus } = useHandlePlayerStatus();
+  const getOrCreateNPC = useGetOrCreateNPC();
 
   return (startFrameId: EncounterFrameId | "exit", timePassed = 0, exitMessage?: string) => {
     const timePassedTotal = encounter.timePassed + timePassed;
@@ -87,6 +91,7 @@ export const useSetEncounter = () => {
         active: false,
         encounterFrameId: undefined,
         enemies: {},
+        npcs: [],
         combatContext: undefined,
         timePassed: 0,
         exitMessage: exitMessage,
@@ -94,9 +99,14 @@ export const useSetEncounter = () => {
 
       return;
     }
+
+    const frame = ENCOUNTER_FRAMES[startFrameId];
+    const npcs = frame.npc ? [getOrCreateNPC(frame.npc.id, frame.npc.type).id] : [];
+
     mutateEncounter({
       active: true,
       encounterFrameId: startFrameId,
+      npcs,
       timePassed: timePassedTotal,
       exitMessage: undefined,
     });
