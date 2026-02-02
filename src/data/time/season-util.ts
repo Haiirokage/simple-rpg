@@ -1,4 +1,4 @@
-import { MONTHS, type SeasonDefinition } from "./season-definitions";
+import { DAYS_IN_MONTH, MONTHS, type SeasonDefinition } from "./season-definitions";
 import inRange from "lodash/inRange";
 
 /**
@@ -7,7 +7,7 @@ import inRange from "lodash/inRange";
  * @returns Season definition for the given day
  */
 export const getSeasonByDay = (day: number): SeasonDefinition => {
-  const month = Math.floor(day / 30);
+  const month = Math.floor(day / DAYS_IN_MONTH);
   return MONTHS[month % 12];
 };
 
@@ -23,8 +23,8 @@ export const getMonthName = (day: number): string => {
  * Get formatted date string from day number (e.g., "February 2")
  */
 export const getDate = (day: number, short = false): string => {
-  const dayInMonth = (day % 30) + 1;
-  const month = Math.floor(day / 30) + 1;
+  const dayInMonth = (day % DAYS_IN_MONTH) + 1;
+  const month = Math.floor(day / DAYS_IN_MONTH) + 1;
   const monthStr = short ? String(month).padStart(2, "0") : getMonthName(day);
   const dayStr = String(dayInMonth).padStart(2, "0");
   return `${monthStr} ${dayStr}.`;

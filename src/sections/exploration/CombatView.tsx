@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import type { CreatureIntance } from "../../npc/creature-definitions";
-import { objectEntries } from "../../util";
-import { useEffect, useState } from "preact/hooks";
+import { objectEntries, usePrevious } from "../../util";
+import { useState } from "preact/hooks";
 import {
   useSetEncounter,
   useUpdateEnemies,
@@ -107,13 +107,12 @@ const CombatView = ({ enemies }: Props) => {
   const anyHostile = enemyEntries.some(([, e]) => e.hostile);
   const outOfRange = enemy && enemy.health > 0 && enemy.distance > bowRange;
 
-  useEffect(() => {
-    if (allDead) {
-      const acuityExp = anyHostile ? 50 : 10;
-      grantAcuityExp("combat", acuityExp);
-      console.info(`Combat acuity +${acuityExp}`);
-    }
-  }, [allDead, anyHostile, grantAcuityExp]);
+  const prevAllDead = usePrevious(allDead);
+  if (allDead && !prevAllDead) {
+    const acuityExp = anyHostile ? 50 : 10;
+    grantAcuityExp("combat", acuityExp);
+    console.info(`Combat acuity +${acuityExp}`);
+  }
 
   const handleShoot = () => {
     if (!enemy) return;

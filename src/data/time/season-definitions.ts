@@ -28,6 +28,8 @@ export type SeasonDefinition = {
   yieldMultiplier: Pick<Record<ActionId, number>, "forage" | "gatherWood">;
 };
 
+export const DAYS_IN_MONTH = 25;
+
 /**
  * Month definitions by index (0-11).
  * Array index = month number (0 = Frostmoon, 11 = Deepcold)

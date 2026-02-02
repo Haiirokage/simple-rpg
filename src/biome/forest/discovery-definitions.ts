@@ -57,7 +57,7 @@ export const REPEATABLE_DISCOVERIES: Record<
 > = {
   deer_tracks: {
     type: "deer_tracks",
-    rarity: 0.1,
+    rarity: 0.12,
     knowledgeRequirement: 80,
     triggerEncounter: "deer_tracks_found",
   },
