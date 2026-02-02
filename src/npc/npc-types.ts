@@ -1,7 +1,6 @@
 import type { Attributes } from "../data/attributes/types";
 import type { ToolType, ToolStatus } from "../data/equipment/types";
 import type { ResourceCost } from "../data/resources/types";
-import type { Skills } from "../data/skills/types";
 import type { HumanType, BudgetEntry, SellEntry } from "./human-definitions";
 
 export interface HumanInstance {
