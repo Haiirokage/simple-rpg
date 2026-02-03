@@ -82,3 +82,34 @@ export const hasDiscoveredResources = (
 ): boolean => {
   return objectEntries(requiredResources).every(([key]) => key in persistedResources);
 };
+
+/**
+ * Get the weight of a single unit of a resource.
+ * Weight is derived from baseCapacity: weight = 1 / baseCapacity.
+ * Resources with baseCapacity 0 are weightless.
+ */
+export const getResourceWeight = (resourceKey: ResourceKeys): number => {
+  const def =
+    FOOD_STORAGE.find((d) => d.key === resourceKey) ||
+    MATERIAL_STORAGE.find((d) => d.key === resourceKey);
+
+  if (!def || def.baseCapacity === 0) return 0;
+  return 1 / def.baseCapacity;
+};
+
+/**
+ * Get total weight of an inventory (Partial<ResourceStore>).
+ */
+export const getInventoryWeight = (inventory: Partial<ResourceStore>): number => {
+  return objectEntries(inventory).reduce((total, [key, amount]) => {
+    return total + getResourceWeight(key) * amount;
+  }, 0);
+};
+
+/**
+ * Get carry capacity based on force (strength-derived).
+ * Capacity = force / 50, rounded to 1 decimal place.
+ */
+export const getCarryCapacity = (force: number): number => {
+  return Math.round((force / 50) * 10) / 10;
+};

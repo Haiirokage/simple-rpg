@@ -18,6 +18,8 @@ import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import { getValueByLevel } from "../../data/equipment/util";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
+import { usePlayerForce } from "../../data/attributes/hooks";
+import { getInventoryWeight, getCarryCapacity } from "../../data/resources/util";
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -35,11 +37,11 @@ const LookAroundButton = styled.button<{ hasViable: boolean }>`
 `;
 
 const ExplorationActions = () => {
-  const { exploration, mutateExploration } = useHandleExploration();
+  const { exploration, mutateExploration, consumeAction, restoreActions } = useHandleExploration();
   const setEncounter = useSetEncounter();
   const { getTool } = useHandleEquipment();
   const { data: encounterState } = useEncounter();
-  const { time, day, year } = useTime();
+  const { day, year } = useTime();
   const endExpedition = useEndExpedition();
   const { knowledge, gainLevels } = useHandleKnowledge("forest");
   const knowledgeLevel = knowledge.tier * 100 + knowledge.level;
@@ -49,8 +51,13 @@ const ExplorationActions = () => {
   const addEventLogEntry = useAddEventLogEntry();
   const hasViableDiscoveries = useHasViableDiscoveries(knowledgeLevel, discoveries);
   const { updatePlayerStatus } = useHandlePlayerStatus();
+  const force = usePlayerForce();
 
-  const timeRemaining = exploration.endTime ? exploration.endTime - time : 0;
+  const currentWeight = getInventoryWeight(exploration.inventory);
+  const carryCapacity = getCarryCapacity(force);
+  const overweight = currentWeight > carryCapacity;
+  const noActions = exploration.actions.cur <= 0;
+  const hasJerky = (exploration.inventory.jerky ?? 0) > 0;
 
   const lookAround = useCallback(() => {
     const { toolDefinition, toolStatus } = getTool("shoes");
@@ -91,6 +98,7 @@ const ExplorationActions = () => {
     } else {
       console.log("found nothing");
     }
+    consumeAction(1);
     advanceTime(1);
     updatePlayerStatus({ energy: -5 });
   }, [
@@ -106,6 +114,7 @@ const ExplorationActions = () => {
     gainLevels,
     setEncounter,
     getTool,
+    consumeAction,
     updatePlayerStatus,
   ]);
 
@@ -116,14 +125,16 @@ const ExplorationActions = () => {
   const hasEnemies = Object.keys(encounterState.enemies).length > 0;
   const preventLeaving = encounterFrame?.preventLeaving || hasEnemies;
 
-  const disabled = encounterState.active || timeRemaining <= 0;
+  const disabled = encounterState.active || overweight || noActions;
 
   return (
     <ActionsContainer>
       {exploration.active && (
-        <Paragraph>
-          Time remaining: {timeRemaining}h (until hour {exploration.endTime})
-        </Paragraph>
+        <>
+          <Paragraph>
+            Actions remaining: {exploration.actions.cur} / {exploration.actions.max}
+          </Paragraph>
+        </>
       )}
       <LookAroundButton disabled={disabled} hasViable={hasViableDiscoveries} onClick={lookAround}>
         Look Around
@@ -132,6 +143,7 @@ const ExplorationActions = () => {
         <button
           disabled={disabled}
           onClick={() => {
+            consumeAction(1);
             updatePlayerStatus({ energy: -5 });
             if (Math.random() < knowledgeLevel / 300) {
               setEncounter("deer_tracks_found");
@@ -147,6 +159,7 @@ const ExplorationActions = () => {
         <button
           disabled={disabled}
           onClick={() => {
+            consumeAction(1);
             updatePlayerStatus({ energy: -5 });
             if (Math.random() < knowledgeLevel / 250) {
               setEncounter("edable_roots");
@@ -158,7 +171,16 @@ const ExplorationActions = () => {
           Find some tubers
         </button>
       )}
-      <button disabled={preventLeaving} onClick={() => endExpedition()}>
+      {hasJerky && (
+        <button
+          onClick={() => {
+            restoreActions(2);
+          }}
+        >
+          Eat a ration
+        </button>
+      )}
+      <button disabled={preventLeaving || overweight} onClick={() => endExpedition()}>
         Return Home
       </button>
     </ActionsContainer>

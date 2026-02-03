@@ -5,12 +5,13 @@ import ExplorationActions from "./exploration/ExplorationActions";
 import EventLog, { EventLogSection } from "./EventLog";
 import EncounterView from "./exploration/EncounterView";
 import BiomeOverview from "./overview/BiomeOverview";
+import ExplorationInventory from "./exploration/ExplorationInventory";
 
 const ExplorationGameContainer = styled(GameViewContainer)`
   grid-template-columns: 250px 400px 400px 280px;
   grid-template-areas:
     "status actions encounter log"
-    ". biome biome log";
+    "inventory biome biome log";
 `;
 
 const ExplorationLayout = () => {
@@ -29,6 +30,9 @@ const ExplorationLayout = () => {
       <EventLogSection area="log">
         <EventLog />
       </EventLogSection>
+      <GameSection area="inventory">
+        <ExplorationInventory />
+      </GameSection>
       <GameSection area="biome">
         <BiomeOverview />
       </GameSection>

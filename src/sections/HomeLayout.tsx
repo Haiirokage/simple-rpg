@@ -11,12 +11,13 @@ import HomeUpgrades from "../components/actions/HomeUpgrades";
 import HomeActions from "../components/actions/HomeActions";
 import HomeConstruction from "../components/actions/HomeConstruction";
 import PlayerActions from "./home/PlayerActions";
+import ExplorationInventory from "./exploration/ExplorationInventory";
 
 const HomeGameContainer = styled(GameViewContainer)`
   grid-template-columns: auto auto auto auto auto auto;
   grid-template-areas:
     "status attributes skills resources forest eventLog"
-    "home construction construction actions actions eventLog";
+    "inventory home construction construction actions eventLog";
 `;
 
 const ForestSection = styled(GameSection)`
@@ -57,6 +58,9 @@ const HomeLayout = () => {
       <EventLogSection area="eventLog">
         <EventLog />
       </EventLogSection>
+      <GameSection area="inventory">
+        <ExplorationInventory />
+      </GameSection>
       <HomeSection area="home">
         <h2>Home</h2>
         <HomeUpgrades />

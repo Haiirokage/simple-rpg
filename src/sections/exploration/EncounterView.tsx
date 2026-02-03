@@ -7,8 +7,8 @@ import {
   useInitiateCombat,
 } from "../../data/encounters/hooks";
 import type { EncounterAction, Outcome } from "../../data/encounters/types";
-import { useExploration } from "../../data/exploration/hooks";
-import { useHandleResources } from "../../data/resources/hooks";
+import { useHandleExploration } from "../../data/exploration/hooks";
+import { mergeNumericRecords } from "../../util";
 import { useTime } from "../../data/time/hooks";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { useEquipment } from "../../data/equipment/hooks";
@@ -21,11 +21,10 @@ import NPCInteractionView from "./NPCInteractionView";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
-  const exploration = useExploration();
+  const { exploration, mutateExploration } = useHandleExploration();
   const mutateDiscoveries = useMutateDiscoveries();
   const equipment = useEquipment();
   const { time } = useTime();
-  const { addResources } = useHandleResources();
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const setEncounter = useSetEncounter();
   const handleSkillCheck = useHandleSkillCheck();
@@ -52,7 +51,8 @@ const EncounterView = () => {
       handleEffect(sideEffect);
     }
     if (resourceYield) {
-      addResources(resourceYield);
+      const newInventory = mergeNumericRecords(exploration.inventory, resourceYield);
+      mutateExploration({ inventory: newInventory });
     }
     if (discovery) {
       mutateDiscoveries({ [discovery]: 1 });

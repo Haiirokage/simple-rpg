@@ -27,4 +27,7 @@ export const MATERIAL_STORAGE: MaterialResourceDefinition[] = [
   },
   { key: "leather", baseCapacity: 8, decayRate: 0 },
   { key: "hide", baseCapacity: 2, decayRate: 0.01 },
+  { key: "fur", baseCapacity: 4 },
+  { key: "iron", baseCapacity: 5 },
+  { key: "coin", baseCapacity: 0 }, // weightless currency
 ];
