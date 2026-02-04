@@ -9,7 +9,6 @@ import {
 import type { EncounterAction, Outcome } from "../../data/encounters/types";
 import { useHandleExploration } from "../../data/exploration/hooks";
 import { mergeNumericRecords } from "../../util";
-import { useTime } from "../../data/time/hooks";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { useEquipment } from "../../data/equipment/hooks";
 import { useMutateDiscoveries } from "../../data/discoveries/hooks";
@@ -24,7 +23,6 @@ const EncounterView = () => {
   const { exploration, mutateExploration } = useHandleExploration();
   const mutateDiscoveries = useMutateDiscoveries();
   const equipment = useEquipment();
-  const { time } = useTime();
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const setEncounter = useSetEncounter();
   const handleSkillCheck = useHandleSkillCheck();
@@ -97,16 +95,10 @@ const EncounterView = () => {
     }
   };
 
-  const timeLeft = exploration.endTime - time;
-
-  const isOutOfTime = (duration: number = 0) =>
-    timeLeft - Math.floor((encounter.timePassed + duration) / 60) < 0;
-
   return (
     <div>
       <h2>{frame.title}</h2>
       <p>{frame.description}</p>
-      {isOutOfTime() && <p>You have run out of time and must return home to replenish.</p>}
       <div style={{ marginTop: "1rem" }}>
         {!frame.preventLeaving && (
           <button
@@ -119,7 +111,6 @@ const EncounterView = () => {
           </button>
         )}
         {frame.actions.map((action) => {
-          const outOfTime = isOutOfTime(action.cost.minutes);
           const outOfEnergy = playerStatus.energy - (action.cost.energy || 0) < 0;
           const noWeapon = action.type === "attack" && !equipment.tools.bow;
 
@@ -129,7 +120,7 @@ const EncounterView = () => {
           return (
             <TooltipWrapper description={noWeapon ? "You need a weapon" : message} inline>
               <button
-                disabled={outOfTime || outOfEnergy || noWeapon}
+                disabled={outOfEnergy || noWeapon}
                 onClick={() => handleActionClick(action)}
                 key={action.id}
                 style={{ marginRight: "0.5rem" }}

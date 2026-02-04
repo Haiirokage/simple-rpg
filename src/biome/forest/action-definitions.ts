@@ -47,6 +47,6 @@ export const FOREST_ACTIONS: Record<ActionId, ActionDefinition> = {
       energy: 10,
     },
     resourceYield: { stone: 1 },
-    experienceGrant: { strength: 3500 },
+    experienceGrant: { strength: 4000 },
   },
 };

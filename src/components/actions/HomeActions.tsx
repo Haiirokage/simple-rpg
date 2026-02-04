@@ -37,7 +37,7 @@ const HomeActions = () => {
   const bowRange = getEquipmentBonus("bow", "range");
 
   const trainStrength = () => {
-    const expGain = 10 * playerForce * trainStrengthCost.energy;
+    const expGain = playerForce * playerForce * trainStrengthCost.energy;
 
     // Grant strength experience
     grantExperience({ strength: expGain, constitution: expGain / 5 });
@@ -88,7 +88,8 @@ const HomeActions = () => {
           >
             {objectKeys(targets).map((distance) => (
               <option value={distance}>
-                {distance} ({Math.round(getDistanceMultiplier(distance * 1, bowRange) * 100)}%)
+                {distance} ({100 - Math.round(getDistanceMultiplier(distance, bowRange) * 100)}%
+                penalty)
               </option>
             ))}
           </select>

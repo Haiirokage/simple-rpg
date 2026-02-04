@@ -34,11 +34,12 @@ export const useHandleAttack = () => {
       const bowRange = getEquipmentBonus("bow", "range");
       console.log("range", bowRange);
 
+      const creatureDex = getEffectiveDex(creature);
       const hitChance = calculateHitChance(
         attributes.dexterity.level,
         skills.ranged.level,
         creature.distance,
-        getEffectiveDex(creature),
+        creatureDex,
         bowRange,
         discovered,
         acuity.combat.level,
@@ -51,19 +52,25 @@ export const useHandleAttack = () => {
 
       if (healthLost > 0) {
         const distanceFactor = Math.max(0.1, (creature.distance - 20) / 100);
-        const discFactor = discovered ? 2 : 1;
+        const discFactor = discovered ? 1 + creatureDex / 10 : 1;
         const difficultyMultiplier = getDifficultyMultiplier(hitChance);
         const severityBonus = hitSeverity === "critical" ? 2 : 1;
         const skillExperience = {
           ranged: healthLost * distanceFactor * discFactor * difficultyMultiplier * severityBonus,
         };
 
-        console.info("Granting ranged experience:", skillExperience.ranged, {
-          hitChance,
-          difficultyMultiplier,
-          distanceFactor,
-          severityBonus,
-        });
+        console.info(
+          "Granting ranged experience:",
+          skillExperience.ranged,
+          distanceFactor * discFactor * difficultyMultiplier * severityBonus,
+          {
+            healthLost,
+            distanceFactor,
+            discFactor,
+            difficultyMultiplier,
+            severityBonus,
+          },
+        );
         grantSkillExperience(skillExperience);
       }
 

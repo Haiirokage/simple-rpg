@@ -52,13 +52,12 @@ export const useStartExpedition = () => {
   const { updatePlayerStatus } = useHandlePlayerStatus();
   const { attributes } = useAttributes();
 
-  return (endTime: number) => {
+  return () => {
     advanceTime(1); // 1 hour travel time
     updatePlayerStatus({ energy: -5 });
     const maxActions = getMaxExplorationActions(attributes.constitution.level);
     mutateExploration({
       active: true,
-      endTime,
       actions: { cur: maxActions, max: maxActions },
     });
   };

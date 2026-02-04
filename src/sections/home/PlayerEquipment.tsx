@@ -1,9 +1,11 @@
-import { useEquipment } from "../../data/equipment/hooks";
+import { useHandleEquipment } from "../../data/equipment/hooks";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
 import { objectEntries } from "../../util";
+import TooltipWrapper from "../../style/TooltipWrapper";
 
 const PlayerEquipment = () => {
-  const { consumables, tools } = useEquipment();
+  const { equipment, getEquipmentBonus } = useHandleEquipment();
+  const { tools, consumables } = equipment;
 
   return (
     <div>
@@ -16,11 +18,14 @@ const PlayerEquipment = () => {
           }
           const { tier, level } = toolStatus;
           const tierName = toolDef.tiers[tier].name;
+          const bowDesc = toolKey === "bow" ? `Range: ${getEquipmentBonus("bow", "range")}` : "";
           return (
-            <li key={toolKey}>
-              <span style={{ display: "inline-block", width: "6em" }}>{toolDef.name}</span>
-              {tierName} lvl {level}
-            </li>
+            <TooltipWrapper description={bowDesc}>
+              <li key={toolKey}>
+                <span style={{ display: "inline-block", width: "6em" }}>{toolDef.name}</span>
+                {tierName} lvl {level}
+              </li>
+            </TooltipWrapper>
           );
         })}
         {consumables.trap.count === 0 ? null : (

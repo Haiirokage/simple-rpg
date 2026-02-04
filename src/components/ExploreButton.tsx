@@ -9,20 +9,18 @@ const StyledButton = styled.button`
   margin-bottom: 8px;
 `;
 
-const EXPLORATION_TIME_LIMIT = 4;
-
 const ExploreButton = () => {
   const { time, day } = useTime();
   const startExpedition = useStartExpedition();
   const { data: playerStatus } = usePlayerStatus();
   const exploration = useExploration();
 
-  const canExplore = isActionWithinDaylight(time, EXPLORATION_TIME_LIMIT, day);
+  const canExplore = isActionWithinDaylight(time, 1, day);
 
   return (
     <StyledButton
       disabled={exploration.active || !canExplore || playerStatus.energy < 20}
-      onClick={() => startExpedition(time + EXPLORATION_TIME_LIMIT)}
+      onClick={() => startExpedition()}
     >
       Explore
     </StyledButton>

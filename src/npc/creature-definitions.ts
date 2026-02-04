@@ -44,7 +44,7 @@ export const CREATURES: Record<Creatures, CreatureDefinition> = {
     attributes: {
       strength: 25,
       constitution: 50,
-      dexterity: 42,
+      dexterity: 40,
       wisdom: 1,
     },
     targets: getTargets(30, 15, 10),

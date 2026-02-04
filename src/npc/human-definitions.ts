@@ -29,7 +29,7 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
     id: "barmaid",
     sex: "female",
     age: { min: 18, max: 30 },
-    equipment: { knife: { tier: 2, level: 1 } },
+    equipment: { knife: { tier: 2, level: 7 } },
     resources: {},
     allowance: 20,
     budget: [{ resource: "wood", price: 3 }],

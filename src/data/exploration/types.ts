@@ -2,14 +2,12 @@ import type { ResourceStore } from "../resources/types";
 
 export type ExplorationStore = {
   active: boolean;
-  endTime: number; // hour when expedition must end
   inventory: Partial<ResourceStore>; // temporary storage while exploring
   actions: { cur: number; max: number }; // exploration actions this trip
 };
 
 export const defaultExplorationStore: ExplorationStore = {
   active: false,
-  endTime: 0,
   inventory: {},
   actions: { cur: 0, max: 0 },
 };

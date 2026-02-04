@@ -85,10 +85,11 @@ const ForestBiome = () => {
                 const scaledExperienceGrant = objectEntries(experienceGrant).reduce(
                   (acc, [key, value]) => ({
                     ...acc,
-                    [key]: value * resourceAmount,
+                    [key]: value * Math.pow(resourceAmount, 2.5),
                   }),
                   {},
                 );
+                console.log(experienceGrant, resourceAmount, scaledExperienceGrant);
                 grantExperience(scaledExperienceGrant);
               }
             }}

@@ -111,5 +111,5 @@ export const getInventoryWeight = (inventory: Partial<ResourceStore>): number =>
  * Capacity = force / 50, rounded to 1 decimal place.
  */
 export const getCarryCapacity = (force: number): number => {
-  return Math.round((force / 50) * 10) / 10;
+  return Math.round((force / 40) * 10) / 10;
 };

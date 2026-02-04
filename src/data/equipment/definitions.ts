@@ -35,7 +35,7 @@ export const BOW_DEFINITION: ToolDefinition = {
   name: "Bow",
   tiers: [
     NO_TOOL,
-    { name: "crude", cost: { wood: 5, fiber: 8 }, bonus: { range: { min: 130, max: 170 } } },
+    { name: "crude", cost: { wood: 5, fiber: 7 }, bonus: { range: { min: 130, max: 170 } } },
   ],
 };
 export const TOOL_DEFINITIONS: Record<ToolType, ToolDefinition> = {
