@@ -1,11 +1,17 @@
 import styled from "styled-components";
 import { useHandleExploration } from "../../data/exploration/hooks";
 import { usePlayerForce } from "../../data/attributes/hooks";
-import { getInventoryWeight, getCarryCapacity, getResourceWeight } from "../../data/resources/util";
+import {
+  getInventoryWeight,
+  getCarryCapacity,
+  getResourceWeight,
+  getStorageCapacity,
+} from "../../data/resources/util";
+import { useStructures } from "../../data/structures/hooks";
 import { objectEntries } from "../../util";
 import type { ResourceKeys } from "../../data/resources/types";
 import { useHandleResources } from "../../data/resources/hooks";
-import { Header3 } from "../../style/elements";
+import { Header3, ButtonGroup, SmallButton } from "../../style/elements";
 
 const WeightBar = styled.div`
   height: 8px;
@@ -58,6 +64,7 @@ const explorationItems: ResourceKeys[] = ["jerky", "wood"];
 const ExplorationInventory = () => {
   const { resources, addResources } = useHandleResources();
   const { exploration, mutateExploration } = useHandleExploration();
+  const { structures } = useStructures();
   const force = usePlayerForce();
 
   const carryCapacity = getCarryCapacity(force);
@@ -103,8 +110,8 @@ const ExplorationInventory = () => {
             .map((resource) => {
               return (
                 <InventoryItem key={resource}>
-                  <span>{resource}</span>
-                  <DropButton onClick={() => handleDrop(resource, -1)}>Add 1</DropButton>
+                  <span style={{ opacity: 0.5 }}>{resource}</span>
+                  <DropButton onClick={() => handleDrop(resource, -1)}>Add to inventory</DropButton>
                 </InventoryItem>
               );
             })}
@@ -113,6 +120,12 @@ const ExplorationInventory = () => {
       <InventoryList>
         {inventoryEntries.map(([resource, amount]) => {
           const weight = getResourceWeight(resource);
+          const homeAmount = resources[resource] ?? 0;
+
+          const capacity = getStorageCapacity(resource, structures);
+          const roomAtHome = capacity - (resources[resource] ?? 0);
+          const depositAmount = Math.min(amount, roomAtHome);
+
           return (
             <InventoryItem key={resource}>
               <span>
@@ -123,7 +136,21 @@ const ExplorationInventory = () => {
                   </span>
                 )}
               </span>
-              <DropButton onClick={() => handleDrop(resource)}>Drop 1</DropButton>
+              {exploration.active ? (
+                <DropButton onClick={() => handleDrop(resource)}>Drop 1</DropButton>
+              ) : (
+                <ButtonGroup>
+                  {amount > 10 && roomAtHome > 10 ? (
+                    <SmallButton onClick={() => handleDrop(resource, depositAmount)}>
+                      Deposit all
+                    </SmallButton>
+                  ) : null}
+                  <SmallButton onClick={() => handleDrop(resource)}>−</SmallButton>
+                  <SmallButton onClick={() => handleDrop(resource, -1)} disabled={homeAmount <= 0}>
+                    +
+                  </SmallButton>
+                </ButtonGroup>
+              )}
             </InventoryItem>
           );
         })}

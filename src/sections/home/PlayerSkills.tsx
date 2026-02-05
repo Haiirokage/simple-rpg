@@ -11,6 +11,7 @@ const SKILL_COLORS: Record<Skills, string> = {
   ranged: "#3498db",
   crafting: "#777777",
   stealth: "#9b59b6",
+  meditation: "#1abc9c",
 };
 
 const SkillBox = styled.div`

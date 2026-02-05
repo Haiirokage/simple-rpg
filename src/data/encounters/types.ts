@@ -53,10 +53,10 @@ export type Outcome = FrameOutcome | CombatOutcome;
 export type SkillCheck = {
   knowledge?: boolean;
   skill: Skills[];
-  /** Difficulty class 1-30 ish.
-   * A player can get a total of 15 bonus from skills and knowledge + a roll of 1-20.
-   * The DC must be set accordingly to provide a balanced challenge. */
-  dc: number; // Difficulty class (e.g., 12, 15, 20)
+  /** Difficulty class 1-15.
+   * Roll is d6 (1-6) + up to ~10 bonus from skills/attributes + a potential knowledge boost
+   */
+  dc: number;
 };
 
 export type EncounterOutcomes = {
@@ -77,6 +77,8 @@ export interface BaseAction {
 export interface SkillAction extends BaseAction {
   type: "skill";
   skillCheck: SkillCheck;
+  /** Shown instead of label when player has no levels in the skill */
+  coverLabel?: string;
 }
 export interface AttackAction extends BaseAction {
   type: "attack";

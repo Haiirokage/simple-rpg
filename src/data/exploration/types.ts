@@ -1,9 +1,12 @@
 import type { ResourceStore } from "../resources/types";
 
+export type LocationId = "lake";
+
 export type ExplorationStore = {
   active: boolean;
   inventory: Partial<ResourceStore>; // temporary storage while exploring
   actions: { cur: number; max: number }; // exploration actions this trip
+  location?: LocationId; // current location if visiting one
 };
 
 export const defaultExplorationStore: ExplorationStore = {

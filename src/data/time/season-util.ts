@@ -70,22 +70,20 @@ export const getWoodCostPerDay = (day: number): number => {
 };
 
 /**
+ * Check if a given time is during daylight hours.
+ */
+export const isDay = (currentTime: number, day: number): boolean => {
+  const season = getSeasonByDay(day);
+  return inRange(currentTime, season.sunrise, season.sunset);
+};
+
+/**
  * Check if an action can be completed entirely within daylight hours.
- * @param currentTime - Current time (0-23 hours)
- * @param actionTimeCost - Duration of action in hours
- * @param day - Day number (0-359)
- * @returns true if both start and end time are within daylight, false otherwise
  */
 export const isActionWithinDaylight = (
   currentTime: number,
   actionTimeCost: number,
   day: number,
 ): boolean => {
-  const season = getSeasonByDay(day);
-  const endTime = currentTime + actionTimeCost;
-
-  return (
-    inRange(currentTime, season.sunrise, season.sunset) &&
-    inRange(endTime, season.sunrise, season.sunset + 1)
-  );
+  return isDay(currentTime, day) && isDay(currentTime + actionTimeCost, day);
 };

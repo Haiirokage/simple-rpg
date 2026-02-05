@@ -20,6 +20,7 @@ import { getValueByLevel } from "../../data/equipment/util";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { usePlayerForce } from "../../data/attributes/hooks";
 import { getInventoryWeight, getCarryCapacity } from "../../data/resources/util";
+import { isDay } from "../../data/time/season-util";
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -37,11 +38,12 @@ const LookAroundButton = styled.button<{ hasViable: boolean }>`
 `;
 
 const ExplorationActions = () => {
-  const { exploration, mutateExploration, consumeAction, restoreActions } = useHandleExploration();
+  const { exploration, mutateExploration, modifyActions } = useHandleExploration();
   const setEncounter = useSetEncounter();
   const { getTool } = useHandleEquipment();
   const { data: encounterState } = useEncounter();
-  const { day, year } = useTime();
+  const { time, day, year } = useTime();
+  const isNight = !isDay(time, day);
   const endExpedition = useEndExpedition();
   const { knowledge, gainLevels } = useHandleKnowledge("forest");
   const knowledgeLevel = knowledge.tier * 100 + knowledge.level;
@@ -70,6 +72,7 @@ const ExplorationActions = () => {
       knowledgeLevel,
       discoveries,
       discoveryMultiplier,
+      isNight,
     );
     const foundDiscoveryCount = discovery ? discoveries[discovery] || 0 : 0;
 
@@ -82,7 +85,11 @@ const ExplorationActions = () => {
       gainLevels(1);
     } else if (discovery) {
       mutateDiscoveries({ [discovery]: foundDiscoveryCount + 1 });
-      const { reward } = FOREST_DISCOVERIES[discovery];
+
+      const { reward, triggerEncounter } = FOREST_DISCOVERIES[discovery];
+      if (triggerEncounter) {
+        setEncounter(triggerEncounter);
+      }
       if (reward) {
         const newInventory = objectEntries(reward).reduce((acc, [key, value]) => {
           return {
@@ -98,7 +105,7 @@ const ExplorationActions = () => {
     } else {
       console.log("found nothing");
     }
-    consumeAction(1);
+    modifyActions(-1);
     advanceTime(1);
     updatePlayerStatus({ energy: -5 });
   }, [
@@ -110,11 +117,12 @@ const ExplorationActions = () => {
     advanceTime,
     year,
     day,
+    isNight,
     addEventLogEntry,
     gainLevels,
     setEncounter,
     getTool,
-    consumeAction,
+    modifyActions,
     updatePlayerStatus,
   ]);
 
@@ -133,6 +141,7 @@ const ExplorationActions = () => {
         <>
           <Paragraph>
             Actions remaining: {exploration.actions.cur} / {exploration.actions.max}
+            {isNight && <span style={{ color: "#5c6bc0", float: "right" }}>It's dark out 🌙</span>}
           </Paragraph>
         </>
       )}
@@ -141,9 +150,9 @@ const ExplorationActions = () => {
       </LookAroundButton>
       {discoveries.successful_hunt > 0 && (
         <button
-          disabled={disabled}
+          disabled={disabled || isNight}
           onClick={() => {
-            consumeAction(1);
+            modifyActions(-1);
             updatePlayerStatus({ energy: -5 });
             if (Math.random() < knowledgeLevel / 300) {
               setEncounter("deer_tracks_found");
@@ -159,7 +168,7 @@ const ExplorationActions = () => {
         <button
           disabled={disabled}
           onClick={() => {
-            consumeAction(1);
+            modifyActions(-1);
             updatePlayerStatus({ energy: -5 });
             if (Math.random() < knowledgeLevel / 250) {
               setEncounter("edable_roots");
@@ -171,10 +180,25 @@ const ExplorationActions = () => {
           Find some tubers
         </button>
       )}
+      {discoveries.large_lake > 0 && (
+        <button
+          onClick={() => {
+            mutateExploration({ location: "lake" });
+          }}
+        >
+          Go to the lake
+        </button>
+      )}
       {hasJerky && (
         <button
           onClick={() => {
-            restoreActions(2);
+            modifyActions(2);
+            mutateExploration({
+              inventory: {
+                ...exploration.inventory,
+                jerky: (exploration.inventory.jerky ?? 0) - 1,
+              },
+            });
           }}
         >
           Eat a ration

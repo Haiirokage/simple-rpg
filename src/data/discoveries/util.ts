@@ -30,6 +30,7 @@ export const pickRandomDiscovery = (
   knowledgeLevel: number,
   discoveries: DiscoveriesStore,
   discoveryMultiplier = 1,
+  night = false,
 ): { discovery?: DiscoveryType; repeatable?: RepeatableDiscoveryType } => {
   // Get all discovery types and shuffle
   const discoveryTypes = objectKeys(FOREST_DISCOVERIES);
@@ -44,9 +45,10 @@ export const pickRandomDiscovery = (
     if (discoveredCount >= definition.maxCount) {
       continue;
     }
-    console.log(discoveryMultiplier);
+    const rarity = night ? (definition.nightRarity ?? definition.rarity) : definition.rarity;
     const chance =
-      calculateDiscoveryChance(knowledgeLevel, definition, discoveredCount) * discoveryMultiplier;
+      calculateDiscoveryChance(knowledgeLevel, { ...definition, rarity }, discoveredCount) *
+      discoveryMultiplier;
 
     if (Math.random() < chance) {
       return { discovery: discoveryType };
@@ -65,8 +67,8 @@ export const pickRandomDiscovery = (
       continue;
     }
 
-    // Simple chance check for repeatable discoveries
-    if (Math.random() < definition.rarity) {
+    const rarity = night ? (definition.nightRarity ?? definition.rarity) : definition.rarity;
+    if (Math.random() < rarity) {
       return { repeatable: discoveryType };
     }
   }

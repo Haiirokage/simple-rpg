@@ -13,10 +13,12 @@ import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { useEquipment } from "../../data/equipment/hooks";
 import { useMutateDiscoveries } from "../../data/discoveries/hooks";
 import { useHandleEffect } from "../../data/effect-util";
+import { useSkills } from "../../data/skills/hooks";
 import TooltipWrapper from "../../style/TooltipWrapper";
 import { objectKeys } from "../../util";
 import CombatView from "./CombatView";
 import NPCInteractionView from "./NPCInteractionView";
+import LocationView from "./LocationView";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
@@ -29,8 +31,12 @@ const EncounterView = () => {
   const handleAttack = useHandleAttack();
   const handleEffect = useHandleEffect();
   const initiateCombat = useInitiateCombat();
+  const { skills } = useSkills();
 
   const enemies = objectKeys(encounter.enemies);
+  if (exploration.location) {
+    return <LocationView location={exploration.location} />;
+  }
   if (enemies.length > 0) {
     return <CombatView enemies={encounter.enemies} />;
   }
@@ -114,8 +120,14 @@ const EncounterView = () => {
           const outOfEnergy = playerStatus.energy - (action.cost.energy || 0) < 0;
           const noWeapon = action.type === "attack" && !equipment.tools.bow;
 
+          const hasSkillLevel =
+            action.type === "skill" && action.skillCheck.skill.some((s) => skills[s].level > 0);
+          const showCover = action.type === "skill" && action.coverLabel && !hasSkillLevel;
+
           const message =
-            action.type === "skill" ? `Skill check vs. DC ${action.skillCheck.dc}` : "Attack roll";
+            action.type === "skill" && !showCover
+              ? `Skill check vs. DC ${action.skillCheck.dc}`
+              : "";
 
           return (
             <TooltipWrapper description={noWeapon ? "You need a weapon" : message} inline>
@@ -125,7 +137,7 @@ const EncounterView = () => {
                 key={action.id}
                 style={{ marginRight: "0.5rem" }}
               >
-                {action.label}
+                {showCover ? action.coverLabel : action.label}
               </button>
             </TooltipWrapper>
           );

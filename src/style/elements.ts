@@ -23,3 +23,13 @@ export const Header3 = styled.h3`
   margin: 0 0 16px;
   font-size: 22px;
 `;
+
+export const ButtonGroup = styled.div`
+  display: flex;
+  gap: 4px;
+`;
+
+export const SmallButton = styled.button`
+  font-size: 11px;
+  padding: 1px 4px;
+`;

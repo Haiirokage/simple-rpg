@@ -6,6 +6,11 @@ export type LeveledStat = {
 export const getExpThreshold = (level: number): number => {
   return Math.floor(10 + 10 * Math.pow(1.45, level));
 };
+
+/** XP reward for succeeding a skill check at given DC */
+export const getExpRewardByDC = (dc: number): number => {
+  return Math.round(Math.pow(1.45, dc * 7 - 20));
+};
 /**
  * Recursively levels up a stat based on experience accumulation.
  * Uses (10 + 10 * 1.45^level) formula for exp thresholds.

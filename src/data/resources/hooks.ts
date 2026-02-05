@@ -42,29 +42,26 @@ export const useMutateResources = () => {
   const { data } = useResources();
   const { structures } = useStructures();
 
-  const mergeData = useCallback(
-    (newResources: Partial<ResourceStore>) => {
-      return objectEntries(newResources)
-        .filter(([key, value]) => value > 0 || data[key])
-        .reduce((acc, [key, value]) => {
-          return {
-            ...acc,
-            [key]: clamp(value, getStorageCapacity(key, structures)),
-          };
-        }, data);
-    },
-    [data, structures],
-  );
-
   const { mutate } = useUpdateData<Partial<ResourceStore>>("RESOURCES", data);
 
   // Custom mutation that applies storage capacity logic
-  return {
-    mutate: (resources: Partial<ResourceStore>) => {
-      const merged = mergeData(resources);
+  const stableMutate = useCallback(
+    (newResources: Partial<ResourceStore>) => {
+      const merged = objectEntries(newResources)
+        .filter(([key, value]) => value > 0 || key in data)
+        .reduce(
+          (acc, [key, value]) => ({
+            ...acc,
+            [key]: clamp(value, 0, getStorageCapacity(key, structures)),
+          }),
+          data,
+        );
       mutate(merged);
     },
-  };
+    [data, structures, mutate],
+  );
+
+  return { mutate: stableMutate };
 };
 
 export const useHandleResources = () => {

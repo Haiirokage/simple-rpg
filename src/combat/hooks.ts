@@ -50,29 +50,32 @@ export const useHandleAttack = () => {
 
       const healthLost = getHealthLost(creature.targets[target].armor_rating, damageMultiplier);
 
-      if (healthLost > 0) {
-        const distanceFactor = Math.max(0.1, (creature.distance - 20) / 100);
-        const discFactor = discovered ? 1 + creatureDex / 10 : 1;
-        const difficultyMultiplier = getDifficultyMultiplier(hitChance);
-        const severityBonus = hitSeverity === "critical" ? 2 : 1;
-        const skillExperience = {
-          ranged: healthLost * distanceFactor * discFactor * difficultyMultiplier * severityBonus,
-        };
+      const distanceFactor = Math.max(0.1, (creature.distance - 20) / 100);
+      const discFactor = discovered ? 1 + creatureDex / 10 : 1;
+      const difficultyMultiplier = getDifficultyMultiplier(hitChance);
+      const severityBonus = hitSeverity === "critical" ? 2 : 1;
+      const skillExperience = {
+        ranged:
+          Math.max(healthLost, 1) *
+          distanceFactor *
+          discFactor *
+          difficultyMultiplier *
+          severityBonus,
+      };
 
-        console.info(
-          "Granting ranged experience:",
-          skillExperience.ranged,
-          distanceFactor * discFactor * difficultyMultiplier * severityBonus,
-          {
-            healthLost,
-            distanceFactor,
-            discFactor,
-            difficultyMultiplier,
-            severityBonus,
-          },
-        );
-        grantSkillExperience(skillExperience);
-      }
+      console.info(
+        "Granting ranged experience:",
+        skillExperience.ranged,
+        distanceFactor * discFactor * difficultyMultiplier * severityBonus,
+        {
+          healthLost,
+          distanceFactor,
+          discFactor,
+          difficultyMultiplier,
+          severityBonus,
+        },
+      );
+      grantSkillExperience(skillExperience);
 
       return { healthLost, hitSeverity };
     },

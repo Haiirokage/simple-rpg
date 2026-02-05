@@ -8,10 +8,20 @@ export interface BudgetEntry {
   price: number; // coin per unit
 }
 
-export interface SellEntry {
+export interface ToolSellEntry {
+  type: "tool";
   tool: ToolType;
   price: number;
 }
+
+export interface ResourceSellEntry {
+  type: "resource";
+  resource: ResourceKeys;
+  price: number;
+  stock: number;
+}
+
+export type SellEntry = ToolSellEntry | ResourceSellEntry;
 
 export interface HumanDefinition {
   id: HumanType;
@@ -31,8 +41,11 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
     age: { min: 18, max: 30 },
     equipment: { knife: { tier: 2, level: 7 } },
     resources: {},
-    allowance: 20,
-    budget: [{ resource: "wood", price: 3 }],
-    sellList: [{ tool: "knife", price: 15 }],
+    allowance: 40,
+    budget: [{ resource: "wood", price: 2 }],
+    sellList: [
+      { type: "tool", tool: "knife", price: 15 },
+      { type: "resource", resource: "jar", price: 5, stock: 1 },
+    ],
   },
 };

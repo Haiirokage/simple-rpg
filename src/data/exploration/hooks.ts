@@ -6,6 +6,7 @@ import { defaultExplorationStore, getMaxExplorationActions } from "./types";
 import { useUpdateEncounter } from "../encounters/hooks";
 import { useAttributes } from "../attributes/hooks";
 import { useQueryClient } from "@tanstack/react-query";
+import { clamp } from "lodash";
 
 export const useExploration = () => {
   const { data } = useDataQuery<ExplorationStore>("EXPLORATION", defaultExplorationStore);
@@ -27,23 +28,16 @@ export const useHandleExploration = () => {
   const exploration = useExploration();
   const { mutateExploration } = useMutateExploration();
 
-  const consumeAction = (count = 1) => {
-    console.log("consume");
-    mutateExploration({
-      actions: { ...exploration.actions, cur: Math.max(0, exploration.actions.cur - count) },
-    });
-  };
-
-  const restoreActions = (count: number) => {
+  const modifyActions = (delta: number) => {
     mutateExploration({
       actions: {
         ...exploration.actions,
-        cur: Math.min(exploration.actions.max, exploration.actions.cur + count),
+        cur: clamp(exploration.actions.cur + delta, 0, exploration.actions.max),
       },
     });
   };
 
-  return { exploration, mutateExploration, consumeAction, restoreActions };
+  return { exploration, mutateExploration, modifyActions };
 };
 
 export const useStartExpedition = () => {

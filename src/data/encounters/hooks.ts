@@ -8,6 +8,7 @@ import { useAttributes } from "../attributes/hooks";
 import { useCallback } from "preact/hooks";
 import { useGrantSkillExperience, useSkills } from "../skills/hooks";
 import { getAttributeBySkill } from "../skills/definitions";
+import { getExpRewardByDC } from "../leveling-util";
 import { useAdvanceTime } from "../time/hooks";
 import { useHandlePlayerStatus } from "../playerStatus/hooks";
 import type {
@@ -15,6 +16,8 @@ import type {
   CreatureIntance as CreatureInstance,
 } from "../../npc/creature-definitions";
 import type { AtLeast } from "../../util";
+import type { Skills } from "../skills/types";
+import { sum } from "lodash";
 
 export const defaultEncounterStore: EncounterStore = {
   active: false,
@@ -140,7 +143,7 @@ export const useInitiateCombat = () => {
 const KNOWLEDGE_SCALE = 50;
 
 /**
- * Hook that returns a function to roll d20 + skill/attribute/knowledge bonuses.
+ * Hook that returns a function to roll d6 + skill/attribute/knowledge bonuses.
  *
  * bonus from levels(1-100) is sqrt(level) / 2, this gives the same 5 bonus at level 100 as level / 20, but earlier levels give a larger bonus
  */
@@ -153,20 +156,27 @@ export const useSkillRoll = () => {
 
   return useCallback(
     (config: Pick<SkillCheck, "skill" | "knowledge">) => {
-      const roll = Math.floor(Math.random() * 20) + 1;
+      const roll = Math.floor(Math.random() * 6) + 1;
 
       const { level, tier } = knowledge;
       const score = tier * 100 + level;
-      const knowledgeBonus = config.knowledge ? Math.floor(score / KNOWLEDGE_SCALE) : 0;
+      const knowledgeBonus = config.knowledge ? Math.floor(score / KNOWLEDGE_SCALE) - 1 : 0;
 
-      const skillBonus = config.skill.reduce((sum, skill) => {
-        const connectedAttribute = getAttributeBySkill(skill);
-        const attributeLevel = attributes[connectedAttribute].level;
-        const { level } = skills[skill];
-        return sum + Math.floor(Math.sqrt(level) / 2) + attributeLevel / 20;
-      }, 0);
+      const skillBonus = config.skill.reduce(
+        (acc, skill) => {
+          const connectedAttribute = getAttributeBySkill(skill);
+          const attributeLevel = attributes[connectedAttribute].level;
+          const { level } = skills[skill];
+          return {
+            ...acc,
+            [skill]: Math.floor(Math.sqrt(level) / 2) + Math.floor(attributeLevel / 20),
+          };
+        },
+        {} as Record<Skills, number>,
+      );
 
-      const bonus = knowledgeBonus + skillBonus;
+      console.info("bonus:", skillBonus);
+      const bonus = knowledgeBonus + sum(Object.values(skillBonus));
       return { roll, bonus, skillBonus, knowledgeBonus };
     },
     [knowledge, attributes, skills],
@@ -175,7 +185,7 @@ export const useSkillRoll = () => {
 
 /**
  * Hook that returns a function to resolve skill checks.
- * Returns "success" or "failure" based on d20 roll + bonuses vs DC.
+ * Returns "success" or "failure" based on d6 roll + bonuses vs DC.
  */
 export const useHandleSkillCheck = () => {
   const skillRoll = useSkillRoll();
@@ -191,15 +201,18 @@ export const useHandleSkillCheck = () => {
 
       console.info(`Roll:${roll} + Bonus:${bonus} vs DC:${skillCheck.dc}`);
       if (success) {
-        const skillContribution = Math.max(0.1, skillBonus / bonus);
-        const expReward = Math.round(Math.pow(1.45, skillCheck.dc) * 2 * skillContribution);
         skillCheck.skill.forEach((skill) => {
+          console.log(skillBonus);
+          const reverseContribution = Math.floor((bonus - skillBonus[skill]) / 3);
+          const expReward = Math.round(
+            getExpRewardByDC(Math.max(skillCheck.dc - reverseContribution, 3)),
+          );
           console.info(`Gained ${expReward} exp in ${skill} skill.`);
           grantExperience({ [skill]: expReward });
         });
         const knowledgeContribution = Math.max(0.1, knowledgeBonus / bonus);
-        if (skillCheck.dc / 9 >= knowledge.tier) {
-          const levels = 1 + skillCheck.dc / 9 - knowledge.tier;
+        if (skillCheck.dc / 5 >= knowledge.tier) {
+          const levels = 1 + skillCheck.dc / 5 - knowledge.tier;
           console.info(`Gained ${Math.round(levels / knowledgeContribution)} knowledge levels.`);
           gainLevels(Math.round(levels / knowledgeContribution));
         }

@@ -4,14 +4,17 @@ import { useTime, useUpdateTime } from "../data/time/hooks";
 import { usePlayerStatus, useHealPlayer } from "../data/playerStatus/hooks";
 import { useAttributes, useGrantExperience } from "../data/attributes/hooks";
 import { getDate } from "../data/time/season-util";
+import { DAYS_IN_MONTH } from "../data/time/season-definitions";
 import { calculateHealthRegenFromTime } from "../data/playerStatus/util";
 import { usePrevious } from "../util";
+import { useHandleNPCAllowance } from "../npc/npc-hooks";
 
 const Header = () => {
   const { day, time, year } = useTime();
   const updateTime = useUpdateTime();
   const { refetch } = useResources();
   const handleNewDay = useHandleNewDay();
+  const handleNPCAllowance = useHandleNPCAllowance();
   const { data: playerStatus } = usePlayerStatus();
   const healPlayer = useHealPlayer();
   const { attributes } = useAttributes();
@@ -58,8 +61,13 @@ const Header = () => {
       });
 
       handleNewDay();
+
+      // First of the month - give NPCs their allowance
+      if ((newDay - 1) % DAYS_IN_MONTH === 0) {
+        handleNPCAllowance();
+      }
     }
-  }, [time, prevTime, updateTime, day, year, handleNewDay, applyHealthRegen]);
+  }, [time, prevTime, updateTime, day, year, handleNewDay, handleNPCAllowance, applyHealthRegen]);
 
   return (
     <header>

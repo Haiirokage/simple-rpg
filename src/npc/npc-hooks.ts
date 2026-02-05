@@ -2,6 +2,7 @@ import { useCallback } from "preact/hooks";
 import { useDataQuery, useUpdateData } from "../data/util";
 import { HUMAN_DEFINITIONS, type HumanType } from "./human-definitions";
 import { defaultNPCStore, type HumanInstance, type NPCStore } from "./npc-types";
+import { objectEntries } from "../util";
 
 const NPC_KEY = "NPCS";
 
@@ -52,4 +53,23 @@ export const useGetOrCreateNPC = () => {
   );
 
   return getOrCreate;
+};
+
+export const useHandleNPCAllowance = () => {
+  const npcs = useNPCs();
+  const mutate = useMutateNPCs();
+
+  return useCallback(() => {
+    const updates = objectEntries(npcs).reduce((acc, [id, npc]) => {
+      const currentCoin = npc.resources.coin ?? 0;
+      const maxCoin = Math.floor(npc.allowance * 1.5);
+      const newCoin = Math.min(currentCoin + npc.allowance, maxCoin);
+      acc[id] = {
+        ...npc,
+        resources: { ...npc.resources, coin: newCoin },
+      };
+      return acc;
+    }, {} as NPCStore);
+    mutate(updates);
+  }, [npcs, mutate]);
 };

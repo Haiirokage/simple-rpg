@@ -154,7 +154,7 @@ const CombatView = ({ enemies }: Props) => {
   };
 
   const handleTrack = (target: CreatureIntance) => {
-    const dc = Math.floor(Math.sqrt(target.distance / 4));
+    const dc = Math.floor(Math.sqrt(target.distance / 10));
     const closedDistance = target.distance - 100;
     const playerSpeed = Math.cbrt(attributes.dexterity.level) / 2;
     const trackingSeconds = closedDistance / playerSpeed;

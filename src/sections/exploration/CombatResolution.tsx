@@ -4,6 +4,7 @@ import { useHandleEncounter, useSetEncounter, useSkillRoll } from "../../data/en
 import { useHandleExploration } from "../../data/exploration/hooks";
 import { useMutateDiscoveries } from "../../data/discoveries/hooks";
 import { useGrantSkillExperience } from "../../data/skills/hooks";
+import { getExpRewardByDC } from "../../data/leveling-util";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { useEquipment } from "../../data/equipment/hooks";
 import TooltipWrapper from "../../style/TooltipWrapper";
@@ -63,7 +64,7 @@ const CombatResolution = ({ enemies, combatContext }: Props) => {
     const beatenDCs = successfulEntries.filter((entry) => entry.dc).map((entry) => entry.dc!);
     if (beatenDCs.length > 0) {
       const maxDc = Math.max(...beatenDCs);
-      const expReward = Math.round(Math.pow(1.45, maxDc) * 2);
+      const expReward = getExpRewardByDC(maxDc);
       grantExperience({ hunter: expReward });
     }
 

@@ -48,7 +48,7 @@ export const CREATURES: Record<Creatures, CreatureDefinition> = {
       wisdom: 1,
     },
     targets: getTargets(30, 15, 10),
-    loot: [{ resources: { venison: 15 } }, { resources: { hide: 1, venison: 5 }, dc: 16 }],
+    loot: [{ resources: { venison: 15 } }, { resources: { hide: 1, venison: 5 }, dc: 9 }],
   },
   wolf: {
     type: "wolf",

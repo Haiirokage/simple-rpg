@@ -19,7 +19,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
         skillCheck: {
           knowledge: true,
           skill: ["hunter"],
-          dc: 15,
+          dc: 6,
         },
         outcomes: {
           failure: {
@@ -49,7 +49,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
         type: "skill",
         id: "taste_root",
         label: "Taste the root",
-        skillCheck: { knowledge: true, dc: 10, skill: [] },
+        skillCheck: { knowledge: true, dc: 6, skill: [] },
         cost: { minutes: 60 },
         outcomes: {
           failure: {
@@ -71,6 +71,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
   wolf_encounter: {
     id: "wolf_encounter",
     title: "A Lone Wolf",
+    preventLeaving: true,
     description:
       "A gaunt wolf stands between the trees, watching you with wary eyes. Its ribs are showing — it must be desperate to approach a human.",
     actions: [
@@ -82,7 +83,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
         skillCheck: {
           knowledge: true,
           skill: ["stealth", "hunter"],
-          dc: 15,
+          dc: 7,
         },
         outcomes: {
           failure: {
@@ -109,7 +110,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
         skillCheck: {
           knowledge: true,
           skill: ["stealth"],
-          dc: 14,
+          dc: 7,
         },
         outcomes: {
           failure: {
