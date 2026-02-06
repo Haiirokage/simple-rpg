@@ -49,7 +49,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
         type: "skill",
         id: "taste_root",
         label: "Taste the root",
-        skillCheck: { knowledge: true, dc: 6, skill: [] },
+        skillCheck: { knowledge: true, dc: 5, skill: [] },
         cost: { minutes: 60 },
         outcomes: {
           failure: {
@@ -83,7 +83,7 @@ export const ENCOUNTER_FRAMES: Record<EncounterFrameId, EncounterFrame> = {
         skillCheck: {
           knowledge: true,
           skill: ["stealth", "hunter"],
-          dc: 7,
+          dc: 9,
         },
         outcomes: {
           failure: {

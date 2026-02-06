@@ -6,27 +6,42 @@ import EventLog, { EventLogSection } from "./EventLog";
 import EncounterView from "./exploration/EncounterView";
 import BiomeOverview from "./overview/BiomeOverview";
 import ExplorationInventory from "./exploration/ExplorationInventory";
+import { useExploration } from "../data/exploration/hooks";
+import LocationView from "./exploration/LocationView";
+import PlayerEquipment from "./home/PlayerEquipment";
 
-const ExplorationGameContainer = styled(GameViewContainer)`
+const ExplorationGameContainer = styled(GameViewContainer)<{ hasLocation: boolean }>`
   grid-template-columns: 250px 400px 400px 280px;
   grid-template-areas:
-    "status actions encounter log"
+    "status ${(props) => (!props.hasLocation ? "actions encounter" : "location location")} log"
     "inventory biome biome log";
 `;
 
 const ExplorationLayout = () => {
+  const { location } = useExploration();
+  const hasLocation = !!location;
+
   return (
-    <ExplorationGameContainer>
+    <ExplorationGameContainer hasLocation={hasLocation}>
       <GameSection area="status">
         <PlayerStatus />
+        <PlayerEquipment />
       </GameSection>
-      <GameSection area="actions">
-        <h2>Exploring forest</h2>
-        <ExplorationActions />
-      </GameSection>
-      <GameSection area="encounter">
-        <EncounterView />
-      </GameSection>
+      {hasLocation ? (
+        <GameSection area="location">
+          <LocationView location={location} />
+        </GameSection>
+      ) : (
+        <>
+          <GameSection area="actions">
+            <h2>Exploring forest</h2>
+            <ExplorationActions />
+          </GameSection>
+          <GameSection area="encounter">
+            <EncounterView />
+          </GameSection>
+        </>
+      )}
       <EventLogSection area="log">
         <EventLog />
       </EventLogSection>

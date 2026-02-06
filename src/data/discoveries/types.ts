@@ -12,6 +12,7 @@ export const defaultDiscoveriesStore: DiscoveriesStore = {
   willow_grove: 0,
   rabbit_trail: 0,
   strong_inspiration: 0,
+  large_lake: 0,
   // Not from ForestDiscoveries
   successful_hunt: 0,
   failed_hunt: 0,

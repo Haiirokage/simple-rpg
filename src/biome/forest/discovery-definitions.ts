@@ -88,7 +88,7 @@ export const REPEATABLE_DISCOVERIES: Record<
   wolf_sighting: {
     type: "wolf_sighting",
     rarity: 0.01,
-    nightRarity: 0.1,
+    nightRarity: 0.2,
     knowledgeRequirement: 150,
     triggerEncounter: "wolf_encounter",
   },

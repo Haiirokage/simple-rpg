@@ -80,6 +80,12 @@ export const EXPLORATION_EVENTS: Record<AllDiscoveryType, ExplorationEvent> = {
       "You spot someone crouching near a berry bush ahead. As you approach, a young woman looks up with a cautious smile. She seems to know these woods well enough.",
     ],
   },
+  large_lake: {
+    id: "large_lake",
+    name: "A Large lake",
+    category: "exploration",
+    descriptions: ["This large body of water could be useful"],
+  },
 };
 
 export const buildExplorationEventLog = (

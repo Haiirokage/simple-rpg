@@ -83,7 +83,7 @@ export const EQUIPMENT_DEFINITIONS: EquipmentDefinition[] = [
   {
     key: "trap",
     name: "Trap",
-    cost: { wood: 10, fiber: 5 },
+    cost: { wood: 10, fiber: 4 },
     maxCount: 3,
   },
 ];
