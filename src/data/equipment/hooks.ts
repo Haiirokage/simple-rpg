@@ -42,16 +42,14 @@ export const useHandleEquipment = () => {
 };
 
 export const useResetTraps = () => {
-  const {
-    consumables: { trap },
-  } = useEquipment();
+  const { consumables } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
 
-  return () =>
-    mutateSpecific("consumables", {
-      trap: {
-        ...trap,
-        active: 0,
-      },
-    });
+  return () => {
+    if (consumables.trap) {
+      mutateSpecific("consumables", {
+        trap: { ...consumables.trap, current: consumables.trap.max ?? 0 },
+      });
+    }
+  };
 };

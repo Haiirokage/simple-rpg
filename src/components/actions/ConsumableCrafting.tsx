@@ -22,8 +22,10 @@ const ConsumableCrafting = () => {
     // Subtract costs from resources
     mutateResources(resourceResult);
 
-    // Increment equipment count
-    const updatedData = { ...equipmentData, count: equipmentData.count + 1 };
+    // Increment both max and current (new trap is immediately available)
+    const currentMax = equipmentData?.max ?? 0;
+    const currentCount = equipmentData?.current ?? 0;
+    const updatedData = { max: currentMax + 1, current: currentCount + 1 };
 
     mutateSpecific("consumables", {
       [key]: updatedData,
@@ -34,7 +36,8 @@ const ConsumableCrafting = () => {
   return (
     <div className="consumable-crafting">
       {EQUIPMENT_DEFINITIONS.map((definition) => {
-        const { count } = consumables[definition.key];
+        const equipmentData = consumables[definition.key];
+        const count = equipmentData?.max ?? 0;
         const { canAfford, resourceResult } = getAffordability(definition.cost, resources);
         const canCraft = canAfford && count < definition.maxCount;
         const hasDiscovered = hasDiscoveredResources(definition.cost, data);

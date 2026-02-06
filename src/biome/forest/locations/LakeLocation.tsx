@@ -3,6 +3,7 @@ import { isDay } from "../../../data/time/season-util";
 import { useHandleExploration } from "../../../data/exploration/hooks";
 import { useHandleSkillCheck } from "../../../data/encounters/hooks";
 import { useSkills } from "../../../data/skills/hooks";
+import { useUpdateEquipment } from "../../../data/equipment/hooks";
 import TooltipWrapper from "../../../style/TooltipWrapper";
 import { useState } from "preact/hooks";
 
@@ -14,6 +15,7 @@ const LakeLocation = () => {
   const isNight = !isDay(time, day);
   const handleSkillCheck = useHandleSkillCheck();
   const { skills } = useSkills();
+  const { mutateSpecific } = useUpdateEquipment();
 
   const { actions, inventory } = exploration;
   const hasJar = (inventory.jar ?? 0) > 0;
@@ -32,7 +34,22 @@ const LakeLocation = () => {
   };
 
   const handleCatchFireflies = () => {
-    console.info("Catching fireflies...");
+    const result = handleSkillCheck({ skill: ["hunter"], dc: 7 });
+    modifyActions(-1);
+    advanceTime(1);
+
+    if (result === "success") {
+      // Consume jar and create lantern
+      mutateExploration({
+        inventory: { ...inventory, jar: (inventory.jar ?? 0) - 1 },
+      });
+      mutateSpecific("consumables", { lantern: { current: 7 } });
+      setFeedback(
+        "You carefully catch fireflies in the jar. Their soft glow creates a makeshift lantern.",
+      );
+    } else {
+      setFeedback("The fireflies evade your attempts to catch them.");
+    }
   };
 
   const handleLeave = () => {
@@ -52,7 +69,7 @@ const LakeLocation = () => {
       ></img>
       <p>
         {isNight
-          ? "The lake lies still under the night sky. Stars shimmer on the dark water like scattered embers, and the moon traces a silver path across the surface."
+          ? "The lake lies still under the night sky. Stars shimmer on the dark water like scattered embers, and the moon traces a silver path across the surface. Fireflies dot the landscape."
           : "You step out from the trees to a spectacular view. A large lake is hidden in the middle of the forest."}
       </p>
       {feedbackMessage && <p>{feedbackMessage}</p>}
@@ -78,9 +95,9 @@ const LakeLocation = () => {
                 : "Sit and admire the view"}
           </button>
         </TooltipWrapper>
-        {isNight && (
-          <TooltipWrapper description={hasJar ? "Catch fireflies" : "You need a jar"} inline>
-            <button disabled={!hasJar} onClick={handleCatchFireflies}>
+        {isNight && hasJar && (
+          <TooltipWrapper description="Skill check vs. DC 7" inline>
+            <button disabled={actions.cur < 1} onClick={handleCatchFireflies}>
               Catch fireflies
             </button>
           </TooltipWrapper>

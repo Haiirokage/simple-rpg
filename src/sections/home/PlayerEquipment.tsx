@@ -28,10 +28,16 @@ const PlayerEquipment = () => {
             </TooltipWrapper>
           );
         })}
-        {consumables.trap.count === 0 ? null : (
+        {consumables.trap && (
           <li>
             <span style={{ display: "inline-block", width: "6em" }}>Traps</span>
-            {consumables.trap.active}/{consumables.trap.count}
+            {consumables.trap.current}/{consumables.trap.max}
+          </li>
+        )}
+        {consumables.lantern && (
+          <li>
+            <span style={{ display: "inline-block", width: "6em" }}>Lantern</span>
+            {consumables.lantern.current}
           </li>
         )}
       </ul>

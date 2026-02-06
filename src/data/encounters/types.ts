@@ -5,6 +5,7 @@ import type { CreatureIntance, Creatures } from "../../npc/creature-definitions"
 import type { ExtraDiscoveries } from "../discoveries/types";
 import type { PlayerEffect } from "../effect-util";
 import type { HumanType } from "../../npc/human-definitions";
+import type { DiscoveryType } from "../../biome/forest/discovery-definitions";
 
 export interface EncounterNPC {
   type: HumanType;
@@ -112,6 +113,7 @@ export type EncounterStore = {
   active: boolean;
   biome: KnowledgeBiome;
   encounterFrameId?: EncounterFrameId;
+  encounteredDiscovery?: DiscoveryType;
   enemies: Record<string, CreatureIntance>;
   npcs: string[]; // NPC store ids present in this encounter
   combatContext?: CombatConfig;

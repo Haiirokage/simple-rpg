@@ -1,42 +1,47 @@
 import { useMutateResources, useResources } from "../../data/resources/hooks";
 import { useAdvanceTime } from "../../data/time/hooks";
 import { useHomeUpgrades } from "../../data/homeUpgrades/hooks";
-import { useCallback } from "preact/hooks";
 import { Button } from "../../style/elements";
 
 const JERKY_RECIPE = {
-  rabbitMeat: 5,
+  meatCost: 5,
   wood: 10,
-  output: 20, // jerky produced
-  timeCost: 1, // 1 hour
+  output: 20,
+  timeCost: 1,
 } as const;
 
+const MEAT_TYPES = ["rabbitMeat", "venison"] as const;
+type MeatType = (typeof MEAT_TYPES)[number];
+
 const FoodCrafting = () => {
-  const { resources } = useResources();
+  const { resources, data } = useResources();
   const { mutate } = useMutateResources();
   const advanceTime = useAdvanceTime();
   const { data: homeUpgrades } = useHomeUpgrades();
 
-  const canMakeJerky = useCallback(() => {
-    return resources.rabbitMeat >= JERKY_RECIPE.rabbitMeat && resources.wood >= JERKY_RECIPE.wood;
-  }, [resources.rabbitMeat, resources.wood]);
-
-  const makeJerky = useCallback(() => {
+  const makeJerky = (meat: MeatType) => {
     mutate({
-      rabbitMeat: resources.rabbitMeat - JERKY_RECIPE.rabbitMeat,
+      [meat]: resources[meat] - JERKY_RECIPE.meatCost,
       wood: resources.wood - JERKY_RECIPE.wood,
       jerky: resources.jerky + JERKY_RECIPE.output,
     });
     advanceTime(JERKY_RECIPE.timeCost);
-  }, [resources, mutate, advanceTime]);
+  };
 
   return (
-    <div className="food-crafting">
-      {homeUpgrades.smoker && (
-        <Button onClick={makeJerky} disabled={!canMakeJerky()}>
-          Dry meat (5 rabbitMeat, 10 wood → 20 jerky)
-        </Button>
-      )}
+    <div>
+      {homeUpgrades.smoker &&
+        MEAT_TYPES.map((meat) => {
+          const canMake =
+            resources[meat] >= JERKY_RECIPE.meatCost && resources.wood >= JERKY_RECIPE.wood;
+
+          if (!(meat in data)) return null;
+          return (
+            <Button key={meat} onClick={() => makeJerky(meat)} disabled={!canMake}>
+              Dry {meat} (5 {meat}, 10 wood → 20 jerky)
+            </Button>
+          );
+        })}
     </div>
   );
 };

@@ -18,7 +18,7 @@ import TooltipWrapper from "../../style/TooltipWrapper";
 import { objectKeys } from "../../util";
 import CombatView from "./CombatView";
 import NPCInteractionView from "./NPCInteractionView";
-import LocationView from "./LocationView";
+import DiscoverySplash from "./DiscoverySplash";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
@@ -34,11 +34,12 @@ const EncounterView = () => {
   const { skills } = useSkills();
 
   const enemies = objectKeys(encounter.enemies);
-  if (exploration.location) {
-    return <LocationView location={exploration.location} />;
-  }
+
   if (enemies.length > 0) {
     return <CombatView enemies={encounter.enemies} />;
+  }
+  if (encounter.encounteredDiscovery) {
+    return <DiscoverySplash discovery={encounter.encounteredDiscovery} />;
   }
   if (encounter.npcs.length > 0) {
     return <NPCInteractionView />;

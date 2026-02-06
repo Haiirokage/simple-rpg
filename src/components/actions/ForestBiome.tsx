@@ -98,20 +98,14 @@ const ForestBiome = () => {
       })}
 
       {/* setTrap - unique consumable deployment action */}
-      {consumables.trap.count > 0 && (
+      {consumables.trap && (
         <ActionButton
           name="Set trap"
           cost={{ time: 1, energy: 2 + energyModifier, resources: { berry: 4 } }}
-          disabled={
-            consumables.trap.count <= consumables.trap.active ||
-            !isActionWithinDaylight(time, 1, day)
-          }
+          disabled={consumables.trap.current <= 0 || !isActionWithinDaylight(time, 1, day)}
           onClick={() => {
             mutateSpecific("consumables", {
-              trap: {
-                ...consumables.trap,
-                active: consumables.trap.active + 1,
-              },
+              trap: { ...consumables.trap!, current: consumables.trap!.current - 1 },
             });
             gainLevels(expGain);
           }}

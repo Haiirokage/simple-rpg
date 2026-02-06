@@ -13,7 +13,7 @@ import { useCallback } from "preact/hooks";
 import { objectEntries } from "../../util";
 import { useAddEventLogEntry } from "../../data/eventLog/hooks";
 import { buildExplorationEventLog } from "../../events/exploration-events";
-import { useEncounter, useSetEncounter } from "../../data/encounters/hooks";
+import { useSetEncounter, useHandleEncounter } from "../../data/encounters/hooks";
 import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import { getValueByLevel } from "../../data/equipment/util";
@@ -40,8 +40,8 @@ const LookAroundButton = styled.button<{ hasViable: boolean }>`
 const ExplorationActions = () => {
   const { exploration, mutateExploration, modifyActions } = useHandleExploration();
   const setEncounter = useSetEncounter();
+  const { encounter, mutateEncounter } = useHandleEncounter();
   const { getTool } = useHandleEquipment();
-  const { data: encounterState } = useEncounter();
   const { time, day, year } = useTime();
   const isNight = !isDay(time, day);
   const endExpedition = useEndExpedition();
@@ -52,7 +52,7 @@ const ExplorationActions = () => {
   const advanceTime = useAdvanceTime();
   const addEventLogEntry = useAddEventLogEntry();
   const hasViableDiscoveries = useHasViableDiscoveries(knowledgeLevel, discoveries);
-  const { updatePlayerStatus } = useHandlePlayerStatus();
+  const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const force = usePlayerForce();
 
   const currentWeight = getInventoryWeight(exploration.inventory);
@@ -85,6 +85,7 @@ const ExplorationActions = () => {
       gainLevels(1);
     } else if (discovery) {
       mutateDiscoveries({ [discovery]: foundDiscoveryCount + 1 });
+      mutateEncounter({ encounteredDiscovery: discovery });
 
       const { reward, triggerEncounter } = FOREST_DISCOVERIES[discovery];
       if (triggerEncounter) {
@@ -112,6 +113,7 @@ const ExplorationActions = () => {
     knowledgeLevel,
     discoveries,
     mutateDiscoveries,
+    mutateEncounter,
     mutateExploration,
     exploration.inventory,
     advanceTime,
@@ -126,14 +128,14 @@ const ExplorationActions = () => {
     updatePlayerStatus,
   ]);
 
-  const encounterFrame = encounterState.encounterFrameId
-    ? ENCOUNTER_FRAMES[encounterState.encounterFrameId]
+  const encounterFrame = encounter.encounterFrameId
+    ? ENCOUNTER_FRAMES[encounter.encounterFrameId]
     : undefined;
 
-  const hasEnemies = Object.keys(encounterState.enemies).length > 0;
+  const hasEnemies = Object.keys(encounter.enemies).length > 0;
   const preventLeaving = encounterFrame?.preventLeaving || hasEnemies;
 
-  const disabled = encounterState.active || overweight || noActions;
+  const disabled = encounter.active || overweight || noActions;
 
   return (
     <ActionsContainer>
@@ -145,12 +147,16 @@ const ExplorationActions = () => {
           </Paragraph>
         </>
       )}
-      <LookAroundButton disabled={disabled} hasViable={hasViableDiscoveries} onClick={lookAround}>
+      <LookAroundButton
+        disabled={disabled || playerStatus.energy < 5}
+        hasViable={hasViableDiscoveries}
+        onClick={lookAround}
+      >
         Look Around
       </LookAroundButton>
       {discoveries.successful_hunt > 0 && (
         <button
-          disabled={disabled || isNight}
+          disabled={disabled || isNight || playerStatus.energy < 5}
           onClick={() => {
             modifyActions(-1);
             updatePlayerStatus({ energy: -5 });
@@ -166,7 +172,7 @@ const ExplorationActions = () => {
       )}
       {discoveries.find_tubers > 0 && (
         <button
-          disabled={disabled}
+          disabled={disabled || playerStatus.energy < 5}
           onClick={() => {
             modifyActions(-1);
             updatePlayerStatus({ energy: -5 });

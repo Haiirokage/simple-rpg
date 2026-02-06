@@ -7,7 +7,7 @@ import { FOOD_STORAGE, NUTRITION_TYPES } from "./food-definitions";
 import { defaultResourceStore, type ResourceStore } from "./types";
 import { objectEntries, rollFractional } from "../../util";
 import { useCallback, useMemo } from "preact/hooks";
-import { useEquipment, useResetTraps } from "../equipment/hooks";
+import { useEquipment, useResetTraps, useUpdateEquipment } from "../equipment/hooks";
 import { applyResourceDecay } from "./consumption";
 import { usePlayerStatus, useUpdatePlayerStatus } from "../playerStatus/hooks";
 import { updateSatiationFromFood } from "../playerStatus/util";
@@ -94,6 +94,7 @@ export const useHandleNewDay = () => {
   const { mutate } = useMutateResources();
   const { day, year } = useTime();
   const { consumables } = useEquipment();
+  const { mutateSpecific: mutateEquipment } = useUpdateEquipment();
   const resetTraps = useResetTraps();
   const { data: playerStatus } = usePlayerStatus();
   const updatePlayerStatus = useUpdatePlayerStatus();
@@ -197,8 +198,11 @@ export const useHandleNewDay = () => {
     const huntingSkillBonus = 1 + skills.hunter.level / 10;
     const rabbitCatchLikelihood = getRabbitCatchLikelihood(day) * trailBonus * huntingSkillBonus;
 
+    const activeTraps = consumables.trap
+      ? (consumables.trap.max ?? 0) - consumables.trap.current
+      : 0;
     const rabbitMeat = Array.from({
-      length: consumables.trap.active,
+      length: activeTraps,
     }).reduce(
       (caught: number) => caught + (Math.random() < rabbitCatchLikelihood ? 4 : 0),
       materialsAfterDecay.rabbitMeat,
@@ -211,6 +215,13 @@ export const useHandleNewDay = () => {
     const berry = materialsAfterDecay.berry + Math.floor(getBerryIncome(day) * berryMultiplier);
 
     resetTraps();
+
+    // Lantern loses 1 charge per day as fireflies escape/die
+    if (consumables.lantern && consumables.lantern.current > 0) {
+      mutateEquipment("consumables", {
+        lantern: { current: consumables.lantern.current - 1 },
+      });
+    }
 
     const finalResources = {
       ...materialsAfterDecay,

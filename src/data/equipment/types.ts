@@ -1,9 +1,9 @@
-export const consumables = ["trap"] as const;
+export const consumables = ["trap", "lantern"] as const;
 export type ConsumableType = (typeof consumables)[number];
 
-interface consumableStatus {
-  count: number;
-  active: number;
+interface ConsumableStatus {
+  current: number;
+  max?: number;
 }
 
 export const tools = ["hatchet", "knife", "bow", "shoes"] as const;
@@ -17,17 +17,12 @@ export interface ToolStatus {
 }
 
 export type EquipmentStore = {
-  consumables: Record<(typeof consumables)[number], consumableStatus>;
+  consumables: Partial<Record<ConsumableType, ConsumableStatus>>;
   tools: Partial<Record<ToolType, ToolStatus>>;
 };
 
 export const defaultEquipmentStore: EquipmentStore = {
-  consumables: {
-    trap: {
-      count: 0,
-      active: 0,
-    },
-  },
+  consumables: {},
   tools: {
     shoes: { level: 1, tier: 1 },
   },
