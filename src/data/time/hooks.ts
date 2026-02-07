@@ -5,6 +5,7 @@ export type TimeStats = {
   time: number;
   day: number;
   year: number;
+  isResting?: boolean;
 };
 
 const defaultTimeStats: TimeStats = {
@@ -28,7 +29,7 @@ export const useAdvanceTime = () => {
   const timeStats = useTime();
   const updateTime = useUpdateTime();
 
-  return (hours: number) => {
-    updateTime({ time: timeStats.time + hours });
+  return (hours: number, isResting = false) => {
+    updateTime({ time: timeStats.time + hours, isResting });
   };
 };

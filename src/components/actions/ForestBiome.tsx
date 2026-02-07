@@ -89,7 +89,6 @@ const ForestBiome = () => {
                   }),
                   {},
                 );
-                console.log(experienceGrant, resourceAmount, scaledExperienceGrant);
                 grantExperience(scaledExperienceGrant);
               }
             }}

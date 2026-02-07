@@ -3,7 +3,8 @@ import { isDay } from "../../../data/time/season-util";
 import { useHandleExploration } from "../../../data/exploration/hooks";
 import { useHandleSkillCheck } from "../../../data/encounters/hooks";
 import { useSkills } from "../../../data/skills/hooks";
-import { useUpdateEquipment } from "../../../data/equipment/hooks";
+import { useEquipment, useUpdateEquipment } from "../../../data/equipment/hooks";
+import { useHandlePlayerStatus } from "../../../data/playerStatus/hooks";
 import TooltipWrapper from "../../../style/TooltipWrapper";
 import { useState } from "preact/hooks";
 
@@ -15,10 +16,13 @@ const LakeLocation = () => {
   const isNight = !isDay(time, day);
   const handleSkillCheck = useHandleSkillCheck();
   const { skills } = useSkills();
+  const { consumables } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
+  const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
 
   const { actions, inventory } = exploration;
   const hasJar = (inventory.jar ?? 0) > 0;
+  const hasLantern = !!consumables.lantern;
   const hasMeditationLevel = skills.meditation.level > 0;
 
   const handleMeditate = () => {
@@ -37,13 +41,19 @@ const LakeLocation = () => {
     const result = handleSkillCheck({ skill: ["hunter"], dc: 7 });
     modifyActions(-1);
     advanceTime(1);
+    updatePlayerStatus({ energy: -5 });
 
     if (result === "success") {
-      // Consume jar and create lantern
-      mutateExploration({
-        inventory: { ...inventory, jar: (inventory.jar ?? 0) - 1 },
-      });
-      mutateSpecific("consumables", { lantern: { current: 7 } });
+      if (hasLantern) {
+        // Refill existing lantern
+        mutateSpecific("consumables", { lantern: { current: 7 } });
+      } else {
+        // Consume jar and create lantern
+        mutateExploration({
+          inventory: { ...inventory, jar: (inventory.jar ?? 0) - 1 },
+        });
+        mutateSpecific("consumables", { lantern: { current: 7 } });
+      }
       setFeedback(
         "You carefully catch fireflies in the jar. Their soft glow creates a makeshift lantern.",
       );
@@ -82,7 +92,7 @@ const LakeLocation = () => {
           inline
         >
           <button
-            disabled={actions.cur < 1}
+            disabled={actions.cur < 1 || playerStatus.energy <= 0}
             onClick={handleMeditate}
             style={{ marginRight: "0.5rem" }}
           >
@@ -95,9 +105,12 @@ const LakeLocation = () => {
                 : "Sit and admire the view"}
           </button>
         </TooltipWrapper>
-        {isNight && hasJar && (
+        {isNight && (hasLantern || hasJar) && (
           <TooltipWrapper description="Skill check vs. DC 7" inline>
-            <button disabled={actions.cur < 1} onClick={handleCatchFireflies}>
+            <button
+              disabled={actions.cur < 1 || playerStatus.energy < 5}
+              onClick={handleCatchFireflies}
+            >
               Catch fireflies
             </button>
           </TooltipWrapper>

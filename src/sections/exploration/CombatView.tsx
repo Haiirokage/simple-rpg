@@ -117,6 +117,7 @@ const CombatView = ({ enemies }: Props) => {
   const handleShoot = () => {
     if (!enemy) return;
     const result = handleAttack(enemy, "body", enemy.discovered);
+    updatePlayerStatus({ energy: -2 });
     const healthLost = result !== "failure" ? result.healthLost : 0;
 
     if (healthLost === 0) {

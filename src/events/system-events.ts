@@ -25,4 +25,14 @@ export const SYSTEM_EVENTS: Record<string, SystemEvent> = {
       "Your health declined as you went without food for too long.",
     ],
   },
+  forcedReturn: {
+    id: "forcedReturn",
+    name: "Returned Home",
+    category: "system",
+    descriptions: [
+      "As night fell, you made your way back home.",
+      "Without shelter or supplies for the night, you returned home.",
+      "The approaching darkness drove you back to the safety of home.",
+    ],
+  },
 };

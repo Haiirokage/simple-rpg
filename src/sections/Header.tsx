@@ -1,16 +1,16 @@
 import { useEffect, useCallback } from "preact/hooks";
 import { useResources, useHandleNewDay } from "../data/resources/hooks";
 import { useTime, useUpdateTime } from "../data/time/hooks";
-import { usePlayerStatus, useHealPlayer } from "../data/playerStatus/hooks";
+import { usePlayerStatus, useHealPlayer, useUpdatePlayerStatus } from "../data/playerStatus/hooks";
 import { useAttributes, useGrantExperience } from "../data/attributes/hooks";
-import { getDate } from "../data/time/season-util";
+import { getDate, getSeasonByDay } from "../data/time/season-util";
 import { DAYS_IN_MONTH } from "../data/time/season-definitions";
 import { calculateHealthRegenFromTime } from "../data/playerStatus/util";
 import { usePrevious } from "../util";
 import { useHandleNPCAllowance } from "../npc/npc-hooks";
 
 const Header = () => {
-  const { day, time, year } = useTime();
+  const { day, time, year, isResting } = useTime();
   const updateTime = useUpdateTime();
   const { refetch } = useResources();
   const handleNewDay = useHandleNewDay();
@@ -19,6 +19,7 @@ const Header = () => {
   const healPlayer = useHealPlayer();
   const { attributes } = useAttributes();
   const grantExperience = useGrantExperience();
+  const updatePlayerStatus = useUpdatePlayerStatus();
   const prevTime = usePrevious(time);
 
   const applyHealthRegen = useCallback(
@@ -47,6 +48,22 @@ const Header = () => {
     const timeDelta = time - (prevTime ?? 0);
     applyHealthRegen(timeDelta);
 
+    // Apply fatigue for staying awake past 14 hours after sunrise
+    if (timeDelta > 0 && !isResting) {
+      const { sunrise } = getSeasonByDay(day);
+      const fatigueHour = sunrise + 14;
+      const inFatigueZone = time > fatigueHour || time < sunrise;
+
+      if (inFatigueZone) {
+        const fatigueHours =
+          time < sunrise ? time - (prevTime ?? 0) : time - Math.max(fatigueHour, prevTime ?? 0);
+
+        if (fatigueHours > 0) {
+          updatePlayerStatus({ energy: -fatigueHours * 10 });
+        }
+      }
+    }
+
     if (time > 23) {
       const newDayRaw = day + 1;
       // day range is 1..360. Wrap into 1..360 and compute year increment.
@@ -67,7 +84,18 @@ const Header = () => {
         handleNPCAllowance();
       }
     }
-  }, [time, prevTime, updateTime, day, year, handleNewDay, handleNPCAllowance, applyHealthRegen]);
+  }, [
+    time,
+    prevTime,
+    updateTime,
+    day,
+    year,
+    handleNewDay,
+    handleNPCAllowance,
+    applyHealthRegen,
+    isResting,
+    updatePlayerStatus,
+  ]);
 
   return (
     <header>
