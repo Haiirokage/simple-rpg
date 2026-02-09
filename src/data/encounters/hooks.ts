@@ -203,7 +203,7 @@ export const useHandleSkillCheck = () => {
       if (success) {
         skillCheck.skill.forEach((skill) => {
           console.log(skillBonus);
-          const reverseContribution = Math.floor((bonus - skillBonus[skill]) / 2);
+          const reverseContribution = Math.floor(bonus - skillBonus[skill]);
           const expReward = Math.round(
             getExpRewardByDC(Math.max(skillCheck.dc - reverseContribution, 3)),
           );

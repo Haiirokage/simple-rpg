@@ -30,15 +30,7 @@ export interface ToolDefinition {
 
 const NO_TOOL = { name: "none", cost: {}, bonus: {} };
 
-export const BOW_DEFINITION: ToolDefinition = {
-  key: "bow",
-  name: "Bow",
-  tiers: [
-    NO_TOOL,
-    { name: "crude", cost: { wood: 5, fiber: 6 }, bonus: { range: { min: 130, max: 170 } } },
-  ],
-};
-export const TOOL_DEFINITIONS: Record<ToolType, ToolDefinition> = {
+export const TOOL_DEFINITIONS = {
   hatchet: {
     key: "hatchet",
     name: "Hatchet",
@@ -47,11 +39,18 @@ export const TOOL_DEFINITIONS: Record<ToolType, ToolDefinition> = {
       {
         name: "stone",
         cost: { wood: 5, stone: 8 },
-        bonus: { woodGathering: { min: 3, max: 4.5 } },
+        bonus: { woodGathering: { min: 3, max: 4.5, decimals: 1 } },
       },
     ],
   },
-  bow: BOW_DEFINITION,
+  bow: {
+    key: "bow",
+    name: "Bow",
+    tiers: [
+      NO_TOOL,
+      { name: "crude", cost: { wood: 5, fiber: 6 }, bonus: { range: { min: 130, max: 170 } } },
+    ],
+  },
   shoes: {
     key: "shoes",
     name: "Shoes",
@@ -73,11 +72,16 @@ export const TOOL_DEFINITIONS: Record<ToolType, ToolDefinition> = {
       {
         name: "iron",
         cost: { wood: 1, iron: 3, leather: 2 },
-        bonus: { skinning: { min: 1, max: 2 } },
+        bonus: { skinning: { min: 1, max: 2, decimals: 1 } },
       },
     ],
   },
-} as const;
+} as const satisfies Record<ToolType, ToolDefinition>;
+
+// Extract bonus keys for each tool from the definitions
+type ToolDefs = typeof TOOL_DEFINITIONS;
+type ExtractKeys<T> = T extends object ? keyof T : never;
+export type ToolBonusKeys<T extends ToolType> = ExtractKeys<ToolDefs[T]["tiers"][number]["bonus"]>;
 
 export const EQUIPMENT_DEFINITIONS: EquipmentDefinition[] = [
   {

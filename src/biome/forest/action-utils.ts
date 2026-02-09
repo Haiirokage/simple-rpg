@@ -37,9 +37,15 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
     return { stone: strengthMult };
   }, [playerForce]);
 
+  const gatherTubers = useCallback(() => {
+    const explorationBonus = getEquipmentBonus("shoes", "explorationChance");
+    return { tuber: 2 * explorationBonus };
+  }, [getEquipmentBonus]);
+
   return {
     forage,
     gatherWood,
     gatherStone,
+    gatherTubers,
   };
 };

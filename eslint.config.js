@@ -22,7 +22,13 @@ export default tseslint.config([
       globals: globals.browser,
     },
     rules: {
-      "prefer-template": "error"
+      "prefer-template": "error",
+      "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+      }
+    ]
     }
   },
   

@@ -1,5 +1,11 @@
+import { objectEntries } from "../../util";
 import { useDataQuery, useUpdateData } from "../util";
-import { TOOL_DEFINITIONS, type EquipmentBonusType } from "./definitions";
+import {
+  TOOL_DEFINITIONS,
+  type EquipmentBonusType,
+  type ToolBonusKeys,
+  type ToolTier,
+} from "./definitions";
 import { defaultEquipmentStore, type EquipmentStore, type ToolType } from "./types";
 import { getValueByLevel } from "./util";
 
@@ -27,13 +33,24 @@ export const useUpdateEquipment = () => {
 export const useHandleEquipment = () => {
   const equipment = useEquipment();
 
-  const getTool = (toolType: ToolType) => {
+  const getTool = <T extends ToolType>(toolType: T) => {
     const toolStatus = equipment.tools[toolType] || { tier: 0, level: 1 };
-    return { toolStatus, toolDefinition: TOOL_DEFINITIONS[toolType] };
+    const toolDefinition = TOOL_DEFINITIONS[toolType];
+    const tierDefinition = toolDefinition.tiers[toolStatus.tier];
+
+    const bonuses = Object.fromEntries(
+      objectEntries(tierDefinition.bonus).map(([key, range]) => [
+        key,
+        getValueByLevel(toolStatus.level, range),
+      ]),
+    ) as Record<ToolBonusKeys<T>, number>;
+
+    return { toolStatus, toolDefinition, bonuses };
   };
+
   const getEquipmentBonus = (toolType: ToolType, bonusType: EquipmentBonusType) => {
     const { toolStatus, toolDefinition } = getTool(toolType);
-    const tierDefinition = toolDefinition.tiers[toolStatus.tier];
+    const tierDefinition = toolDefinition.tiers[toolStatus.tier] as ToolTier;
 
     return getValueByLevel(toolStatus.level, tierDefinition.bonus[bonusType]);
   };

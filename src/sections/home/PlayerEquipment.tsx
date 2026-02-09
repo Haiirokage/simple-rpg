@@ -4,23 +4,26 @@ import { objectEntries } from "../../util";
 import TooltipWrapper from "../../style/TooltipWrapper";
 
 const PlayerEquipment = () => {
-  const { equipment, getEquipmentBonus } = useHandleEquipment();
-  const { tools, consumables } = equipment;
+  const { equipment, getTool } = useHandleEquipment();
+  const { consumables } = equipment;
 
   return (
     <div>
       <h3>Equipment</h3>
       <ul style={{ fontFamily: "monospace" }}>
         {objectEntries(TOOL_DEFINITIONS).map(([toolKey, toolDef]) => {
-          const toolStatus = tools[toolKey];
-          if (!toolStatus) {
+          const { bonuses, toolStatus } = getTool(toolKey);
+          const { tier, level } = toolStatus;
+          if (tier === 0) {
             return null;
           }
-          const { tier, level } = toolStatus;
           const tierName = toolDef.tiers[tier].name;
-          const bowDesc = toolKey === "bow" ? `Range: ${getEquipmentBonus("bow", "range")}` : "";
+          const bonusDesc = objectEntries(bonuses)
+            .filter(([_, value]) => value !== 1)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(", ");
           return (
-            <TooltipWrapper description={bowDesc}>
+            <TooltipWrapper description={bonusDesc}>
               <li key={toolKey}>
                 <span style={{ display: "inline-block", width: "6em" }}>{toolDef.name}</span>
                 {tierName} lvl {level}

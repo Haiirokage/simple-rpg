@@ -171,6 +171,22 @@ const CombatView = ({ enemies }: Props) => {
     }
   };
 
+  const sneakDistance = 20;
+  const getSneakDC = (targetDistance: number) => Math.round(17 - targetDistance / 10);
+
+  const handleSneak = (target: CreatureIntance) => {
+    const targetDistance = target.distance - sneakDistance;
+    const dc = getSneakDC(targetDistance);
+    const result = handleSkillCheck({ skill: ["stealth"], knowledge: true, dc });
+
+    if (result === "success") {
+      updateEnemies([{ id: target.id, distance: targetDistance }]);
+      mutateEncounter({ timePassed: encounter.timePassed + 2 });
+    } else {
+      updateEnemies([{ id: target.id, discovered: true }]);
+    }
+  };
+
   if (playerStatus.health <= 0) {
     return (
       <>
@@ -219,6 +235,14 @@ const CombatView = ({ enemies }: Props) => {
       )}
       {outOfRange && aware && enemy && !anyHostile && (
         <button onClick={() => handleTrack(enemy)}>Track</button>
+      )}
+      {!aware && enemy && (
+        <TooltipWrapper
+          description={`Sneak to ${enemy.distance - sneakDistance}m (DC ${getSneakDC(enemy.distance - sneakDistance)})`}
+          inline
+        >
+          <button onClick={() => handleSneak(enemy)}>Sneak closer</button>
+        </TooltipWrapper>
       )}
       {!outOfRange && enemy && (
         <TooltipWrapper description={noWeapon ? "You need a weapon" : "Attack roll"} inline>

@@ -24,6 +24,7 @@ const ForestBiome = () => {
   const { consumables } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const { knowledge, gainLevels } = useHandleKnowledge("forest");
+  const knowledgeScore = knowledge.tier * 100 + knowledge.level;
   const expGain = 1 / Math.pow(20, knowledge.tier);
   const energyModifier = knowledge.tier >= 2 ? -1 : 0;
   const multipliers = useActionMultipliers();
@@ -33,10 +34,14 @@ const ForestBiome = () => {
 
   const discoveredActions = useMemo(
     () =>
-      Object.values(FOREST_ACTIONS).filter((action) =>
-        meetsDiscoveryRequirements(action.discoveriesRequired, discoveries),
-      ),
-    [discoveries],
+      Object.values(FOREST_ACTIONS).filter((action) => {
+        const hasDiscoveries = meetsDiscoveryRequirements(action.discoveriesRequired, discoveries);
+        return (
+          hasDiscoveries &&
+          (!action.knowledgeRequired || knowledgeScore >= action.knowledgeRequired)
+        );
+      }),
+    [discoveries, knowledgeScore],
   );
   const isDay = isActionWithinDaylight(time, 0, day);
 

@@ -16,11 +16,11 @@ import { buildExplorationEventLog } from "../../events/exploration-events";
 import { useSetEncounter, useHandleEncounter } from "../../data/encounters/hooks";
 import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 import { useHandleEquipment } from "../../data/equipment/hooks";
-import { getValueByLevel } from "../../data/equipment/util";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { usePlayerForce } from "../../data/attributes/hooks";
 import { getInventoryWeight, getCarryCapacity } from "../../data/resources/util";
 import { isDay } from "../../data/time/season-util";
+import TooltipWrapper from "../../style/TooltipWrapper";
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -41,9 +41,10 @@ const ExplorationActions = () => {
   const { exploration, mutateExploration, modifyActions } = useHandleExploration();
   const setEncounter = useSetEncounter();
   const { encounter, mutateEncounter } = useHandleEncounter();
-  const { getTool } = useHandleEquipment();
+  const { equipment, getTool } = useHandleEquipment();
   const { time, day, year } = useTime();
   const isNight = !isDay(time, day);
+  const hasLight = (equipment.consumables.lantern?.current ?? 0) > 0;
   const endExpedition = useEndExpedition();
   const { knowledge, gainLevels } = useHandleKnowledge("forest");
   const knowledgeLevel = knowledge.tier * 100 + knowledge.level;
@@ -62,12 +63,8 @@ const ExplorationActions = () => {
   const hasJerky = (exploration.inventory.jerky ?? 0) > 0;
 
   const lookAround = useCallback(() => {
-    const { toolDefinition, toolStatus } = getTool("shoes");
-    const tierDefinition = toolDefinition.tiers[toolStatus.tier];
-    const discoveryMultiplier = getValueByLevel(
-      toolStatus.level,
-      tierDefinition.bonus.explorationChance,
-    );
+    const { bonuses } = getTool("shoes");
+    const discoveryMultiplier = bonuses.explorationChance;
     const { discovery, repeatable } = pickRandomDiscovery(
       knowledgeLevel,
       discoveries,
@@ -137,6 +134,8 @@ const ExplorationActions = () => {
 
   const disabled = encounter.active || overweight || noActions;
 
+  const noLight = isNight && !hasLight;
+
   return (
     <ActionsContainer>
       {exploration.active && (
@@ -147,13 +146,15 @@ const ExplorationActions = () => {
           </Paragraph>
         </>
       )}
-      <LookAroundButton
-        disabled={disabled || playerStatus.energy < 5}
-        hasViable={hasViableDiscoveries}
-        onClick={lookAround}
-      >
-        Look Around
-      </LookAroundButton>
+      <TooltipWrapper description={noLight ? "It's too dark to explore now." : undefined}>
+        <LookAroundButton
+          disabled={disabled || playerStatus.energy < 5 || noLight}
+          hasViable={hasViableDiscoveries}
+          onClick={lookAround}
+        >
+          Look Around
+        </LookAroundButton>
+      </TooltipWrapper>
       {discoveries.successful_hunt > 0 && (
         <button
           disabled={disabled || isNight || playerStatus.energy < 5}
@@ -170,7 +171,7 @@ const ExplorationActions = () => {
           Track down a deer
         </button>
       )}
-      {discoveries.find_tubers > 0 && (
+      {discoveries.find_tubers > 0 && knowledgeLevel < 250 && (
         <button
           disabled={disabled || playerStatus.energy < 5}
           onClick={() => {
