@@ -1,14 +1,13 @@
 import styled from "styled-components";
-import { useEndExpedition, useHandleExploration } from "../../data/exploration/hooks";
+import {
+  useEndExpedition,
+  useHandleExploration,
+  useLookAround,
+} from "../../data/exploration/hooks";
 import { useAdvanceTime, useTime } from "../../data/time/hooks";
 import { Paragraph } from "../../style/elements";
-import { useHandleKnowledge } from "../../data/knowledge/hooks";
-import { useDiscoveries, useMutateDiscoveries } from "../../data/discoveries/hooks";
-import { pickRandomDiscovery, useHasViableDiscoveries } from "../../data/discoveries/util";
-import { useCallback } from "preact/hooks";
-import { objectEntries } from "../../util";
-import { useAddEventLogEntry } from "../../data/eventLog/hooks";
-import { buildExplorationEventLog } from "../../events/exploration-events";
+import { useDiscoveries } from "../../data/discoveries/hooks";
+import { useHasViableDiscoveries } from "../../biome/discovery-util";
 import { useSetEncounter, useHandleEncounter } from "../../data/encounters/hooks";
 import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 import { useHandleEquipment } from "../../data/equipment/hooks";
@@ -36,87 +35,25 @@ const LookAroundButton = styled.button<{ hasViable: boolean }>`
 const ForestActions = () => {
   const { exploration, mutateExploration, modifyActions } = useHandleExploration();
   const setEncounter = useSetEncounter();
-  const { encounter, mutateEncounter } = useHandleEncounter();
-  const { equipment, getTool } = useHandleEquipment();
-  const { time, day, year } = useTime();
+  const { encounter } = useHandleEncounter();
+  const { equipment } = useHandleEquipment();
+  const { time, day } = useTime();
   const isNight = !isDay(time, day);
   const hasLight = (equipment.consumables.lantern?.current ?? 0) > 0;
   const endExpedition = useEndExpedition();
-  const { knowledge, gainLevels } = useHandleKnowledge("forest");
-  const knowledgeLevel = knowledge.tier * 100 + knowledge.level;
   const discoveries = useDiscoveries();
-  const mutateDiscoveries = useMutateDiscoveries();
   const advanceTime = useAdvanceTime();
-  const addEventLogEntry = useAddEventLogEntry();
-  const hasViableDiscoveries = useHasViableDiscoveries("forest", knowledgeLevel, discoveries);
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const force = usePlayerForce();
+
+  const { lookAround, knowledgeLevel } = useLookAround("forest");
+  const hasViableDiscoveries = useHasViableDiscoveries("forest", knowledgeLevel, discoveries);
 
   const currentWeight = getInventoryWeight(exploration.inventory);
   const carryCapacity = getCarryCapacity(force);
   const overweight = currentWeight > carryCapacity;
   const noActions = exploration.actions.cur <= 0;
   const hasJerky = (exploration.inventory.jerky ?? 0) > 0;
-
-  const lookAround = useCallback(() => {
-    const { bonuses } = getTool("shoes");
-    const discoveryMultiplier = bonuses.explorationChance;
-    const { discovery, repeatable } = pickRandomDiscovery(
-      "forest",
-      knowledgeLevel,
-      discoveries,
-      discoveryMultiplier,
-      isNight,
-    );
-    if (repeatable) {
-      addEventLogEntry(buildExplorationEventLog(repeatable.type, year, day, undefined));
-      if (repeatable.triggerEncounter) {
-        setEncounter(repeatable.triggerEncounter);
-      }
-
-      gainLevels(1);
-    } else if (discovery) {
-      const foundDiscoveryCount = discoveries[discovery.type];
-      mutateDiscoveries({ [discovery.type]: foundDiscoveryCount + 1 });
-      mutateEncounter({ encounteredDiscovery: discovery.type });
-
-      if (discovery.triggerEncounter) {
-        setEncounter(discovery.triggerEncounter);
-      }
-      if (discovery.reward) {
-        const newInventory = objectEntries(discovery.reward).reduce(
-          (acc, [key, value]) => ({ ...acc, [key]: (acc[key] || 0) + value }),
-          exploration.inventory,
-        );
-
-        mutateExploration({ inventory: newInventory });
-      }
-      gainLevels(1);
-      addEventLogEntry(buildExplorationEventLog(discovery.type, year, day, foundDiscoveryCount));
-    } else {
-      console.log("found nothing");
-    }
-    modifyActions(-1);
-    advanceTime(1);
-    updatePlayerStatus({ energy: -5 });
-  }, [
-    knowledgeLevel,
-    discoveries,
-    mutateDiscoveries,
-    mutateEncounter,
-    mutateExploration,
-    exploration.inventory,
-    advanceTime,
-    year,
-    day,
-    isNight,
-    addEventLogEntry,
-    gainLevels,
-    setEncounter,
-    getTool,
-    modifyActions,
-    updatePlayerStatus,
-  ]);
 
   const encounterFrame = encounter.encounterFrameId
     ? ENCOUNTER_FRAMES[encounter.encounterFrameId]

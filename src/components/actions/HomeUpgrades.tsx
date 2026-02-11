@@ -17,7 +17,7 @@ import { getSeasonByDay } from "../../data/time/season-util";
 import { useDiscoveries } from "../../data/discoveries/hooks";
 import { useMemo } from "preact/hooks";
 import { Button } from "../../style/elements";
-import { meetsDiscoveryRequirements } from "../../data/discoveries/util";
+import { meetsDiscoveryRequirements } from "../../biome/discovery-util";
 import TooltipWrapper from "../../style/TooltipWrapper";
 
 const HomeUpgrades = () => {

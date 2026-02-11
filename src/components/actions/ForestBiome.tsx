@@ -12,7 +12,7 @@ import type { ResourceStore } from "../../data/resources/types";
 import { Paragraph } from "../../style/elements";
 import { useGrantExperience } from "../../data/attributes/hooks";
 import { objectEntries } from "../../util";
-import { meetsDiscoveryRequirements } from "../../data/discoveries/util";
+import { meetsDiscoveryRequirements } from "../../biome/discovery-util";
 import { useActionMultipliers } from "../../biome/forest/action-utils";
 import { sum } from "lodash";
 import ExploreButton from "../ExploreButton";

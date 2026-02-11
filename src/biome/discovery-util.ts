@@ -1,12 +1,10 @@
 import { shuffle } from "lodash";
-import {
-  FOREST_DISCOVERIES,
-  REPEATABLE_DISCOVERIES,
-} from "../../biome/forest/discovery-definitions";
+import { useMemo } from "preact/hooks";
+import { FOREST_DISCOVERIES, REPEATABLE_DISCOVERIES } from "./forest/discovery-definitions";
 import {
   VILLAGE_DISCOVERIES,
   VILLAGE_REPEATABLE_DISCOVERIES,
-} from "../../biome/village/discovery-definitions";
+} from "./village/discovery-definitions";
 import type {
   UnlockableDiscoveryDefinition,
   RepeatableDiscoveryDefinition,
@@ -14,20 +12,42 @@ import type {
   AllBiomeUnlockables,
   AllRepeatables,
   AllUnlockables,
-} from "../../biome/discovery-types";
-import { objectEntries } from "../../util";
-import type { DiscoveriesStore } from "./types";
-import { useMemo } from "preact/hooks";
-import { calculateDiscoveryChance } from "../../biome/discovery-util";
+} from "./discovery-types";
+import { objectEntries } from "../util";
+import type { DiscoveriesStore } from "../data/discoveries/types";
 
 type BiomeDiscoveries = {
   unlockable: Partial<Record<AllBiomeUnlockables, UnlockableDiscoveryDefinition>>;
   repeatable: Partial<Record<AllRepeatables, RepeatableDiscoveryDefinition>>;
 };
 
-const BIOME_DISCOVERIES: Record<BiomeType, BiomeDiscoveries> = {
+export const BIOME_DISCOVERIES: Record<BiomeType, BiomeDiscoveries> = {
   forest: { unlockable: FOREST_DISCOVERIES, repeatable: REPEATABLE_DISCOVERIES },
   village: { unlockable: VILLAGE_DISCOVERIES, repeatable: VILLAGE_REPEATABLE_DISCOVERIES },
+};
+
+export const calculateDiscoveryChance = (
+  currentKnowledge: number,
+  definition: UnlockableDiscoveryDefinition,
+  discovered: number,
+  steepness = 0.16,
+): number => {
+  // expectedKnowledge increases as you find more
+  // maxCount items spread across range means (maxCount - 1) intervals
+  const knowledgePerDiscovery =
+    definition.maxCount > 1
+      ? (definition.discoveryRange.max - definition.discoveryRange.min) / (definition.maxCount - 1)
+      : 0;
+  const expectedKnowledge = definition.discoveryRange.min + discovered * knowledgePerDiscovery;
+
+  // Sigmoid centered at expectedKnowledge
+  // At expected: chance = rarity
+  // At expected + 25: approaches 2 * rarity (capped at 1.0)
+  // At expected - 25: approaches rarity / 50
+  const diff = currentKnowledge - expectedKnowledge;
+  const chance = (definition.rarity * 2) / (1 + Math.exp(-steepness * diff));
+
+  return Math.min(Math.max(chance, 0), 1); // Clamp to 0-1
 };
 
 /** Check if all required discovery counts are met. */
