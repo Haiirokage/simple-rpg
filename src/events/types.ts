@@ -1,4 +1,4 @@
-import type { AllDiscoveryType } from "../biome/forest/discovery-definitions";
+import type { AllDiscoveries } from "../biome/discovery-types";
 
 export type EventCategory = "eod" | "system" | "exploration";
 
@@ -33,7 +33,7 @@ export type EODEvent = BaseEvent & {
 };
 
 export type ExplorationEvent = BaseEvent & {
-  id: AllDiscoveryType;
+  id: AllDiscoveries;
   category: "exploration";
 };
 

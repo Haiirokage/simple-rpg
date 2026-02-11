@@ -2,7 +2,7 @@ import { POSITIVE_EVENTS, NEGATIVE_EVENTS, NEUTRAL_EVENTS } from "./eod-events";
 import type { AnyEvent, EODEvent } from "./types";
 import { SYSTEM_EVENTS } from "./system-events";
 import { EXPLORATION_EVENTS } from "./exploration-events";
-import type { DiscoveryType } from "../biome/forest/discovery-definitions";
+import type { AllDiscoveries } from "../biome/discovery-types";
 
 const POSITIVE_THRESHOLD = 0.07;
 const NEGATIVE_THRESHOLD = 0.05;
@@ -13,7 +13,7 @@ const NEUTRAL_THRESHOLD = 0.03;
  */
 export const getEventById = (eventId: string): AnyEvent | undefined => {
   const systemEvent = SYSTEM_EVENTS[eventId];
-  const explorationEvent = EXPLORATION_EVENTS[eventId as DiscoveryType];
+  const explorationEvent = EXPLORATION_EVENTS[eventId as AllDiscoveries];
 
   return (
     systemEvent ||

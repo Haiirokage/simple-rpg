@@ -5,10 +5,6 @@ import { Paragraph } from "../../style/elements";
 import { useHandleKnowledge } from "../../data/knowledge/hooks";
 import { useDiscoveries, useMutateDiscoveries } from "../../data/discoveries/hooks";
 import { pickRandomDiscovery, useHasViableDiscoveries } from "../../data/discoveries/util";
-import {
-  FOREST_DISCOVERIES,
-  REPEATABLE_DISCOVERIES,
-} from "../../biome/forest/discovery-definitions";
 import { useCallback } from "preact/hooks";
 import { objectEntries } from "../../util";
 import { useAddEventLogEntry } from "../../data/eventLog/hooks";
@@ -37,7 +33,7 @@ const LookAroundButton = styled.button<{ hasViable: boolean }>`
   `}
 `;
 
-const ExplorationActions = () => {
+const ForestActions = () => {
   const { exploration, mutateExploration, modifyActions } = useHandleExploration();
   const setEncounter = useSetEncounter();
   const { encounter, mutateEncounter } = useHandleEncounter();
@@ -52,7 +48,7 @@ const ExplorationActions = () => {
   const mutateDiscoveries = useMutateDiscoveries();
   const advanceTime = useAdvanceTime();
   const addEventLogEntry = useAddEventLogEntry();
-  const hasViableDiscoveries = useHasViableDiscoveries(knowledgeLevel, discoveries);
+  const hasViableDiscoveries = useHasViableDiscoveries("forest", knowledgeLevel, discoveries);
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const force = usePlayerForce();
 
@@ -66,40 +62,37 @@ const ExplorationActions = () => {
     const { bonuses } = getTool("shoes");
     const discoveryMultiplier = bonuses.explorationChance;
     const { discovery, repeatable } = pickRandomDiscovery(
+      "forest",
       knowledgeLevel,
       discoveries,
       discoveryMultiplier,
       isNight,
     );
-    const foundDiscoveryCount = discovery ? discoveries[discovery] || 0 : 0;
-
     if (repeatable) {
-      addEventLogEntry(buildExplorationEventLog(repeatable, year, day, undefined));
-      const rep_disc = REPEATABLE_DISCOVERIES[repeatable];
-      if (rep_disc.triggerEncounter) {
-        setEncounter(rep_disc.triggerEncounter);
+      addEventLogEntry(buildExplorationEventLog(repeatable.type, year, day, undefined));
+      if (repeatable.triggerEncounter) {
+        setEncounter(repeatable.triggerEncounter);
       }
+
       gainLevels(1);
     } else if (discovery) {
-      mutateDiscoveries({ [discovery]: foundDiscoveryCount + 1 });
-      mutateEncounter({ encounteredDiscovery: discovery });
+      const foundDiscoveryCount = discoveries[discovery.type];
+      mutateDiscoveries({ [discovery.type]: foundDiscoveryCount + 1 });
+      mutateEncounter({ encounteredDiscovery: discovery.type });
 
-      const { reward, triggerEncounter } = FOREST_DISCOVERIES[discovery];
-      if (triggerEncounter) {
-        setEncounter(triggerEncounter);
+      if (discovery.triggerEncounter) {
+        setEncounter(discovery.triggerEncounter);
       }
-      if (reward) {
-        const newInventory = objectEntries(reward).reduce((acc, [key, value]) => {
-          return {
-            ...acc,
-            [key]: (acc[key] || 0) + value,
-          };
-        }, exploration.inventory);
+      if (discovery.reward) {
+        const newInventory = objectEntries(discovery.reward).reduce(
+          (acc, [key, value]) => ({ ...acc, [key]: (acc[key] || 0) + value }),
+          exploration.inventory,
+        );
 
         mutateExploration({ inventory: newInventory });
       }
       gainLevels(1);
-      addEventLogEntry(buildExplorationEventLog(discovery, year, day, foundDiscoveryCount));
+      addEventLogEntry(buildExplorationEventLog(discovery.type, year, day, foundDiscoveryCount));
     } else {
       console.log("found nothing");
     }
@@ -146,7 +139,7 @@ const ExplorationActions = () => {
           </Paragraph>
         </>
       )}
-      <TooltipWrapper description={noLight ? "It's too dark to explore now." : undefined}>
+      <TooltipWrapper inline description={noLight ? "It's too dark to explore now." : undefined}>
         <LookAroundButton
           disabled={disabled || playerStatus.energy < 5 || noLight}
           hasViable={hasViableDiscoveries}
@@ -196,6 +189,13 @@ const ExplorationActions = () => {
           Go to the lake
         </button>
       )}
+      <button
+        onClick={() => {
+          mutateExploration({ biome: "village" });
+        }}
+      >
+        Travel to village
+      </button>
       {hasJerky && (
         <button
           onClick={() => {
@@ -218,4 +218,4 @@ const ExplorationActions = () => {
   );
 };
 
-export default ExplorationActions;
+export default ForestActions;

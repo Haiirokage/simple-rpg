@@ -2,45 +2,65 @@ import { shuffle } from "lodash";
 import {
   FOREST_DISCOVERIES,
   REPEATABLE_DISCOVERIES,
-  type DiscoveryType,
-  type RepeatableDiscoveryType,
 } from "../../biome/forest/discovery-definitions";
-import { objectEntries, objectKeys } from "../../util";
+import {
+  VILLAGE_DISCOVERIES,
+  VILLAGE_REPEATABLE_DISCOVERIES,
+} from "../../biome/village/discovery-definitions";
+import type {
+  UnlockableDiscoveryDefinition,
+  RepeatableDiscoveryDefinition,
+  BiomeType,
+  AllBiomeUnlockables,
+  AllRepeatables,
+  AllUnlockables,
+} from "../../biome/discovery-types";
+import { objectEntries } from "../../util";
 import { calculateDiscoveryChance } from "./hooks";
 import type { DiscoveriesStore } from "./types";
 import { useMemo } from "preact/hooks";
 
+type BiomeDiscoveries = {
+  unlockable: Partial<Record<AllBiomeUnlockables, UnlockableDiscoveryDefinition>>;
+  repeatable: Partial<Record<AllRepeatables, RepeatableDiscoveryDefinition>>;
+};
+
+const BIOME_DISCOVERIES: Record<BiomeType, BiomeDiscoveries> = {
+  forest: { unlockable: FOREST_DISCOVERIES, repeatable: REPEATABLE_DISCOVERIES },
+  village: { unlockable: VILLAGE_DISCOVERIES, repeatable: VILLAGE_REPEATABLE_DISCOVERIES },
+};
+
 /** Check if all required discovery counts are met. */
 export const meetsDiscoveryRequirements = (
-  requirements: Partial<Record<keyof DiscoveriesStore, number>> | undefined,
+  requirements: Partial<Record<AllUnlockables, number>> | undefined,
   discoveries: DiscoveriesStore,
 ) => !requirements || objectEntries(requirements).every(([key, req]) => discoveries[key] >= req);
 
-/**
- * TODO: Make biome-agnostic once multiple biomes exist
- * Currently hardcoded to forest discoveries. Should accept discoveries parameter.
- */
+type DiscoveryResult =
+  | { discovery: UnlockableDiscoveryDefinition; repeatable?: never }
+  | { discovery?: never; repeatable: RepeatableDiscoveryDefinition }
+  | { discovery?: never; repeatable?: never };
 
 /**
  * Pick a random discovery to attempt finding.
  * First tries unlockable discoveries, then falls back to repeatable discoveries if none found.
  * Returns the first discovery found, or null if none found.
  */
-export const pickRandomDiscovery = (
+export const pickRandomDiscovery = <T extends BiomeType>(
+  biome: T,
   knowledgeLevel: number,
   discoveries: DiscoveriesStore,
   discoveryMultiplier = 1,
   night = false,
-): { discovery?: DiscoveryType; repeatable?: RepeatableDiscoveryType } => {
-  // Get all discovery types and shuffle
-  const discoveryTypes = objectKeys(FOREST_DISCOVERIES);
-  const shuffled = shuffle(discoveryTypes);
+): DiscoveryResult => {
+  const { unlockable, repeatable } = BIOME_DISCOVERIES[biome];
+
+  // Get all discovery entries and shuffle
+  const discoveryEntries = shuffle(objectEntries(unlockable));
 
   // Check each discovery in random order
-  for (const discoveryType of shuffled) {
-    const definition = FOREST_DISCOVERIES[discoveryType];
-    const discoveredCount = discoveries[discoveryType] || 0;
-
+  for (const [discoveryType, definition] of discoveryEntries) {
+    const discoveredCount = discoveries[discoveryType];
     // Skip if already at max
     if (discoveredCount >= definition.maxCount) {
       continue;
@@ -51,25 +71,21 @@ export const pickRandomDiscovery = (
       discoveryMultiplier;
 
     if (Math.random() < chance) {
-      return { discovery: discoveryType };
+      return { discovery: definition };
     }
   }
 
   // Fall back to repeatable discoveries
-  const repeatableTypes = objectKeys(REPEATABLE_DISCOVERIES);
-  const shuffledRepeatable = shuffle(repeatableTypes);
+  const repeatableDefinitions = shuffle(Object.values(repeatable));
 
-  for (const discoveryType of shuffledRepeatable) {
-    const definition = REPEATABLE_DISCOVERIES[discoveryType];
-
-    // Check if player meets knowledge requirement
-    if (knowledgeLevel < definition.knowledgeRequirement) {
+  for (const definition of repeatableDefinitions) {
+    if (!definition || knowledgeLevel < definition.knowledgeRequirement) {
       continue;
     }
 
     const rarity = night ? (definition.nightRarity ?? definition.rarity) : definition.rarity;
     if (Math.random() < rarity) {
-      return { repeatable: discoveryType };
+      return { repeatable: definition };
     }
   }
 
@@ -81,16 +97,17 @@ export const pickRandomDiscovery = (
  * Useful for determining if exploration is worth attempting.
  */
 export const useHasViableDiscoveries = (
+  biome: BiomeType,
   knowledgeLevel: number,
   discoveries: DiscoveriesStore,
-  minChance: number = 0.02,
+  minChance = 0.02,
 ): boolean => {
   return useMemo(() => {
-    return objectEntries(FOREST_DISCOVERIES).some(([discoveryType, discovery]) => {
-      const discoveredCount = discoveries[discoveryType] || 0;
-      const chance = calculateDiscoveryChance(knowledgeLevel, discovery, discoveredCount);
-
+    const { unlockable } = BIOME_DISCOVERIES[biome];
+    return objectEntries(unlockable).some(([discoveryType, definition]) => {
+      const discoveredCount = discoveries[discoveryType];
+      const chance = calculateDiscoveryChance(knowledgeLevel, definition, discoveredCount);
       return chance >= minChance;
     });
-  }, [knowledgeLevel, discoveries, minChance]);
+  }, [biome, knowledgeLevel, discoveries, minChance]);
 };

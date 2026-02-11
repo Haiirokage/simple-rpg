@@ -1,13 +1,13 @@
 import type { HomeUpgradeKeys } from "./types";
 import type { ResourceStore } from "../resources/types";
-import type { AllUnlockableDiscoveries } from "../discoveries/types";
+import type { AllUnlockables } from "../../biome/discovery-types";
 
 export type HomeUpgradeDefinition = {
   key: HomeUpgradeKeys;
   name: string;
   timeCost: number;
   resourceCost: Partial<ResourceStore>;
-  discoveriesRequired?: Partial<Record<AllUnlockableDiscoveries, number>>;
+  discoveriesRequired?: Partial<Record<AllUnlockables, number>>;
 };
 
 export const HOME_UPGRADES: HomeUpgradeDefinition[] = [

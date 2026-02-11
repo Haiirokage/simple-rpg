@@ -19,6 +19,7 @@ import { objectKeys } from "../../util";
 import CombatView from "./CombatView";
 import NPCInteractionView from "./NPCInteractionView";
 import DiscoverySplash from "./DiscoverySplash";
+import { EXPLORATION_EVENTS } from "../../events/exploration-events";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
@@ -39,7 +40,10 @@ const EncounterView = () => {
     return <CombatView enemies={encounter.enemies} />;
   }
   if (encounter.encounteredDiscovery) {
-    return <DiscoverySplash discovery={encounter.encounteredDiscovery} />;
+    const event = EXPLORATION_EVENTS[encounter.encounteredDiscovery];
+    if (event) {
+      return <DiscoverySplash event={event} />;
+    }
   }
   if (encounter.npcs.length > 0) {
     return <NPCInteractionView />;

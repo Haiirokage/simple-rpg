@@ -1,6 +1,6 @@
 import type { ResourceStore } from "../../data/resources/types";
 import type { AttributeStore } from "../../data/attributes/types";
-import type { AllUnlockableDiscoveries } from "../../data/discoveries/types";
+import type { AllUnlockables } from "../discovery-types";
 
 export type ActionId = "forage" | "gatherWood" | "gatherStone" | "gatherTubers";
 
@@ -14,7 +14,7 @@ export interface ActionDefinition {
   };
   resourceYield?: Partial<ResourceStore>;
   // Gate: requires N discoveries of a specific type
-  discoveriesRequired?: Partial<Record<AllUnlockableDiscoveries, number>>;
+  discoveriesRequired?: Partial<Record<AllUnlockables, number>>;
   // Experience grant: XP per unit of resource yielded
   experienceGrant?: Partial<Record<keyof AttributeStore, number>>;
   // Gate: requires knowledge level

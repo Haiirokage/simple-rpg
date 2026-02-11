@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import { GameSection, GameViewContainer } from "../style/game-view";
 import PlayerStatus from "./PlayerStatus";
-import ExplorationActions from "./exploration/ExplorationActions";
+import ForestActions from "./exploration/ForestActions";
+import VillageExploration from "./exploration/VillageExploration";
 import EventLog, { EventLogSection } from "./EventLog";
 import EncounterView from "./exploration/EncounterView";
 import BiomeOverview from "./overview/BiomeOverview";
@@ -18,7 +19,7 @@ const ExplorationGameContainer = styled(GameViewContainer)<{ hasLocation: boolea
 `;
 
 const ExplorationLayout = () => {
-  const { location } = useExploration();
+  const { location, biome } = useExploration();
   const hasLocation = !!location;
 
   return (
@@ -34,8 +35,8 @@ const ExplorationLayout = () => {
       ) : (
         <>
           <GameSection area="actions">
-            <h2>Exploring forest</h2>
-            <ExplorationActions />
+            <h2>Exploring {biome}</h2>
+            {biome === "forest" ? <ForestActions /> : <VillageExploration />}
           </GameSection>
           <GameSection area="encounter">
             <EncounterView />

@@ -1,11 +1,9 @@
-import type { KnowledgeBiome } from "../knowledge/types";
 import type { ResourceStore } from "../resources/types";
 import type { Skills } from "../skills/types";
 import type { CreatureIntance, Creatures } from "../../npc/creature-definitions";
-import type { ExtraDiscoveries } from "../discoveries/types";
 import type { PlayerEffect } from "../effect-util";
 import type { HumanType } from "../../npc/human-definitions";
-import type { DiscoveryType } from "../../biome/forest/discovery-definitions";
+import type { BiomeType, AllUnlockables, AllBiomeUnlockables } from "../../biome/discovery-types";
 
 export interface EncounterNPC {
   type: HumanType;
@@ -20,7 +18,7 @@ export type EncounterFrameId =
 
 export interface BaseOutcome {
   resourceYield?: Partial<ResourceStore>;
-  discovery?: ExtraDiscoveries;
+  discovery?: AllUnlockables;
   sideEffect?: PlayerEffect;
   exitMessage?: string;
 }
@@ -34,7 +32,7 @@ export interface CombatConfig {
   exitMessage?: string;
   onKill?: Partial<{
     frameId: EncounterFrameId;
-    discovery: ExtraDiscoveries;
+    discovery: AllUnlockables;
   }>;
 }
 
@@ -111,9 +109,9 @@ export interface CombatEncounterFrame extends BaseEncounterFrame {
 
 export type EncounterStore = {
   active: boolean;
-  biome: KnowledgeBiome;
+  biome: BiomeType;
   encounterFrameId?: EncounterFrameId;
-  encounteredDiscovery?: DiscoveryType;
+  encounteredDiscovery?: AllBiomeUnlockables;
   enemies: Record<string, CreatureIntance>;
   npcs: string[]; // NPC store ids present in this encounter
   combatContext?: CombatConfig;

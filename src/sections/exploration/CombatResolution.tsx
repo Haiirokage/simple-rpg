@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import type { CreatureIntance, LootEntry } from "../../npc/creature-definitions";
 import { useHandleEncounter, useSetEncounter, useSkillRoll } from "../../data/encounters/hooks";
 import { useHandleExploration } from "../../data/exploration/hooks";
-import { useMutateDiscoveries } from "../../data/discoveries/hooks";
+import { useHandleDiscoveries } from "../../data/discoveries/hooks";
 import { useGrantSkillExperience } from "../../data/skills/hooks";
 import { getExpRewardByDC } from "../../data/leveling-util";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
@@ -21,7 +21,7 @@ const CombatResolution = ({ enemies, combatContext }: Props) => {
   const setEncounter = useSetEncounter();
   const { encounter, mutateEncounter } = useHandleEncounter();
   const { exploration, mutateExploration } = useHandleExploration();
-  const mutateDiscoveries = useMutateDiscoveries();
+  const { updateDiscovery } = useHandleDiscoveries();
   const skillRoll = useSkillRoll();
   const grantExperience = useGrantSkillExperience();
   const { updatePlayerStatus } = useHandlePlayerStatus();
@@ -58,7 +58,7 @@ const CombatResolution = ({ enemies, combatContext }: Props) => {
     updatePlayerStatus({ energy: -5 });
 
     if (onKill?.discovery) {
-      mutateDiscoveries({ [onKill.discovery]: 1 });
+      updateDiscovery(onKill.discovery);
     }
 
     const beatenDCs = successfulEntries.filter((entry) => entry.dc).map((entry) => entry.dc!);

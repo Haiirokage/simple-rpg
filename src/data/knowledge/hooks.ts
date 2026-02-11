@@ -8,7 +8,11 @@ const defaultKnowledgeStore: KnowledgeStore = {
     tier: 1,
     level: 20,
   },
-} as const;
+  village: {
+    tier: 0,
+    level: 0,
+  },
+};
 
 export const useKnowledge = () => {
   const { data, refetch } = useDataQuery<KnowledgeStore>("KNOWLEDGE", defaultKnowledgeStore);

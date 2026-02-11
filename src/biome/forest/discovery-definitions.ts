@@ -1,37 +1,22 @@
-import type { EncounterFrameId } from "../../data/encounters/types";
-import type { ResourceStore } from "../../data/resources/types";
+import type {
+  UnlockableDiscoveryDefinition,
+  RepeatableDiscoveryDefinition,
+} from "../discovery-types";
 
-export type DiscoveryType =
+export type ForestUnlockable =
   | "berry_patch"
   | "willow_grove"
   | "rabbit_trail"
   | "strong_inspiration"
   | "large_lake";
-export type RepeatableDiscoveryType =
+
+export type ForestRepeatable =
   | "deer_tracks"
   | "mysterious_roots"
   | "wolf_sighting"
   | "foraging_npc";
-export type AllDiscoveryType = DiscoveryType | RepeatableDiscoveryType;
 
-export interface DiscoveryDefinition {
-  type: string;
-  rarity: number;
-  nightRarity?: number;
-  reward?: Partial<ResourceStore>;
-  triggerEncounter?: EncounterFrameId;
-}
-
-export interface UnlockableDiscoveryDefinition extends DiscoveryDefinition {
-  maxCount: number;
-  discoveryRange: { min: number; max: number };
-}
-
-export interface RepeatableDiscoveryDefinition extends DiscoveryDefinition {
-  knowledgeRequirement: number;
-}
-
-export const FOREST_DISCOVERIES: Record<DiscoveryType, UnlockableDiscoveryDefinition> = {
+export const FOREST_DISCOVERIES: Record<ForestUnlockable, UnlockableDiscoveryDefinition> = {
   berry_patch: {
     type: "berry_patch",
     maxCount: 5,
@@ -68,10 +53,7 @@ export const FOREST_DISCOVERIES: Record<DiscoveryType, UnlockableDiscoveryDefini
   },
 };
 
-export const REPEATABLE_DISCOVERIES: Record<
-  RepeatableDiscoveryType,
-  RepeatableDiscoveryDefinition
-> = {
+export const REPEATABLE_DISCOVERIES: Record<ForestRepeatable, RepeatableDiscoveryDefinition> = {
   deer_tracks: {
     type: "deer_tracks",
     rarity: 0.12,

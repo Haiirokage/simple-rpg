@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import type { DiscoveryType } from "../../biome/forest/discovery-definitions";
+import type { AllUnlockables } from "../../biome/discovery-types";
 import { useDiscoveries } from "../../data/discoveries/hooks";
 import { useHandleEncounter } from "../../data/encounters/hooks";
-import { EXPLORATION_EVENTS } from "../../events/exploration-events";
+import type { ExplorationEvent } from "../../events/types";
 
 const SplashContainer = styled.div`
   text-align: center;
@@ -18,15 +18,14 @@ const ContinueButton = styled.button`
 `;
 
 interface DiscoverySplashProps {
-  discovery: DiscoveryType;
+  event: ExplorationEvent;
 }
 
-const DiscoverySplash = ({ discovery }: DiscoverySplashProps) => {
+const DiscoverySplash = ({ event }: DiscoverySplashProps) => {
   const discoveries = useDiscoveries();
   const { mutateEncounter } = useHandleEncounter();
 
-  const event = EXPLORATION_EVENTS[discovery];
-  const count = discoveries[discovery] ?? 0;
+  const count = discoveries[event.id as AllUnlockables];
   const descriptionIndex = Math.min(count - 1, event.descriptions.length - 1);
   const description = event.descriptions[Math.max(0, descriptionIndex)];
 

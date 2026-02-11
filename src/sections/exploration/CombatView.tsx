@@ -19,7 +19,7 @@ import {
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import { useAttributes } from "../../data/attributes/hooks";
 import { useSkills } from "../../data/skills/hooks";
-import { useMutateDiscoveries } from "../../data/discoveries/hooks";
+import { useHandleDiscoveries } from "../../data/discoveries/hooks";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import TooltipWrapper from "../../style/TooltipWrapper";
 import CombatResolution from "./CombatResolution";
@@ -89,7 +89,7 @@ const CombatView = ({ enemies }: Props) => {
   const { encounter, mutateEncounter } = useHandleEncounter();
   const { getEquipmentBonus } = useHandleEquipment();
   const { skills } = useSkills();
-  const mutateDiscoveries = useMutateDiscoveries();
+  const { updateDiscovery } = useHandleDiscoveries();
   const handleSkillCheck = useHandleSkillCheck();
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const { attributes } = useAttributes();
@@ -121,7 +121,7 @@ const CombatView = ({ enemies }: Props) => {
     const healthLost = result !== "failure" ? result.healthLost : 0;
 
     if (healthLost === 0) {
-      mutateDiscoveries({ failed_hunt: 1 });
+      updateDiscovery("failed_hunt");
     }
 
     const shootInterval = getShootInterval(skills.ranged.level, acuity.combat.level);

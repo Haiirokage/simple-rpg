@@ -1,4 +1,4 @@
-import type { AllDiscoveryType } from "../biome/forest/discovery-definitions";
+import type { AllDiscoveries } from "../biome/discovery-types";
 import type { EventLogEntry } from "../data/eventLog/types";
 import type { ExplorationEvent } from "./types";
 
@@ -6,7 +6,7 @@ import type { ExplorationEvent } from "./types";
  * Exploration events are logged during exploration activities.
  * These record discoveries, findings, and exploration outcomes.
  */
-export const EXPLORATION_EVENTS: Record<AllDiscoveryType, ExplorationEvent> = {
+export const EXPLORATION_EVENTS: Partial<Record<AllDiscoveries, ExplorationEvent>> = {
   berry_patch: {
     id: "berry_patch",
     name: "Found Berry Patch",
@@ -89,17 +89,19 @@ export const EXPLORATION_EVENTS: Record<AllDiscoveryType, ExplorationEvent> = {
 };
 
 export const buildExplorationEventLog = (
-  discoveryType: AllDiscoveryType,
+  discoveryType: AllDiscoveries,
   year: number,
   day: number,
   descriptionIndex?: number,
 ): EventLogEntry => {
-  const { id, descriptions } = EXPLORATION_EVENTS[discoveryType];
+  const event = EXPLORATION_EVENTS[discoveryType];
   const randomIndex =
-    descriptions.length > 0 ? Math.floor(Math.random() * descriptions.length) : undefined;
+    event && event.descriptions.length > 0
+      ? Math.floor(Math.random() * event.descriptions.length)
+      : undefined;
 
   return {
-    eventId: id,
+    eventId: event?.id ?? discoveryType,
     category: "exploration",
     year,
     day,

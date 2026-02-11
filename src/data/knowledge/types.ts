@@ -1,6 +1,6 @@
-export type KnowledgeTier = 0 | 1 | 2 | 3;
+import type { BiomeType } from "../../biome/discovery-types";
 
-export type KnowledgeBiome = "forest";
+export type KnowledgeTier = 0 | 1 | 2 | 3;
 
 export interface Knowledge {
   tier: KnowledgeTier;
@@ -8,4 +8,4 @@ export interface Knowledge {
   level: number;
 }
 
-export type KnowledgeStore = Record<KnowledgeBiome, Knowledge>;
+export type KnowledgeStore = Record<BiomeType, Knowledge>;
