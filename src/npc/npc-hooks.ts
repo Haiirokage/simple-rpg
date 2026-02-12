@@ -17,6 +17,7 @@ const generateInstance = (id: string, type: HumanType): HumanInstance => {
     name: def.id, // placeholder — proper name generation is future work
     sex,
     age,
+    home: def.home,
     attributes: { strength: 20, constitution: 20, dexterity: 20, wisdom: 20 },
     equipment: { ...def.equipment },
     resources: { ...def.resources, coin: def.allowance },

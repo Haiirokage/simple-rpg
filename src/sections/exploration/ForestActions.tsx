@@ -16,20 +16,12 @@ import { usePlayerForce } from "../../data/attributes/hooks";
 import { getInventoryWeight, getCarryCapacity } from "../../data/resources/util";
 import { isDay } from "../../data/time/season-util";
 import TooltipWrapper from "../../style/TooltipWrapper";
+import { LookAroundButton } from "./styled-components";
 
 const ActionsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-`;
-
-const LookAroundButton = styled.button<{ hasViable: boolean }>`
-  ${(props) =>
-    props.hasViable &&
-    `
-    background-color: #e8f5e9;
-    border-color: #4caf50;
-  `}
 `;
 
 const ForestActions = () => {
@@ -126,13 +118,15 @@ const ForestActions = () => {
           Go to the lake
         </button>
       )}
-      <button
-        onClick={() => {
-          mutateExploration({ biome: "village" });
-        }}
-      >
-        Travel to village
-      </button>
+      {discoveries.village_rumor > 0 && (
+        <button
+          onClick={() => {
+            mutateExploration({ biome: "village" });
+          }}
+        >
+          Travel to village
+        </button>
+      )}
       {hasJerky && (
         <button
           onClick={() => {

@@ -1,7 +1,13 @@
 import type { ToolStatus, ToolType } from "../data/equipment/types";
 import type { ResourceCost, ResourceKeys } from "../data/resources/types";
+import type { BiomeType } from "../biome/discovery-types";
 
 export type HumanType = "barmaid";
+
+export interface NPCHome {
+  biome: BiomeType;
+  location?: string;
+}
 
 export interface BudgetEntry {
   resource: ResourceKeys;
@@ -27,6 +33,7 @@ export interface HumanDefinition {
   id: HumanType;
   sex?: "male" | "female";
   age: { min: number; max: number };
+  home?: NPCHome;
   equipment: Partial<Record<ToolType, ToolStatus>>;
   resources: ResourceCost;
   allowance: number; // coin received per month
@@ -39,6 +46,7 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
     id: "barmaid",
     sex: "female",
     age: { min: 18, max: 30 },
+    home: { biome: "village", location: "tavern" },
     equipment: { knife: { tier: 2, level: 7 } },
     resources: {},
     allowance: 40,

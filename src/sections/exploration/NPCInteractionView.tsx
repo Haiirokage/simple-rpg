@@ -8,6 +8,7 @@ import type { BudgetEntry, ToolSellEntry, ResourceSellEntry } from "../../npc/hu
 import CurrencyDisplay from "../../components/CurrencyDisplay";
 import { useHandleExploration } from "../../data/exploration/hooks";
 import { mergeNumericRecords } from "../../util";
+import { useHandleDiscoveries } from "../../data/discoveries/hooks";
 
 const NPCInteractionView = () => {
   const { exploration, mutateExploration } = useHandleExploration();
@@ -17,6 +18,7 @@ const NPCInteractionView = () => {
   const mutateNPCs = useMutateNPCs();
   const equipment = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
+  const { discoveries, updateDiscovery } = useHandleDiscoveries();
 
   const inventory = exploration.inventory;
 
@@ -32,6 +34,9 @@ const NPCInteractionView = () => {
   const npcIronScribble = npc.resources.coin ?? 0;
 
   const updateNPC = (updates: Partial<HumanInstance>) => {
+    if (npc.home?.biome === "village" && discoveries.village_rumor === 0) {
+      updateDiscovery("village_rumor");
+    }
     mutateNPCs({ [npc.id]: { ...npc, ...updates } });
   };
 

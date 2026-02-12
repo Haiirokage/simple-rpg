@@ -86,6 +86,14 @@ export const EXPLORATION_EVENTS: Partial<Record<AllDiscoveries, ExplorationEvent
     category: "exploration",
     descriptions: ["This large body of water could be useful"],
   },
+  repair_job: {
+    id: "repair_job",
+    name: "Work Opportunity",
+    category: "exploration",
+    descriptions: [
+      "A farmer calls out to you, gesturing toward a section of broken fencing. Looks like he could use an extra pair of hands.",
+    ],
+  },
 };
 
 export const buildExplorationEventLog = (

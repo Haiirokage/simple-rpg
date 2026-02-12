@@ -11,17 +11,13 @@ export const Biome = {
 export type BiomeType = (typeof Biome)[keyof typeof Biome];
 
 // Extra unlockables (no definitions, triggered by other mechanics)
-export type ForestExtra = "successful_hunt" | "failed_hunt" | "find_tubers";
-export type VillageExtra = never;
+export type ExtraUnlockables = "successful_hunt" | "failed_hunt" | "find_tubers" | "village_rumor";
 
 // Biome unlockables (have definitions)
 export type AllBiomeUnlockables = ForestUnlockable | VillageUnlockable;
 
-// Extra unlockables (no definitions)
-export type AllExtraUnlockables = ForestExtra | VillageExtra;
-
 // All unlockables = stored in discoveryStore
-export type AllUnlockables = AllBiomeUnlockables | AllExtraUnlockables;
+export type AllUnlockables = AllBiomeUnlockables | ExtraUnlockables;
 
 // All repeatables = not stored
 export type AllRepeatables = ForestRepeatable | VillageRepeatable;

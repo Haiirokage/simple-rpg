@@ -1,7 +1,7 @@
 import type { Attributes } from "../data/attributes/types";
 import type { ToolType, ToolStatus } from "../data/equipment/types";
 import type { ResourceCost } from "../data/resources/types";
-import type { HumanType, BudgetEntry, SellEntry } from "./human-definitions";
+import type { HumanType, BudgetEntry, SellEntry, NPCHome } from "./human-definitions";
 
 export interface HumanInstance {
   id: string;
@@ -9,6 +9,7 @@ export interface HumanInstance {
   name: string;
   sex: "male" | "female";
   age: number;
+  home?: NPCHome;
   attributes: Record<Attributes, number>;
   equipment: Partial<Record<ToolType, ToolStatus>>;
   resources: ResourceCost;

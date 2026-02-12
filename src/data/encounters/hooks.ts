@@ -210,8 +210,8 @@ export const useHandleSkillCheck = () => {
           console.info(`Gained ${expReward} exp in ${skill} skill.`);
           grantExperience({ [skill]: expReward });
         });
-        const knowledgeContribution = Math.max(0.1, knowledgeBonus / bonus);
-        if (skillCheck.dc / 5 >= knowledge.tier) {
+        if (skillCheck.dc / 5 >= knowledge.tier && skillCheck.knowledge) {
+          const knowledgeContribution = bonus > 0 ? knowledgeBonus / bonus : 0.1;
           const levels = 1 + skillCheck.dc / 5 - knowledge.tier;
           console.info(`Gained ${Math.round(levels / knowledgeContribution)} knowledge levels.`);
           gainLevels(Math.round(levels / knowledgeContribution));

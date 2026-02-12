@@ -4,17 +4,15 @@ import type { CreatureIntance, Creatures } from "../../npc/creature-definitions"
 import type { PlayerEffect } from "../effect-util";
 import type { HumanType } from "../../npc/human-definitions";
 import type { BiomeType, AllUnlockables, AllBiomeUnlockables } from "../../biome/discovery-types";
+import type { ForestEncounterFrameId } from "../../biome/forest/encounter-definitions";
+import type { VillageEncounterFrameId } from "../../biome/village/encounter-definitions";
 
 export interface EncounterNPC {
   type: HumanType;
   id: string;
 }
 
-export type EncounterFrameId =
-  | "deer_tracks_found"
-  | "edable_roots"
-  | "wolf_encounter"
-  | "npc_encounter";
+export type EncounterFrameId = ForestEncounterFrameId | VillageEncounterFrameId;
 
 export interface BaseOutcome {
   resourceYield?: Partial<ResourceStore>;
@@ -99,12 +97,6 @@ export interface BaseEncounterFrame {
 }
 export interface EncounterFrame extends BaseEncounterFrame {
   id: EncounterFrameId;
-}
-
-export type CombatFrameId = "combat";
-
-export interface CombatEncounterFrame extends BaseEncounterFrame {
-  id: CombatFrameId;
 }
 
 export type EncounterStore = {

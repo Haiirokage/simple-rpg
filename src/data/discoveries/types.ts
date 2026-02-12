@@ -9,10 +9,11 @@ export const defaultDiscoveriesStore: DiscoveriesStore = {
   rabbit_trail: 0,
   strong_inspiration: 0,
   large_lake: 0,
-  // Forest extras
+  // Village unlockables
+  village_tavern: 0,
+  // Extras
   successful_hunt: 0,
   failed_hunt: 0,
   find_tubers: 0,
-  // Village unlockables
-  town_square: 0,
+  village_rumor: 0,
 };

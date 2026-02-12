@@ -3,16 +3,16 @@ import type {
   RepeatableDiscoveryDefinition,
 } from "../discovery-types";
 
-export type VillageUnlockable = "town_square";
+export type VillageUnlockable = "village_tavern";
 
-export type VillageRepeatable = "village_test";
+export type VillageRepeatable = "repair_job";
 
 export const VILLAGE_DISCOVERIES: Record<VillageUnlockable, UnlockableDiscoveryDefinition> = {
-  town_square: {
-    type: "town_square",
+  village_tavern: {
+    type: "village_tavern",
     maxCount: 1,
-    discoveryRange: { min: 0, max: 50 },
-    rarity: 0.5,
+    discoveryRange: { min: 0, max: 100 },
+    rarity: 0.1,
   },
 };
 
@@ -20,9 +20,10 @@ export const VILLAGE_REPEATABLE_DISCOVERIES: Record<
   VillageRepeatable,
   RepeatableDiscoveryDefinition
 > = {
-  village_test: {
-    type: "village_test",
-    rarity: 0.1,
+  repair_job: {
+    type: "repair_job",
+    rarity: 0.3,
     knowledgeRequirement: 0,
+    triggerEncounter: "repair_job_offer",
   },
 };
