@@ -49,6 +49,15 @@ const VillageExploration = () => {
       >
         Look Around
       </LookAroundButton>
+      {discoveries.village_tavern > 0 && (
+        <button
+          onClick={() => {
+            mutateExploration({ location: "tavern" });
+          }}
+        >
+          Go to the tavern
+        </button>
+      )}
       <button
         onClick={() => {
           mutateExploration({ biome: "forest" });

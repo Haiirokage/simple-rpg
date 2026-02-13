@@ -18,6 +18,7 @@ import { useAddEventLogEntry } from "../eventLog/hooks";
 import { clamp } from "lodash";
 import { useGrantSkillExperience, useSkills } from "../skills/hooks";
 import { useGrantAcuityExp } from "../acuity/hooks";
+import { useExploration } from "../exploration/hooks";
 
 /**
  * TODO: Add resource discoverability tracking
@@ -104,6 +105,7 @@ export const useHandleNewDay = () => {
   const { skills } = useSkills();
   const grantExperience = useGrantSkillExperience();
   const grantAcuityExp = useGrantAcuityExp();
+  const exploration = useExploration();
 
   // Check for end-of-day events (month is 0-indexed from day)
 
@@ -127,32 +129,41 @@ export const useHandleNewDay = () => {
         descriptionIndex: Math.floor(Math.random() * event.descriptions.length),
       });
     }
-    const woodConsumption = getWoodCostPerDay(day) * woodMultiplier;
 
-    // Calculate health damage from insufficient wood
+    // Check if player has lodging in current biome
+    const lodging = exploration.active ? exploration.lodging[exploration.biome] : undefined;
+
+    const woodConsumption = lodging ? 0 : getWoodCostPerDay(day) * woodMultiplier;
+
+    // Calculate health damage from insufficient wood (only when at home)
     const missingWood = Math.max(0, woodConsumption - resources.wood);
     const healthDamageFromCold = missingWood * 5;
 
-    // Pick foods to consume: one from each nutrition type
-    const consumedFood = NUTRITION_TYPES.map((nutritionType) => {
-      return sortedFoodDefinitions.find(
-        (food) =>
-          food.nutritionType === nutritionType && resources[food.key] >= (food.mealSize ?? 0),
-      );
-    }).filter((food) => food !== undefined);
+    // Pick foods to consume from player's inventory (only when not at lodging)
+    const consumedFood = lodging
+      ? []
+      : NUTRITION_TYPES.map((nutritionType) => {
+          return sortedFoodDefinitions.find(
+            (food) =>
+              food.nutritionType === nutritionType && resources[food.key] >= (food.mealSize ?? 0),
+          );
+        }).filter((food) => food !== undefined);
+
+    // Nutrition comes from lodging or consumed food
+    const mealsConsumed = lodging?.nutritionLevel ?? consumedFood.length;
 
     // Update player satiation based on food consumption
     const { satiation, maxSatiation } = updateSatiationFromFood(
       playerStatus.satiation,
       playerStatus.maxSatiation,
-      consumedFood.length,
+      mealsConsumed,
     );
 
     // Calculate health damage from starvation (no food + satiation 0)
-    const healthDamageFromStarvation = consumedFood.length === 0 && satiation === 0 ? 10 : 0;
+    const healthDamageFromStarvation = mealsConsumed === 0 && satiation === 0 ? 10 : 0;
 
     updatePlayerStatus({
-      satiation: -5 + 8 * consumedFood.length,
+      satiation: -5 + 8 * mealsConsumed,
       maxSatiation: maxSatiation - playerStatus.maxSatiation,
       health: -healthDamageFromCold - healthDamageFromStarvation,
     });
@@ -165,8 +176,7 @@ export const useHandleNewDay = () => {
       addEntry({ year, day, eventId: "starvation", category: "system" });
     }
 
-    // Consumption first
-
+    // Consumption (only food/wood from player's inventory when not at lodging)
     const consumedResources = consumedFood.reduce(
       (acc, resource) => ({
         ...acc,

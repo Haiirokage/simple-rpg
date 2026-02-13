@@ -17,15 +17,12 @@ import { Paragraph, Button } from "../../style/elements";
 import styled from "styled-components";
 import { objectEntries } from "../../util";
 import { usePlayerForce } from "../../data/attributes/hooks";
+import TooltipWrapper from "../../style/TooltipWrapper";
 
 const StructureButtonRow = styled.div`
   display: flex;
   gap: 4px;
   margin-top: 0.5rem;
-
-  &:first-of-type {
-    margin-top: 0;
-  }
 `;
 
 const HomeConstruction = () => {
@@ -97,29 +94,35 @@ const HomeConstruction = () => {
         const currentCount = (structures[building.key as keyof typeof structures] as number) || 0;
 
         return (
-          <StructureButtonRow key={building.key}>
-            <Button disabled={isDisabled} onClick={() => buildStructure(building, resourceResult)}>
-              {building.name} ({currentCount}) - Costs: {formatResourceCost(building.resourceCost)}
-              {building.plotCost ? ` | ${building.plotCost} plots` : ""}
-            </Button>
-            {currentCount > 0 && (
+          <TooltipWrapper description={building.tooltip}>
+            <StructureButtonRow key={building.key}>
               <Button
-                onClick={() => {
-                  updateStructures({ [building.key]: currentCount - 1 });
-                  const refundedResources = objectEntries(building.resourceCost).reduce(
-                    (acc, [key, cost]) => ({
-                      ...acc,
-                      [key]: (acc[key] ?? 0) + Math.floor(cost * 0.5),
-                    }),
-                    resources,
-                  );
-                  mutate(refundedResources);
-                }}
+                disabled={isDisabled}
+                onClick={() => buildStructure(building, resourceResult)}
               >
-                −
+                {building.name} ({currentCount}) - Costs:{" "}
+                {formatResourceCost(building.resourceCost)}
+                {building.plotCost ? ` | ${building.plotCost} plots` : ""}
               </Button>
-            )}
-          </StructureButtonRow>
+              {currentCount > 0 && (
+                <Button
+                  onClick={() => {
+                    updateStructures({ [building.key]: currentCount - 1 });
+                    const refundedResources = objectEntries(building.resourceCost).reduce(
+                      (acc, [key, cost]) => ({
+                        ...acc,
+                        [key]: (acc[key] ?? 0) + Math.floor(cost * 0.5),
+                      }),
+                      resources,
+                    );
+                    mutate(refundedResources);
+                  }}
+                >
+                  −
+                </Button>
+              )}
+            </StructureButtonRow>
+          </TooltipWrapper>
         );
       })}
       {berryIncomeMultiplier < 1 && (

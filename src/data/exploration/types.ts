@@ -1,7 +1,12 @@
 import type { BiomeType } from "../../biome/discovery-types";
 import type { ResourceStore } from "../resources/types";
 
-export type LocationId = "lake";
+export type LocationId = "lake" | "tavern";
+
+export type Lodging = {
+  location: string;
+  nutritionLevel: number;
+};
 
 export type ExplorationStore = {
   active: boolean;
@@ -9,6 +14,7 @@ export type ExplorationStore = {
   inventory: Partial<ResourceStore>; // temporary storage while exploring
   actions: { cur: number; max: number }; // exploration actions this trip
   location?: LocationId; // current location if visiting one
+  lodging: Partial<Record<BiomeType, Lodging>>;
 };
 
 export const defaultExplorationStore: ExplorationStore = {
@@ -16,6 +22,7 @@ export const defaultExplorationStore: ExplorationStore = {
   biome: "forest",
   inventory: {},
   actions: { cur: 0, max: 0 },
+  lodging: {},
 };
 
 /**
