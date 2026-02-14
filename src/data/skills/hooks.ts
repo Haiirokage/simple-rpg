@@ -53,7 +53,7 @@ export const useGrantSkillExperience = () => {
           const attribute = attributes[connectedAttribute];
           const attLevels = levelUpRecursively(
             attribute.level,
-            attribute.exp + Math.floor(amount / 4),
+            attribute.exp + Math.floor(amount / 3),
           );
 
           return {
