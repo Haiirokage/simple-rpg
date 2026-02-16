@@ -1,9 +1,11 @@
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import type { HomeUpgradesStore } from "./types";
 import { defaultHomeUpgrades } from "./types";
 
+export const homeUpgradesQuery = makeDataQuery("HOME_UPGRADES", defaultHomeUpgrades);
+
 export const useHomeUpgrades = () => {
-  return useDataQuery<HomeUpgradesStore>("HOME_UPGRADES", defaultHomeUpgrades);
+  return useDefinedQuery(homeUpgradesQuery);
 };
 
 export const useUpdateHomeUpgrades = () => {

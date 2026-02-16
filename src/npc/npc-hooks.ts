@@ -1,10 +1,10 @@
 import { useCallback } from "preact/hooks";
-import { useDataQuery, useUpdateData } from "../data/util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../data/util";
 import { HUMAN_DEFINITIONS, type HumanType } from "./human-definitions";
 import { defaultNPCStore, type HumanInstance, type NPCStore } from "./npc-types";
 import { objectEntries } from "../util";
 
-const NPC_KEY = "NPCS";
+export const npcQuery = makeDataQuery("NPCS", defaultNPCStore);
 
 const generateInstance = (id: string, type: HumanType): HumanInstance => {
   const def = HUMAN_DEFINITIONS[type];
@@ -28,12 +28,12 @@ const generateInstance = (id: string, type: HumanType): HumanInstance => {
 };
 
 export const useNPCs = () => {
-  const { data } = useDataQuery<NPCStore>(NPC_KEY, defaultNPCStore);
+  const { data } = useDefinedQuery(npcQuery);
   return data;
 };
 
 export const useMutateNPCs = () => {
-  const { mutate } = useUpdateData<NPCStore>(NPC_KEY, defaultNPCStore);
+  const { mutate } = useUpdateData<NPCStore>("NPCS", defaultNPCStore);
   return mutate;
 };
 

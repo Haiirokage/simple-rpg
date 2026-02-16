@@ -1,4 +1,4 @@
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import { useStructures } from "../structures/hooks";
 import { useTime } from "../time/hooks";
 import { getWoodCostPerDay, getRabbitCatchLikelihood } from "../time/season-util";
@@ -20,6 +20,13 @@ import { useGrantSkillExperience, useSkills } from "../skills/hooks";
 import { useGrantAcuityExp } from "../acuity/hooks";
 import { useExploration } from "../exploration/hooks";
 
+const defaultedResourceStore: Partial<ResourceStore> = pickBy(
+  defaultResourceStore,
+  (value) => value > 0,
+);
+
+export const resourcesQuery = makeDataQuery("RESOURCES", defaultedResourceStore);
+
 /**
  * TODO: Add resource discoverability tracking
  * - Store set of resources the player has ever had > 0
@@ -27,11 +34,7 @@ import { useExploration } from "../exploration/hooks";
  * - Buildings and equipment shouldn't show until all required materials are discovered
  */
 export const useResources = () => {
-  const defaultedResourceStore: Partial<ResourceStore> = useMemo(
-    () => pickBy(defaultResourceStore, (value) => value > 0),
-    [],
-  );
-  const { data, refetch } = useDataQuery("RESOURCES", defaultedResourceStore);
+  const { data, refetch } = useDefinedQuery(resourcesQuery);
   return {
     resources: { ...defaultResourceStore, ...data },
     data,

@@ -1,4 +1,4 @@
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import type { KnowledgeStore, KnowledgeTier } from "./types";
 import { useCallback } from "preact/hooks";
 import { rollFractional } from "../../util";
@@ -14,8 +14,10 @@ const defaultKnowledgeStore: KnowledgeStore = {
   },
 };
 
+export const knowledgeQuery = makeDataQuery("KNOWLEDGE", defaultKnowledgeStore);
+
 export const useKnowledge = () => {
-  const { data, refetch } = useDataQuery<KnowledgeStore>("KNOWLEDGE", defaultKnowledgeStore);
+  const { data, refetch } = useDefinedQuery(knowledgeQuery);
 
   return {
     knowledge: data,

@@ -1,12 +1,12 @@
-import { useDataQuery, useUpdateData, waitForCache } from "../util";
+import { useQueryClient } from "@tanstack/react-query";
+import { makeDataQuery, useDefinedQuery, useUpdateData, waitForCache } from "../util";
 import { useAdvanceTime } from "../time/hooks";
 import { useHandlePlayerStatus } from "../playerStatus/hooks";
 import type { ExplorationStore } from "./types";
 import { defaultExplorationStore, getMaxExplorationActions } from "./types";
 import { useUpdateEncounter, useSetEncounter, useHandleEncounter } from "../encounters/hooks";
 import { useAttributes } from "../attributes/hooks";
-import { useQueryClient } from "@tanstack/react-query";
-import { clamp } from "lodash";
+import { clamp, sample } from "lodash";
 import { useCallback } from "preact/hooks";
 import { useTime } from "../time/hooks";
 import { isDay } from "../time/season-util";
@@ -19,8 +19,10 @@ import { buildExplorationEventLog } from "../../events/exploration-events";
 import { objectEntries } from "../../util";
 import type { BiomeType } from "../../biome/discovery-types";
 
+export const explorationQuery = makeDataQuery("EXPLORATION", defaultExplorationStore);
+
 export const useExploration = () => {
-  const { data } = useDataQuery<ExplorationStore>("EXPLORATION", defaultExplorationStore);
+  const { data } = useDefinedQuery(explorationQuery);
 
   return data;
 };
@@ -108,7 +110,10 @@ export const useLookAround = (biome: BiomeType) => {
     if (repeatable) {
       addEventLogEntry(buildExplorationEventLog(repeatable.type, year, day, undefined));
       if (repeatable.triggerEncounter) {
-        setEncounter(repeatable.triggerEncounter);
+        const encounter = Array.isArray(repeatable.triggerEncounter)
+          ? sample(repeatable.triggerEncounter)!
+          : repeatable.triggerEncounter;
+        setEncounter(encounter);
       }
 
       gainLevels(1);
@@ -118,7 +123,10 @@ export const useLookAround = (biome: BiomeType) => {
       mutateEncounter({ encounteredDiscovery: discovery.type });
 
       if (discovery.triggerEncounter) {
-        setEncounter(discovery.triggerEncounter);
+        const encounter = Array.isArray(discovery.triggerEncounter)
+          ? sample(discovery.triggerEncounter)!
+          : discovery.triggerEncounter;
+        setEncounter(encounter);
       }
       if (discovery.reward) {
         const newInventory = objectEntries(discovery.reward).reduce(

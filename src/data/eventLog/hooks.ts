@@ -1,12 +1,14 @@
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import type { EventLogStore, EventLogEntry } from "./types";
 
 const defaultEventLogStore: EventLogStore = {
   eventLog: [],
 };
 
+export const eventLogQuery = makeDataQuery("EVENT_LOG", defaultEventLogStore);
+
 export const useEventLog = () => {
-  const { data, refetch } = useDataQuery<EventLogStore>("EVENT_LOG", defaultEventLogStore);
+  const { data, refetch } = useDefinedQuery(eventLogQuery);
 
   return {
     eventLog: data,

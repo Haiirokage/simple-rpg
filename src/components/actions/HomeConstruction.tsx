@@ -133,7 +133,7 @@ const HomeConstruction = () => {
             marginTop: "0.5rem",
           }}
         >
-          Berry yield reduced {Math.round(berryIncomeMultiplier * 100)}% in {getMonthName(day)}
+          Berry yield reduced to {Math.round(berryIncomeMultiplier * 100)}% in {getMonthName(day)}
         </div>
       )}
     </div>

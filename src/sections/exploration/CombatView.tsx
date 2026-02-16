@@ -155,7 +155,7 @@ const CombatView = ({ enemies }: Props) => {
   };
 
   const handleTrack = (target: CreatureIntance) => {
-    const dc = Math.floor(Math.sqrt(target.distance / 10));
+    const dc = Math.floor(Math.sqrt(target.distance / 8));
     const closedDistance = target.distance - 100;
     const playerSpeed = Math.cbrt(attributes.dexterity.level) / 2;
     const trackingSeconds = closedDistance / playerSpeed;
@@ -172,7 +172,7 @@ const CombatView = ({ enemies }: Props) => {
   };
 
   const sneakDistance = 20;
-  const getSneakDC = (targetDistance: number) => Math.round(17 - targetDistance / 10);
+  const getSneakDC = (targetDistance: number) => Math.round(19 - targetDistance / 9);
 
   const handleSneak = (target: CreatureIntance) => {
     const targetDistance = target.distance - sneakDistance;

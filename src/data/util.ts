@@ -24,13 +24,15 @@ export const setStorage = async <T>(key: string, value: T) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
-export const useDataQuery = <T extends Record<string, unknown>>(key: string, fallback: T) => {
-  return useQuery({
-    queryKey: [key],
-    queryFn: () => getStorage(key, fallback),
-    initialData: fallback,
-  }) as DefinedUseQueryResult<T, Error>;
-};
+export const makeDataQuery = <T extends Record<string, unknown>>(key: string, fallback: T) => ({
+  queryKey: [key] as const,
+  queryFn: () => getStorage(key, fallback),
+});
+
+/** Wrapper for useQuery that asserts data is defined. Only use inside LoadingBarrier. */
+export const useDefinedQuery = <T extends Record<string, unknown>>(
+  query: ReturnType<typeof makeDataQuery<T>>,
+) => useQuery(query) as DefinedUseQueryResult<T, Error>;
 
 export const useUpdateData = <T extends Record<string, unknown>>(key: string, defaultStore: T) => {
   const queryClient = useQueryClient();

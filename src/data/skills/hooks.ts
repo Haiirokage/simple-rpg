@@ -1,4 +1,4 @@
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import type { Skills, SkillStore } from "./types";
 import { useCallback } from "preact/hooks";
 import { objectEntries } from "../../util";
@@ -19,8 +19,10 @@ const defaultSkillStore: SkillStore = {
   meditation: { ...defaultSkill },
 } as const;
 
+export const skillsQuery = makeDataQuery("SKILLS", defaultSkillStore);
+
 export const useSkills = () => {
-  const { data } = useDataQuery<SkillStore>("SKILLS", defaultSkillStore);
+  const { data } = useDefinedQuery(skillsQuery);
   return {
     skills: data,
   };

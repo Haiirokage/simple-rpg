@@ -1,12 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { objectEntries } from "../../util";
 import { useAttributes } from "../attributes/hooks";
-import { useDataQuery, useUpdateData, waitForCache } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData, waitForCache } from "../util";
 import { defaultPlayerStatus, type PlayerStatus } from "./types";
 import { clamp } from "lodash";
 
+export const playerStatusQuery = makeDataQuery("PLAYER_STATUS", defaultPlayerStatus);
+
 export const usePlayerStatus = () => {
-  return useDataQuery<PlayerStatus>("PLAYER_STATUS", defaultPlayerStatus);
+  return useDefinedQuery(playerStatusQuery);
 };
 
 const useMutatePlayerStatus = () => {

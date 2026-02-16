@@ -9,7 +9,8 @@ export const getExpThreshold = (level: number): number => {
 
 /** XP reward for succeeding a skill check at given DC */
 export const getExpRewardByDC = (dc: number): number => {
-  return Math.round(Math.pow(1.45, (dc - 1) * 7 - 20) + dc * 25);
+  //return Math.round(Math.pow(1.45, (dc - 1) * 7 - 20) + dc * 25); //old dc reward based on 5 + 5 bonus from skill
+  return Math.round(Math.pow(1.44, (dc - 3) * 7 - 31) + (dc - 3) * 10); //new dc reward based on 5 + 10 bonus from skill
 };
 /**
  * Recursively levels up a stat based on experience accumulation.

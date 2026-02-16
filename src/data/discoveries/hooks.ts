@@ -1,11 +1,13 @@
 import { useCallback } from "preact/hooks";
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import type { DiscoveriesStore } from "./types";
 import { defaultDiscoveriesStore } from "./types";
 import type { AllUnlockables } from "../../biome/discovery-types";
 
+export const discoveriesQuery = makeDataQuery("DISCOVERIES", defaultDiscoveriesStore);
+
 export const useDiscoveries = () => {
-  const { data } = useDataQuery<DiscoveriesStore>("DISCOVERIES", defaultDiscoveriesStore);
+  const { data } = useDefinedQuery(discoveriesQuery);
   return data;
 };
 
@@ -20,7 +22,7 @@ export const useHandleDiscoveries = () => {
 
   const updateDiscovery = useCallback(
     (key: AllUnlockables, diff = 1) => {
-      mutate({ [key]: discoveries[key] + diff });
+      mutate({ [key]: (discoveries[key] || 0) + diff });
     },
     [discoveries, mutate],
   );

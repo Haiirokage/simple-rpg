@@ -1,4 +1,4 @@
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import type { EncounterStore, EncounterFrameId, SkillCheck, CombatOutcome } from "./types";
 import { ENCOUNTER_FRAMES } from "./definitions";
 import { CREATURES } from "../../npc/creature-definitions";
@@ -27,8 +27,10 @@ export const defaultEncounterStore: EncounterStore = {
   timePassed: 0,
 } as const;
 
+export const encounterQuery = makeDataQuery("ENCOUNTERS", defaultEncounterStore);
+
 export const useEncounter = () => {
-  return useDataQuery<EncounterStore>("ENCOUNTERS", defaultEncounterStore);
+  return useDefinedQuery(encounterQuery);
 };
 
 export const useUpdateEncounter = () => {
@@ -97,7 +99,7 @@ export const useSetEncounter = () => {
         npcs: [],
         combatContext: undefined,
         timePassed: 0,
-        exitMessage: exitMessage,
+        exitMessage,
       });
 
       return;
@@ -111,7 +113,7 @@ export const useSetEncounter = () => {
       encounterFrameId: startFrameId,
       npcs,
       timePassed: timePassedTotal,
-      exitMessage: undefined,
+      exitMessage,
     });
   };
 };
@@ -145,12 +147,11 @@ const KNOWLEDGE_SCALE = 50;
 /**
  * Hook that returns a function to roll d6 + skill/attribute/knowledge bonuses.
  *
- * bonus from levels(1-100) is sqrt(level) / 2, this gives the same 5 bonus at level 100 as level / 20, but earlier levels give a larger bonus
+ * bonus from levels(1-100) is sqrt(level), this gives a total bonus of 10 at level 100, with earlier levels getting bonuses sooner, while attribute give level / 20(max 5)
  */
 export const useSkillRoll = () => {
-  const { data } = useEncounter();
-  const { biome } = data;
-  const { knowledge } = useHandleKnowledge(biome);
+  const { encounter } = useHandleEncounter();
+  const { knowledge } = useHandleKnowledge(encounter.biome);
   const { skills } = useSkills();
   const { attributes } = useAttributes();
 
@@ -169,7 +170,7 @@ export const useSkillRoll = () => {
           const { level } = skills[skill];
           return {
             ...acc,
-            [skill]: Math.floor(Math.sqrt(level) / 2) + Math.floor(attributeLevel / 20),
+            [skill]: Math.floor(Math.sqrt(level)) + Math.floor(attributeLevel / 20),
           };
         },
         {} as Record<Skills, number>,
@@ -189,9 +190,8 @@ export const useSkillRoll = () => {
  */
 export const useHandleSkillCheck = () => {
   const skillRoll = useSkillRoll();
-  const { data } = useEncounter();
-  const { biome } = data;
-  const { knowledge, gainLevels } = useHandleKnowledge(biome);
+  const { encounter } = useHandleEncounter();
+  const { knowledge, gainLevels } = useHandleKnowledge(encounter.biome);
   const grantExperience = useGrantSkillExperience();
 
   return useCallback(

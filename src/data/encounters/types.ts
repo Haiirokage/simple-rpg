@@ -50,8 +50,8 @@ export type Outcome = FrameOutcome | CombatOutcome;
 export type SkillCheck = {
   knowledge?: boolean;
   skill: Skills[];
-  /** Difficulty class 1-15.
-   * Roll is d6 (1-6) + up to ~10 bonus from skills/attributes + a potential knowledge boost
+  /** Difficulty class 3-20.
+   * Roll is d6 (1-6) + up to ~15 bonus from skills/attributes + a potential knowledge boost
    */
   dc: number;
 };
@@ -60,15 +60,17 @@ export type EncounterOutcomes = {
   failure: Outcome;
 } & Record<"success" | number, Outcome>;
 
+export interface CostType {
+  minutes?: number; /** Time cost in minutes */
+  energy?: number; /** Optional energy cost */
+}
+
 export interface BaseAction {
-  id: string;
   label: string;
-  cost: {
-    minutes?: number; // Time cost in minutes
-    /** an energy cost will not make it possible to mutate playerStatus in outcome */
-    energy?: number; // Optional energy cost
-  };
+  cost: CostType;
   outcomes: EncounterOutcomes;
+  /** If set, action only shows when discovery matches. Without progress: show if > 0. With progress: show if === progress */
+  discoveryRequirement?: { id: AllUnlockables; progress?: number };
 }
 
 export interface SkillAction extends BaseAction {

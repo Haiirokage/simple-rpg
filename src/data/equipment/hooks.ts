@@ -1,5 +1,5 @@
 import { objectEntries } from "../../util";
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import {
   TOOL_DEFINITIONS,
   type EquipmentBonusType,
@@ -9,8 +9,10 @@ import {
 import { defaultEquipmentStore, type EquipmentStore, type ToolType } from "./types";
 import { getValueByLevel } from "./util";
 
+export const equipmentQuery = makeDataQuery("EQUIPMENT", defaultEquipmentStore);
+
 export const useEquipment = () => {
-  const { data } = useDataQuery<EquipmentStore>("EQUIPMENT", defaultEquipmentStore);
+  const { data } = useDefinedQuery(equipmentQuery);
   return data;
 };
 

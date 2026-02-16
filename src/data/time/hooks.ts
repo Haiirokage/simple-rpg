@@ -1,4 +1,4 @@
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import { DAYS_IN_MONTH } from "./season-definitions";
 
 export type TimeStats = {
@@ -15,8 +15,10 @@ const defaultTimeStats: TimeStats = {
   year: 1,
 };
 
+export const timeQuery = makeDataQuery("TIME_STATS", defaultTimeStats);
+
 export const useTime = () => {
-  const { data } = useDataQuery<TimeStats>("TIME_STATS", defaultTimeStats);
+  const { data } = useDefinedQuery(timeQuery);
   return data;
 };
 

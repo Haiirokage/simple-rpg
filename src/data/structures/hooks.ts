@@ -1,4 +1,4 @@
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import { STRUCTURES } from "./definitions";
 import { getBerryIncomeMultiplier } from "../time/season-util";
 import { useCallback } from "preact/hooks";
@@ -14,11 +14,10 @@ const defaultStructuresStore: StructuresStore = {
   stonePile: 0,
 };
 
-export const useStructureStore = () =>
-  useDataQuery<StructuresStore>("STRUCTURES", defaultStructuresStore);
+export const structuresQuery = makeDataQuery("STRUCTURES", defaultStructuresStore);
 
 export const useStructures = () => {
-  const { data } = useStructureStore();
+  const { data } = useDefinedQuery(structuresQuery);
   const usedPlots = STRUCTURES.reduce((sum, structure) => {
     return (
       sum + ((data[structure.key as keyof StructuresStore] as number) || 0) * structure.plotCost

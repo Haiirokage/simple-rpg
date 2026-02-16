@@ -14,7 +14,6 @@ export const FOREST_ENCOUNTERS: Record<ForestEncounterFrameId, EncounterFrame> =
     actions: [
       {
         type: "skill",
-        id: "track_deer",
         label: "Try to track the deer",
         cost: { minutes: 30 },
         skillCheck: {
@@ -48,7 +47,6 @@ export const FOREST_ENCOUNTERS: Record<ForestEncounterFrameId, EncounterFrame> =
     actions: [
       {
         type: "skill",
-        id: "taste_root",
         label: "Taste the root",
         skillCheck: { knowledge: true, dc: 5, skill: [] },
         cost: { minutes: 60 },
@@ -78,7 +76,6 @@ export const FOREST_ENCOUNTERS: Record<ForestEncounterFrameId, EncounterFrame> =
     actions: [
       {
         type: "skill",
-        id: "stand_ground",
         label: "Stand your ground",
         cost: { minutes: 10 },
         skillCheck: {
@@ -105,7 +102,6 @@ export const FOREST_ENCOUNTERS: Record<ForestEncounterFrameId, EncounterFrame> =
       },
       {
         type: "skill",
-        id: "sneak_on_wolf",
         label: "Try to catch it unaware",
         cost: { minutes: 15 },
         skillCheck: {

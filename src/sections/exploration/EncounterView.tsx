@@ -11,7 +11,7 @@ import { useHandleExploration } from "../../data/exploration/hooks";
 import { mergeNumericRecords } from "../../util";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import { useEquipment } from "../../data/equipment/hooks";
-import { useMutateDiscoveries } from "../../data/discoveries/hooks";
+import { useHandleDiscoveries } from "../../data/discoveries/hooks";
 import { useHandleEffect } from "../../data/effect-util";
 import { useSkills } from "../../data/skills/hooks";
 import TooltipWrapper from "../../style/TooltipWrapper";
@@ -24,7 +24,7 @@ import { EXPLORATION_EVENTS } from "../../events/exploration-events";
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
   const { exploration, mutateExploration } = useHandleExploration();
-  const mutateDiscoveries = useMutateDiscoveries();
+  const { discoveries, updateDiscovery } = useHandleDiscoveries();
   const equipment = useEquipment();
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const setEncounter = useSetEncounter();
@@ -53,7 +53,7 @@ const EncounterView = () => {
   }
   const frame = ENCOUNTER_FRAMES[encounter.encounterFrameId];
 
-  const resolveOutcome = (outcome: Outcome, timePassed?: number) => {
+  const resolveOutcome = (outcome: Outcome, timePassed?: number, stopReward = false) => {
     const { resourceYield, discovery, sideEffect } = outcome;
 
     if (sideEffect) {
@@ -63,13 +63,14 @@ const EncounterView = () => {
       const newInventory = mergeNumericRecords(exploration.inventory, resourceYield);
       mutateExploration({ inventory: newInventory });
     }
-    if (discovery) {
-      mutateDiscoveries({ [discovery]: 1 });
+    if (discovery && !stopReward) {
+      updateDiscovery(discovery);
     }
 
     if (outcome.nextFrameId === "combat") {
       initiateCombat(outcome);
     } else {
+      console.log("outcome", outcome);
       setEncounter(outcome.nextFrameId, timePassed, outcome.exitMessage);
     }
   };
@@ -79,9 +80,12 @@ const EncounterView = () => {
       updatePlayerStatus({ energy: -action.cost.energy });
     }
     if (action.type === "skill") {
-      const outcome = action.skillCheck ? handleSkillCheck(action.skillCheck) : "success";
-
-      resolveOutcome(action.outcomes[outcome], action.cost.minutes);
+      const outcomeKey = action.skillCheck ? handleSkillCheck(action.skillCheck) : "success";
+      const outcome = action.outcomes[outcomeKey];
+      const req = action.discoveryRequirement;
+      const stopReward =
+        req && req.id === outcome.discovery && (discoveries[req.id] || 0) !== req.progress;
+      resolveOutcome(outcome, action.cost.minutes, stopReward);
     }
     if (action.type === "attack") {
       const target = encounter.enemies[action.attack.target];
@@ -109,6 +113,11 @@ const EncounterView = () => {
   return (
     <div>
       <h2>{frame.title}</h2>
+      {encounter.exitMessage && (
+        <p>
+          <em>{encounter.exitMessage}</em>
+        </p>
+      )}
       <p>{frame.description}</p>
       <div style={{ marginTop: "1rem" }}>
         {!frame.preventLeaving && (
@@ -121,32 +130,39 @@ const EncounterView = () => {
             Leave
           </button>
         )}
-        {frame.actions.map((action) => {
-          const outOfEnergy = playerStatus.energy - (action.cost.energy || 0) < 0;
-          const noWeapon = action.type === "attack" && !equipment.tools.bow;
+        {frame.actions
+          .filter((action) => {
+            if (!action.discoveryRequirement) return true;
+            const { id, progress } = action.discoveryRequirement;
+            const current = discoveries[id] || 0;
+            return progress !== undefined ? current === progress : current > 0;
+          })
+          .map((action) => {
+            const outOfEnergy = playerStatus.energy - (action.cost.energy || 0) < 0;
+            const noWeapon = action.type === "attack" && !equipment.tools.bow;
 
-          const hasSkillLevel =
-            action.type === "skill" && action.skillCheck.skill.some((s) => skills[s].level > 0);
-          const showCover = action.type === "skill" && action.coverLabel && !hasSkillLevel;
+            const hasSkillLevel =
+              action.type === "skill" && action.skillCheck.skill.some((s) => skills[s].level > 0);
+            const showCover = action.type === "skill" && action.coverLabel && !hasSkillLevel;
 
-          const message =
-            action.type === "skill" && !showCover
-              ? `Skill check vs. DC ${action.skillCheck.dc}`
-              : "";
+            const message =
+              action.type === "skill" && !showCover
+                ? `Skill check vs. DC ${action.skillCheck.dc}`
+                : "";
 
-          return (
-            <TooltipWrapper description={noWeapon ? "You need a weapon" : message} inline>
-              <button
-                disabled={outOfEnergy || noWeapon}
-                onClick={() => handleActionClick(action)}
-                key={action.id}
-                style={{ marginRight: "0.5rem" }}
-              >
-                {showCover ? action.coverLabel : action.label}
-              </button>
-            </TooltipWrapper>
-          );
-        })}
+            return (
+              <TooltipWrapper description={noWeapon ? "You need a weapon" : message} inline>
+                <button
+                  disabled={outOfEnergy || noWeapon}
+                  onClick={() => handleActionClick(action)}
+                  key={action.label}
+                  style={{ marginRight: "0.5rem" }}
+                >
+                  {showCover ? action.coverLabel : action.label}
+                </button>
+              </TooltipWrapper>
+            );
+          })}
       </div>
     </div>
   );

@@ -26,7 +26,7 @@ const LakeLocation = () => {
   const hasMeditationLevel = skills.meditation.level > 0;
 
   const handleMeditate = () => {
-    const result = handleSkillCheck({ skill: ["meditation"], dc: isNight ? 7 : 5 });
+    const result = handleSkillCheck({ skill: ["meditation"], dc: isNight ? 9 : 6 });
     advanceTime(2); // 2 hours
     modifyActions(-1);
     setFeedback(
@@ -38,7 +38,7 @@ const LakeLocation = () => {
   };
 
   const handleCatchFireflies = () => {
-    const result = handleSkillCheck({ skill: ["hunter"], dc: 7 });
+    const result = handleSkillCheck({ skill: ["hunter"], dc: 9 });
     modifyActions(-1);
     advanceTime(1);
     updatePlayerStatus({ energy: -5 });
@@ -88,7 +88,7 @@ const LakeLocation = () => {
           Leave
         </button>
         <TooltipWrapper
-          description={hasMeditationLevel ? `Skill check vs. DC ${isNight ? 7 : 5}` : ""}
+          description={hasMeditationLevel ? `Skill check vs. DC ${isNight ? 9 : 6}` : ""}
           inline
         >
           <button
@@ -106,7 +106,7 @@ const LakeLocation = () => {
           </button>
         </TooltipWrapper>
         {isNight && (hasLantern || hasJar) && (
-          <TooltipWrapper description="Skill check vs. DC 7" inline>
+          <TooltipWrapper description="Skill check vs. DC 9" inline>
             <button
               disabled={actions.cur < 1 || playerStatus.energy < 5}
               onClick={handleCatchFireflies}

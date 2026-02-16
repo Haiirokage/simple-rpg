@@ -11,7 +11,13 @@ export const Biome = {
 export type BiomeType = (typeof Biome)[keyof typeof Biome];
 
 // Extra unlockables (no definitions, triggered by other mechanics)
-export type ExtraUnlockables = "successful_hunt" | "failed_hunt" | "find_tubers" | "village_rumor";
+export type ExtraUnlockables =
+  | "successful_hunt"
+  | "failed_hunt"
+  | "find_tubers"
+  | "village_rumor"
+  | "hide_and_seek_seeker"
+  | "hide_and_seek_hider";
 
 // Biome unlockables (have definitions)
 export type AllBiomeUnlockables = ForestUnlockable | VillageUnlockable;
@@ -29,7 +35,7 @@ interface BaseDiscoveryDefinition {
   rarity: number;
   nightRarity?: number;
   reward?: Partial<ResourceStore>;
-  triggerEncounter?: EncounterFrameId;
+  triggerEncounter?: EncounterFrameId | EncounterFrameId[];
 }
 
 export interface UnlockableDiscoveryDefinition extends BaseDiscoveryDefinition {

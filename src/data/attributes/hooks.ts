@@ -1,4 +1,4 @@
-import { useDataQuery, useUpdateData } from "../util";
+import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import type { AttributeStore } from "./types";
 import { useCallback, useMemo } from "preact/hooks";
 import { calculateForce } from "./util";
@@ -24,12 +24,15 @@ const defaultAttributeStore: AttributeStore = {
   },
 } as const;
 
+export const attributesQuery = makeDataQuery("ATTRIBUTES", defaultAttributeStore);
+
 export const useAttributes = () => {
-  const { data, refetch } = useDataQuery<AttributeStore>("ATTRIBUTES", defaultAttributeStore);
+  const { data, refetch, isFetched } = useDefinedQuery(attributesQuery);
 
   return {
     attributes: data,
     refetch,
+    isFetched,
   };
 };
 
