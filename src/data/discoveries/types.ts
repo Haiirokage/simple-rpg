@@ -16,4 +16,6 @@ export const defaultDiscoveriesStore: DiscoveriesStore = {
   failed_hunt: 0,
   find_tubers: 0,
   village_rumor: 0,
+  hide_and_seek_hider: 0,
+  hide_and_seek_seeker: 0,
 };
