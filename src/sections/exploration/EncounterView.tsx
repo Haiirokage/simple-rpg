@@ -53,7 +53,7 @@ const EncounterView = () => {
   }
   const frame = ENCOUNTER_FRAMES[encounter.encounterFrameId];
 
-  const resolveOutcome = (outcome: Outcome, timePassed?: number, stopReward = false) => {
+  const resolveOutcome = (outcome: Outcome, timePassed?: number) => {
     const { resourceYield, discovery, sideEffect } = outcome;
 
     if (sideEffect) {
@@ -63,7 +63,7 @@ const EncounterView = () => {
       const newInventory = mergeNumericRecords(exploration.inventory, resourceYield);
       mutateExploration({ inventory: newInventory });
     }
-    if (discovery && !stopReward) {
+    if (discovery) {
       updateDiscovery(discovery);
     }
 
@@ -83,9 +83,11 @@ const EncounterView = () => {
       const outcomeKey = action.skillCheck ? handleSkillCheck(action.skillCheck) : "success";
       const outcome = action.outcomes[outcomeKey];
       const req = action.discoveryRequirement;
-      const stopReward =
-        req && req.id === outcome.discovery && (discoveries[req.id] || 0) !== req.progress;
-      resolveOutcome(outcome, action.cost.minutes, stopReward);
+      resolveOutcome(outcome, action.cost.minutes);
+      if (outcomeKey === "failure" && req !== undefined) {
+        const discCount = discoveries[req.id];
+        updateDiscovery(req.id, -discCount);
+      }
     }
     if (action.type === "attack") {
       const target = encounter.enemies[action.attack.target];

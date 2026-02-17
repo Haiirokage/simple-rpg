@@ -59,7 +59,7 @@ export const VILLAGE_ENCOUNTERS: Record<VillageEncounterFrameId, EncounterFrame>
     actions: [
       makeEncounterSkillAction(
         "Help with the repairs",
-        { skill: ["crafting"], dc: 6 },
+        { skill: ["crafting"], dc: 7 },
         {
           success: makeOutcome(
             "Working together, you manage to replace the worst posts and secure the beams. The farmer thanks you warmly and presses a few coins into your hand.",

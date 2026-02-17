@@ -111,6 +111,7 @@ const ForestActions = () => {
       )}
       {discoveries.large_lake > 0 && (
         <button
+          disabled={encounter.active}
           onClick={() => {
             mutateExploration({ location: "lake" });
           }}
@@ -120,8 +121,11 @@ const ForestActions = () => {
       )}
       {discoveries.village_rumor > 0 && (
         <button
+          disabled={encounter.active || playerStatus.energy <= 10}
           onClick={() => {
             mutateExploration({ biome: "village" });
+            updatePlayerStatus({ energy: -5 });
+            advanceTime(1);
           }}
         >
           Travel to village

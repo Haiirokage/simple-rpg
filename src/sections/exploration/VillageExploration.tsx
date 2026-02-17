@@ -10,6 +10,7 @@ import { usePlayerForce } from "../../data/attributes/hooks";
 import { useDiscoveries } from "../../data/discoveries/hooks";
 import { useHasViableDiscoveries } from "../../biome/discovery-util";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
+import { useHandleEncounter } from "../../data/encounters/hooks";
 import { LookAroundButton } from "./styled-components";
 
 const ActionsContainer = styled.div`
@@ -24,6 +25,7 @@ const VillageExploration = () => {
   const force = usePlayerForce();
   const discoveries = useDiscoveries();
   const { playerStatus } = useHandlePlayerStatus();
+  const { encounter } = useHandleEncounter();
 
   const { lookAround, knowledgeLevel } = useLookAround("village");
   const hasViableDiscoveries = useHasViableDiscoveries("village", knowledgeLevel, discoveries);
@@ -43,7 +45,7 @@ const VillageExploration = () => {
         on each side and there are some houses in the distance.
       </p>
       <LookAroundButton
-        disabled={overweight || noActions || playerStatus.energy < 5}
+        disabled={encounter.active || overweight || noActions || playerStatus.energy < 5}
         hasViable={hasViableDiscoveries}
         onClick={lookAround}
       >
@@ -51,6 +53,7 @@ const VillageExploration = () => {
       </LookAroundButton>
       {discoveries.village_tavern > 0 && (
         <button
+          disabled={encounter.active}
           onClick={() => {
             mutateExploration({ location: "tavern" });
           }}
@@ -59,13 +62,14 @@ const VillageExploration = () => {
         </button>
       )}
       <button
+        disabled={encounter.active}
         onClick={() => {
           mutateExploration({ biome: "forest" });
         }}
       >
         Return to forest
       </button>
-      <button disabled={overweight} onClick={() => endExpedition()}>
+      <button disabled={overweight || encounter.active} onClick={() => endExpedition()}>
         Return Home
       </button>
     </ActionsContainer>
