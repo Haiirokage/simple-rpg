@@ -1,4 +1,4 @@
-export type Attributes = "strength" | "constitution" | "dexterity" | "wisdom";
+export type Attributes = "strength" | "constitution" | "dexterity" | "wisdom" | "intelligence";
 
 export type Attribute = {
   level: number;

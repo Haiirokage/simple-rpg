@@ -1,54 +1,10 @@
-import type {
-  CostType,
-  EncounterFrame,
-  EncounterFrameId,
-  EncounterOutcomes,
-  FrameOutcome,
-  SkillAction,
-  SkillCheck,
-} from "../../data/encounters/types";
-import type { ResourceStore } from "../../data/resources/types";
-import type { AllUnlockables } from "../discovery-types";
+import type { EncounterFrame } from "../../data/encounters/types";
+import { makeEncounterSkillAction, makeOutcome } from "../encounter-utils";
 
 export type VillageEncounterFrameId =
   | "repair_job_offer"
   | "hide_and_seek_seeker"
   | "hide_and_seek_hider";
-
-const makeEncounterSkillAction = (
-  label: string,
-  skillCheck: SkillCheck,
-  outcomes: EncounterOutcomes,
-  opts: {
-    cost?: CostType;
-    discoveryRequirement?: { id: AllUnlockables; progress?: number };
-  } = {},
-): SkillAction => {
-  return {
-    type: "skill",
-    label,
-    cost: { minutes: 30, energy: 5, ...opts.cost },
-    skillCheck,
-    outcomes,
-    discoveryRequirement: opts.discoveryRequirement,
-  };
-};
-
-const makeOutcome = (
-  exitMessage: string,
-  opts: {
-    resourceYield?: Partial<ResourceStore>;
-    nextFrameId?: EncounterFrameId;
-    discovery?: AllUnlockables;
-  } = {},
-): FrameOutcome => {
-  return {
-    nextFrameId: opts.nextFrameId || "exit",
-    exitMessage,
-    resourceYield: opts.resourceYield,
-    discovery: opts.discovery,
-  };
-};
 
 export const VILLAGE_ENCOUNTERS: Record<VillageEncounterFrameId, EncounterFrame> = {
   repair_job_offer: {

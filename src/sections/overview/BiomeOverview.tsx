@@ -1,10 +1,11 @@
 import styled from "styled-components";
 import { useDiscoveries } from "../../data/discoveries/hooks";
 import { useHandleKnowledge } from "../../data/knowledge/hooks";
-import { FOREST_DISCOVERIES } from "../../biome/forest/discovery-definitions";
 import { EXPLORATION_EVENTS } from "../../events/exploration-events";
 import { objectEntries } from "../../util";
 import { Header2, Header3 } from "../../style/elements";
+import { useExploration } from "../../data/exploration/hooks";
+import { BIOME_DISCOVERIES } from "../../biome/discovery-util";
 
 const BiomeContainer = styled.div`
   display: flex;
@@ -40,15 +41,18 @@ const DiscoveryDescription = styled.div`
 
 const BiomeOverview = () => {
   const discoveries = useDiscoveries();
-  const { knowledge } = useHandleKnowledge("forest");
+  const { biome } = useExploration();
+  const { knowledge } = useHandleKnowledge(biome);
 
-  const foundDiscoveries = objectEntries(FOREST_DISCOVERIES).filter(
+  console.log(knowledge);
+
+  const foundDiscoveries = objectEntries(BIOME_DISCOVERIES[biome].unlockable).filter(
     ([key]) => (discoveries[key] || 0) > 0,
   );
 
   return (
     <>
-      <Header2>Forest</Header2>
+      <Header2>{biome}</Header2>
       <p>
         <strong>Knowledge Tier:</strong> {knowledge.tier} | <strong>Level:</strong>{" "}
         {knowledge.level}

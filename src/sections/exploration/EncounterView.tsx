@@ -20,6 +20,8 @@ import CombatView from "./CombatView";
 import NPCInteractionView from "./NPCInteractionView";
 import DiscoverySplash from "./DiscoverySplash";
 import { EXPLORATION_EVENTS } from "../../events/exploration-events";
+import { useAttributes } from "../../data/attributes/hooks";
+import { getFullSkillBonus } from "../../data/encounters/util";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
@@ -29,10 +31,11 @@ const EncounterView = () => {
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const setEncounter = useSetEncounter();
   const handleSkillCheck = useHandleSkillCheck();
-  const handleAttack = useHandleAttack();
+  const { handleAttack, getHitChance } = useHandleAttack();
   const handleEffect = useHandleEffect();
   const initiateCombat = useInitiateCombat();
   const { skills } = useSkills();
+  const { attributes } = useAttributes();
 
   const enemies = objectKeys(encounter.enemies);
 
@@ -147,10 +150,17 @@ const EncounterView = () => {
               action.type === "skill" && action.skillCheck.skill.some((s) => skills[s].level > 0);
             const showCover = action.type === "skill" && action.coverLabel && !hasSkillLevel;
 
+            const skillBonus =
+              action.type === "skill" &&
+              action.skillCheck.skill.map((s) => getFullSkillBonus(s, skills, attributes));
+
+            const hitChance =
+              action.type === "attack" && getHitChance(encounter.enemies[action.attack.target]);
+
             const message =
               action.type === "skill" && !showCover
-                ? `Skill check vs. DC ${action.skillCheck.dc}`
-                : "";
+                ? `Skill check d6+${skillBonus} vs. DC ${action.skillCheck.dc}`
+                : `Hit chance: ${hitChance}`;
 
             return (
               <TooltipWrapper description={noWeapon ? "You need a weapon" : message} inline>

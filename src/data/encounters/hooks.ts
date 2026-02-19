@@ -7,17 +7,17 @@ import { useHandleKnowledge } from "../knowledge/hooks";
 import { useAttributes } from "../attributes/hooks";
 import { useCallback } from "preact/hooks";
 import { useGrantSkillExperience, useSkills } from "../skills/hooks";
-import { getAttributeBySkill } from "../skills/definitions";
 import { getExpRewardByDC } from "../leveling-util";
 import { useAdvanceTime } from "../time/hooks";
 import { useHandlePlayerStatus } from "../playerStatus/hooks";
 import type {
   CreatureDefinition,
-  CreatureIntance as CreatureInstance,
+  CreatureInstance as CreatureInstance,
 } from "../../npc/creature-definitions";
 import type { AtLeast } from "../../util";
 import type { Skills } from "../skills/types";
 import { sum } from "lodash";
+import { getFullSkillBonus } from "./util";
 
 export const defaultEncounterStore: EncounterStore = {
   active: false,
@@ -165,12 +165,9 @@ export const useSkillRoll = () => {
 
       const skillBonus = config.skill.reduce(
         (acc, skill) => {
-          const connectedAttribute = getAttributeBySkill(skill);
-          const attributeLevel = attributes[connectedAttribute].level;
-          const { level } = skills[skill];
           return {
             ...acc,
-            [skill]: Math.floor(Math.sqrt(level)) + Math.floor(attributeLevel / 20),
+            [skill]: getFullSkillBonus(skill, skills, attributes),
           };
         },
         {} as Record<Skills, number>,

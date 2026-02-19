@@ -1,5 +1,5 @@
 import { clamp } from "lodash";
-import type { CreatureIntance } from "../npc/creature-definitions";
+import type { CreatureInstance } from "../npc/creature-definitions";
 
 /** multiplier based on distance and range in meters */
 export const getDistanceMultiplier = (distance: number, bowRange = 150) => {
@@ -110,13 +110,13 @@ const DEX_PENALTY: Record<WoundStatus, number> = {
 };
 
 /** Effective dex after wound penalties. */
-export const getEffectiveDex = (creature: CreatureIntance) => {
+export const getEffectiveDex = (creature: CreatureInstance) => {
   return creature.attributes.dexterity * DEX_PENALTY[getWoundStatus(creature)];
 };
 
 /** Sprint distance in meters for a creature over a time interval.
  * Speed = cbrt(effectiveDex) * speedFactor. */
-export const getSprintDistance = (creature: CreatureIntance, seconds: number) => {
+export const getSprintDistance = (creature: CreatureInstance, seconds: number) => {
   const speed = Math.cbrt(getEffectiveDex(creature)) * creature.speedFactor;
   return Math.round(speed * seconds);
 };

@@ -5,6 +5,10 @@ import styled from "styled-components";
 import { useMemo } from "preact/hooks";
 import type { Skills } from "../../data/skills/types";
 import { getExpThreshold } from "../../data/leveling-util";
+import TooltipWrapper from "../../style/TooltipWrapper";
+import { getAttributeBySkill } from "../../data/skills/definitions";
+import { getSkillBonus } from "../../data/encounters/util";
+import { useAttributes } from "../../data/attributes/hooks";
 
 const SKILL_COLORS: Record<Skills, string> = {
   hunter: "#2ecc71",
@@ -12,6 +16,8 @@ const SKILL_COLORS: Record<Skills, string> = {
   crafting: "#777777",
   stealth: "#9b59b6",
   meditation: "#1abc9c",
+  lore: "#ab47bc",
+  mining: "#8d6e63",
 };
 
 const SkillBox = styled.div`
@@ -20,6 +26,7 @@ const SkillBox = styled.div`
   background-color: #fff;
   font-weight: 500;
   overflow: hidden;
+  width: 175px;
 
   & > div:first-child {
     padding: 4px 28px;
@@ -42,6 +49,7 @@ const ACUITY_COLOR = "#e67e22";
 
 const PlayerSkills = () => {
   const { skills } = useSkills();
+  const { attributes } = useAttributes();
   const acuity = useAcuity();
 
   const skillEntries = useMemo(() => objectEntries(skills), [skills]);
@@ -60,15 +68,23 @@ const PlayerSkills = () => {
         const expThreshold = getExpThreshold(skill.level);
         const expProgress = (skill.exp / expThreshold) * 100;
 
+        const attr = getAttributeBySkill(name);
+
+        const bonus = getSkillBonus(skill.level);
+
         return (
-          <SkillBox key={name}>
-            <div>
-              {name.charAt(0).toUpperCase() + name.slice(1)}: {skill.level}
-            </div>
-            <ExperienceBar color={SKILL_COLORS[name]}>
-              <div style={{ width: `${expProgress}%` }} />
-            </ExperienceBar>
-          </SkillBox>
+          <TooltipWrapper
+            description={`Bonus: ${bonus}+${Math.floor(attributes[attr].level / 20)}(${attr})   exp: ${Math.round(skill.exp)}/${expThreshold}`}
+          >
+            <SkillBox key={name}>
+              <div>
+                {name.charAt(0).toUpperCase() + name.slice(1)}: {skill.level}
+              </div>
+              <ExperienceBar color={SKILL_COLORS[name]}>
+                <div style={{ width: `${expProgress}%` }} />
+              </ExperienceBar>
+            </SkillBox>
+          </TooltipWrapper>
         );
       })}
       <hr />

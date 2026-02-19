@@ -2,7 +2,7 @@ import { useCallback } from "preact/hooks";
 import { useAcuity } from "../data/acuity/hooks";
 import { useAttributes } from "../data/attributes/hooks";
 import { useGrantSkillExperience, useHandleSkills } from "../data/skills/hooks";
-import type { CreatureIntance } from "../npc/creature-definitions";
+import type { CreatureInstance } from "../npc/creature-definitions";
 import {
   calculateHitChance,
   calculateHitSeverity,
@@ -27,58 +27,75 @@ export const useHandleAttack = () => {
   const grantSkillExperience = useGrantSkillExperience();
   const acuity = useAcuity();
 
-  return useCallback(
-    (creature: CreatureIntance, target: "head" | "body" | "legs", discovered = false) => {
-      if (!creature) return "failure";
+  const getHitChance = (creature: CreatureInstance) => {
+    const bowRange = getEquipmentBonus("bow", "range");
+    const creatureDex = getEffectiveDex(creature);
+    return calculateHitChance(
+      attributes.dexterity.level,
+      skills.ranged.level,
+      creature.distance,
+      creatureDex,
+      bowRange,
+      creature.discovered,
+      acuity.combat.level,
+    );
+  };
 
-      const bowRange = getEquipmentBonus("bow", "range");
-      console.log("range", bowRange);
+  return {
+    getHitChance,
+    handleAttack: useCallback(
+      (creature: CreatureInstance, target: "head" | "body" | "legs", discovered = false) => {
+        if (!creature) return "failure";
 
-      const creatureDex = getEffectiveDex(creature);
-      const hitChance = calculateHitChance(
-        attributes.dexterity.level,
-        skills.ranged.level,
-        creature.distance,
-        creatureDex,
-        bowRange,
-        discovered,
-        acuity.combat.level,
-      );
-      const hitSeverity = calculateHitSeverity(target, hitChance);
+        const bowRange = getEquipmentBonus("bow", "range");
+        console.log("range", bowRange);
 
-      const damageMultiplier = TARGET_DAMAGE[target] * SEVERITY_MULT[hitSeverity];
+        const creatureDex = getEffectiveDex(creature);
+        const hitChance = calculateHitChance(
+          attributes.dexterity.level,
+          skills.ranged.level,
+          creature.distance,
+          creatureDex,
+          bowRange,
+          discovered,
+          acuity.combat.level,
+        );
+        const hitSeverity = calculateHitSeverity(target, hitChance);
 
-      const healthLost = getHealthLost(creature.targets[target].armor_rating, damageMultiplier);
+        const damageMultiplier = TARGET_DAMAGE[target] * SEVERITY_MULT[hitSeverity];
 
-      const distanceFactor = Math.max(0.1, (creature.distance - 20) / 100);
-      const discFactor = discovered ? 1 + creatureDex / 10 : 1;
-      const difficultyMultiplier = getDifficultyMultiplier(hitChance);
-      const severityBonus = hitSeverity === "critical" ? 2 : 1;
-      const skillExperience = {
-        ranged:
-          Math.max(healthLost, 1) *
-          distanceFactor *
-          discFactor *
-          difficultyMultiplier *
-          severityBonus,
-      };
+        const healthLost = getHealthLost(creature.targets[target].armor_rating, damageMultiplier);
 
-      console.info(
-        "Granting ranged experience:",
-        skillExperience.ranged,
-        distanceFactor * discFactor * difficultyMultiplier * severityBonus,
-        {
-          healthLost,
-          distanceFactor,
-          discFactor,
-          difficultyMultiplier,
-          severityBonus,
-        },
-      );
-      grantSkillExperience(skillExperience);
+        const distanceFactor = Math.max(0.1, (creature.distance - 20) / 100);
+        const discFactor = discovered ? 1 + creatureDex / 10 : 1;
+        const difficultyMultiplier = getDifficultyMultiplier(hitChance);
+        const severityBonus = hitSeverity === "critical" ? 2 : 1;
+        const skillExperience = {
+          ranged:
+            Math.max(healthLost, 1) *
+            distanceFactor *
+            discFactor *
+            difficultyMultiplier *
+            severityBonus,
+        };
 
-      return { healthLost, hitSeverity };
-    },
-    [attributes, skills, acuity, grantSkillExperience, getEquipmentBonus],
-  );
+        console.info(
+          "Granting ranged experience:",
+          skillExperience.ranged,
+          distanceFactor * discFactor * difficultyMultiplier * severityBonus,
+          {
+            healthLost,
+            distanceFactor,
+            discFactor,
+            difficultyMultiplier,
+            severityBonus,
+          },
+        );
+        grantSkillExperience(skillExperience);
+
+        return { healthLost, hitSeverity };
+      },
+      [attributes, skills, acuity, grantSkillExperience, getEquipmentBonus],
+    ),
+  };
 };

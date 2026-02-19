@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import type { CreatureIntance } from "../../npc/creature-definitions";
+import type { CreatureInstance } from "../../npc/creature-definitions";
 import { objectEntries, usePrevious } from "../../util";
 import { useState } from "preact/hooks";
 import {
@@ -79,12 +79,12 @@ const getShootInterval = (rangedLevel = 0, combatAcuity = 0) =>
   Math.max(5, 10 * (1 - rangedLevel / 200) * (1 - combatAcuity / 200));
 
 interface Props {
-  enemies: Record<string, CreatureIntance>;
+  enemies: Record<string, CreatureInstance>;
 }
 
 const CombatView = ({ enemies }: Props) => {
   const updateEnemies = useUpdateEnemies();
-  const handleAttack = useHandleAttack();
+  const { handleAttack, getHitChance } = useHandleAttack();
   const setEncounter = useSetEncounter();
   const { encounter, mutateEncounter } = useHandleEncounter();
   const { getEquipmentBonus } = useHandleEquipment();
@@ -100,7 +100,7 @@ const CombatView = ({ enemies }: Props) => {
   const noWeapon = !getEquipmentBonus("bow", "range");
   const bowRange = getEquipmentBonus("bow", "range");
   const combatContext = encounter.combatContext;
-  const enemy = selectedEnemy && enemies[selectedEnemy];
+  const enemy = selectedEnemy ? enemies[selectedEnemy] : undefined;
   const enemyEntries = objectEntries(enemies);
   const allDead = enemyEntries.every(([, e]) => e.health <= 0);
   const aware = enemyEntries.some(([, e]) => e.discovered);
@@ -154,7 +154,7 @@ const CombatView = ({ enemies }: Props) => {
     updateEnemies(updatedEnemies);
   };
 
-  const handleTrack = (target: CreatureIntance) => {
+  const handleTrack = (target: CreatureInstance) => {
     const dc = Math.floor(Math.sqrt(target.distance / 8));
     const closedDistance = target.distance - 100;
     const playerSpeed = Math.cbrt(attributes.dexterity.level) / 2;
@@ -174,7 +174,7 @@ const CombatView = ({ enemies }: Props) => {
   const sneakDistance = 20;
   const getSneakDC = (targetDistance: number) => Math.round(19 - targetDistance / 9);
 
-  const handleSneak = (target: CreatureIntance) => {
+  const handleSneak = (target: CreatureInstance) => {
     const targetDistance = target.distance - sneakDistance;
     const dc = getSneakDC(targetDistance);
     const result = handleSkillCheck({ skill: ["stealth"], knowledge: true, dc });
@@ -199,6 +199,8 @@ const CombatView = ({ enemies }: Props) => {
   if (allDead) {
     return <CombatResolution enemies={enemies} combatContext={combatContext} />;
   }
+
+  const hitChance = enemy ? Math.floor(getHitChance(enemy) * 1000) / 10 : undefined;
 
   return (
     <>
@@ -245,7 +247,10 @@ const CombatView = ({ enemies }: Props) => {
         </TooltipWrapper>
       )}
       {!outOfRange && enemy && (
-        <TooltipWrapper description={noWeapon ? "You need a weapon" : "Attack roll"} inline>
+        <TooltipWrapper
+          description={noWeapon ? "You need a weapon" : `Attack roll: ${hitChance}%`}
+          inline
+        >
           <button disabled={noWeapon} onClick={handleShoot}>
             Shoot
           </button>

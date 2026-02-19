@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import type { CreatureIntance, LootEntry } from "../../npc/creature-definitions";
+import type { CreatureInstance, LootEntry } from "../../npc/creature-definitions";
 import { useHandleEncounter, useSetEncounter, useSkillRoll } from "../../data/encounters/hooks";
 import { useHandleExploration } from "../../data/exploration/hooks";
 import { useHandleDiscoveries } from "../../data/discoveries/hooks";
@@ -13,7 +13,7 @@ import type { ResourceStore } from "../../data/resources/types";
 import type { CombatConfig } from "../../data/encounters/types";
 
 interface Props {
-  enemies: Record<string, CreatureIntance>;
+  enemies: Record<string, CreatureInstance>;
   combatContext?: CombatConfig;
 }
 

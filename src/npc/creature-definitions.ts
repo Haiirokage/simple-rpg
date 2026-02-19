@@ -19,7 +19,7 @@ export interface CreatureDefinition extends BaseNPCDefinition {
   loot: LootEntry[];
 }
 
-export interface CreatureIntance extends CreatureDefinition {
+export interface CreatureInstance extends CreatureDefinition {
   id: string;
   distance: number;
   health: number;
@@ -46,6 +46,7 @@ export const CREATURES: Record<Creatures, CreatureDefinition> = {
       constitution: 50,
       dexterity: 40,
       wisdom: 1,
+      intelligence: 1,
     },
     targets: getTargets(30, 15, 10),
     loot: [{ resources: { venison: 15 } }, { resources: { hide: 1, venison: 5 }, dc: 9 }],
@@ -59,6 +60,7 @@ export const CREATURES: Record<Creatures, CreatureDefinition> = {
       constitution: 40,
       dexterity: 50,
       wisdom: 8,
+      intelligence: 1,
     },
     targets: getTargets(12, 10, 8),
     loot: [{ resources: { fur: 1 } }],
@@ -80,6 +82,7 @@ export const OTHER_TARGETS: Record<OtherTargets, OtherTargetDefinition> = {
       constitution: 10,
       dexterity: 0,
       wisdom: 0,
+      intelligence: 0,
     },
     targets: getTargets(15, 15, 15),
   },

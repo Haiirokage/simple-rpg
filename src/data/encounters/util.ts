@@ -1,10 +1,13 @@
-import { getTarget, type AllTargets, type CreatureIntance } from "../../npc/creature-definitions";
+import { getTarget, type AllTargets, type CreatureInstance } from "../../npc/creature-definitions";
+import type { AttributeStore } from "../attributes/types";
+import { getAttributeBySkill } from "../skills/definitions";
+import type { Skills, SkillStore } from "../skills/types";
 
-export const getBasicNPC = (type: AllTargets, distance = 100): CreatureIntance => {
+export const getBasicNPC = (type: AllTargets, distance = 100): CreatureInstance => {
   const definition = getTarget(type);
   return {
     ...definition,
-    type: type as CreatureIntance["type"],
+    type: type as CreatureInstance["type"],
     speedFactor: "speedFactor" in definition ? definition.speedFactor : 0,
     loot: "loot" in definition ? definition.loot : [],
     id: "npc_1",
@@ -14,4 +17,17 @@ export const getBasicNPC = (type: AllTargets, distance = 100): CreatureIntance =
     hostile: false,
     discovered: false,
   };
+};
+
+export const getSkillBonus = (level = 0) => Math.floor(Math.sqrt(level));
+
+export const getFullSkillBonus = (
+  skill: Skills,
+  skills: SkillStore,
+  attributes: AttributeStore,
+) => {
+  const connectedAttribute = getAttributeBySkill(skill);
+  const attributeLevel = attributes[connectedAttribute].level;
+
+  return getSkillBonus(skills[skill].level) + attributeLevel / 20;
 };

@@ -1,6 +1,6 @@
 import type { ResourceStore } from "../resources/types";
 import type { Skills } from "../skills/types";
-import type { CreatureIntance, Creatures } from "../../npc/creature-definitions";
+import type { CreatureInstance, Creatures } from "../../npc/creature-definitions";
 import type { PlayerEffect } from "../effect-util";
 import type { HumanType } from "../../npc/human-definitions";
 import type { BiomeType, AllUnlockables, AllBiomeUnlockables } from "../../biome/discovery-types";
@@ -106,7 +106,7 @@ export type EncounterStore = {
   biome: BiomeType;
   encounterFrameId?: EncounterFrameId;
   encounteredDiscovery?: AllBiomeUnlockables;
-  enemies: Record<string, CreatureIntance>;
+  enemies: Record<string, CreatureInstance>;
   npcs: string[]; // NPC store ids present in this encounter
   combatContext?: CombatConfig;
   timePassed: number; // in minutes

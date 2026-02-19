@@ -29,7 +29,7 @@ const HomeActions = () => {
   const { data: homeUpgrades } = useHomeUpgrades();
   const grantExperience = useGrantExperience();
   const playerForce = usePlayerForce();
-  const handleAttack = useHandleAttack();
+  const { handleAttack } = useHandleAttack();
 
   const hasStoneGym = homeUpgrades.stoneGym;
   const hasArcheryTarget = homeUpgrades.archery_target;

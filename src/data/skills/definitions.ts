@@ -13,5 +13,9 @@ export const getAttributeBySkill = (skill: Skills): Attributes => {
       return "dexterity";
     case "meditation":
       return "wisdom";
+    case "lore":
+      return "intelligence";
+    case "mining":
+      return "strength";
   }
 };

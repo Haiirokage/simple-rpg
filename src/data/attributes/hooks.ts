@@ -22,6 +22,10 @@ const defaultAttributeStore: AttributeStore = {
     level: 15,
     exp: 0,
   },
+  intelligence: {
+    level: 10,
+    exp: 0,
+  },
 } as const;
 
 export const attributesQuery = makeDataQuery("ATTRIBUTES", defaultAttributeStore);
