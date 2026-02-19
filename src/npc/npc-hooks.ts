@@ -18,7 +18,7 @@ const generateInstance = (id: string, type: HumanType): HumanInstance => {
     sex,
     age,
     home: def.home,
-    attributes: { strength: 20, constitution: 20, dexterity: 20, wisdom: 20 },
+    attributes: { strength: 20, constitution: 20, dexterity: 20, wisdom: 20, intelligence: 20 },
     equipment: { ...def.equipment },
     resources: { ...def.resources, coin: def.allowance },
     allowance: def.allowance,
