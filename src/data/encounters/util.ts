@@ -29,5 +29,5 @@ export const getFullSkillBonus = (
   const connectedAttribute = getAttributeBySkill(skill);
   const attributeLevel = attributes[connectedAttribute].level;
 
-  return getSkillBonus(skills[skill].level) + attributeLevel / 20;
+  return getSkillBonus(skills[skill].level) + Math.floor(attributeLevel / 20);
 };

@@ -24,6 +24,7 @@ const generateInstance = (id: string, type: HumanType): HumanInstance => {
     allowance: def.allowance,
     budget: def.budget,
     sellList: [...def.sellList],
+    trust: 0,
   };
 };
 

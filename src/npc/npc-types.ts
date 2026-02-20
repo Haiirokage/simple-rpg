@@ -16,6 +16,8 @@ export interface HumanInstance {
   allowance: number;
   budget: BudgetEntry[];
   sellList: SellEntry[];
+  /** -100: Openly hostile, 0: neutral, 100: complete trust */
+  trust: number;
 }
 
 export type NPCStore = Record<string, HumanInstance>;

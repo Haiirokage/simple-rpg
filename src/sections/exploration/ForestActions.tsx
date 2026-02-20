@@ -8,7 +8,11 @@ import { useAdvanceTime, useTime } from "../../data/time/hooks";
 import { Paragraph } from "../../style/elements";
 import { useDiscoveries } from "../../data/discoveries/hooks";
 import { useHasViableDiscoveries } from "../../biome/discovery-util";
-import { useSetEncounter, useHandleEncounter } from "../../data/encounters/hooks";
+import {
+  useSetEncounter,
+  useHandleEncounter,
+  useHandleSkillCheck,
+} from "../../data/encounters/hooks";
 import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
@@ -28,6 +32,7 @@ const ForestActions = () => {
   const { exploration, mutateExploration, modifyActions } = useHandleExploration();
   const setEncounter = useSetEncounter();
   const { encounter } = useHandleEncounter();
+  const handleSkillCheck = useHandleSkillCheck();
   const { equipment } = useHandleEquipment();
   const { time, day } = useTime();
   const isNight = !isDay(time, day);
@@ -107,6 +112,22 @@ const ForestActions = () => {
           }}
         >
           Find some tubers
+        </button>
+      )}
+      {discoveries.copper_identified > 0 && (
+        <button
+          disabled={disabled || playerStatus.energy < 5}
+          onClick={() => {
+            modifyActions(-1);
+            updatePlayerStatus({ energy: -5 });
+            advanceTime(1);
+            const result = handleSkillCheck({ skill: ["lore"], dc: 9, knowledge: true });
+            if (result === "success") {
+              setEncounter("copper_vein");
+            }
+          }}
+        >
+          Look for a copper vein
         </button>
       )}
       {discoveries.large_lake > 0 && (

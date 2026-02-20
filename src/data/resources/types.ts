@@ -11,6 +11,8 @@ export const defaultResourceStore = {
   tuber: 0,
   fur: 0,
   iron: 0,
+  copperOre: 0,
+  copperBar: 0,
   jar: 0,
   // Currency
   coin: 0,

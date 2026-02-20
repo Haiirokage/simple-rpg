@@ -1,4 +1,5 @@
-import { objectEntries } from "../../util";
+import { useCallback } from "preact/hooks";
+import { mergeNumericRecords, objectEntries } from "../../util";
 import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import {
   TOOL_DEFINITIONS,
@@ -6,8 +7,9 @@ import {
   type ToolBonusKeys,
   type ToolTier,
 } from "./definitions";
-import { defaultEquipmentStore, type EquipmentStore, type ToolType } from "./types";
-import { getValueByLevel } from "./util";
+import { defaultEquipmentStore, tools, type EquipmentStore, type ToolType } from "./types";
+import type { Skills } from "../skills/types";
+import { getValueByLevel, resolveSkillBonuses } from "./util";
 
 export const equipmentQuery = makeDataQuery("EQUIPMENT", defaultEquipmentStore);
 
@@ -47,7 +49,9 @@ export const useHandleEquipment = () => {
       ]),
     ) as Record<ToolBonusKeys<T>, number>;
 
-    return { toolStatus, toolDefinition, bonuses };
+    const skillBonuses = resolveSkillBonuses(tierDefinition as ToolTier, toolStatus.level);
+
+    return { toolStatus, toolDefinition, bonuses, skillBonuses };
   };
 
   const getEquipmentBonus = (toolType: ToolType, bonusType: EquipmentBonusType) => {
@@ -57,7 +61,17 @@ export const useHandleEquipment = () => {
     return getValueByLevel(toolStatus.level, tierDefinition.bonus[bonusType]);
   };
 
-  return { equipment, getTool, getEquipmentBonus };
+  const getSkillBonuses = useCallback(
+    () =>
+      tools.reduce<Partial<Record<Skills, number>>>((acc, toolType) => {
+        const toolStatus = equipment.tools[toolType] || { tier: 0, level: 1 };
+        const tierDef = TOOL_DEFINITIONS[toolType].tiers[toolStatus.tier] as ToolTier;
+        return mergeNumericRecords(acc, resolveSkillBonuses(tierDef, toolStatus.level));
+      }, {}),
+    [equipment.tools],
+  );
+
+  return { equipment, getTool, getEquipmentBonus, getSkillBonuses };
 };
 
 export const useResetTraps = () => {

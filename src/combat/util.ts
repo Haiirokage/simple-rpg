@@ -41,14 +41,6 @@ export const calculateHitChance = (
     0,
     1,
   );
-  console.log("hit chance", {
-    hitChance,
-    enemyDexMult,
-    composureMult,
-    distanceMultiplier,
-    dexMult,
-    rangedMult,
-  });
   return hitChance;
 };
 

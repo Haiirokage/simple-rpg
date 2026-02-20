@@ -118,6 +118,7 @@ export const useLookAround = (biome: BiomeType) => {
 
       gainLevels(1);
     } else if (discovery) {
+      console.log("Discovery", discovery);
       const foundDiscoveryCount = discoveries[discovery.type];
       mutateDiscoveries({ [discovery.type]: foundDiscoveryCount + 1 });
       mutateEncounter({ encounteredDiscovery: discovery.type });

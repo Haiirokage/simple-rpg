@@ -3,7 +3,7 @@ import type {
   RepeatableDiscoveryDefinition,
 } from "../discovery-types";
 
-export type VillageUnlockable = "village_tavern";
+export type VillageUnlockable = "village_tavern" | "village_blacksmith";
 
 export type VillageRepeatable = "repair_job" | "hide_and_seek";
 
@@ -12,6 +12,12 @@ export const VILLAGE_DISCOVERIES: Record<VillageUnlockable, UnlockableDiscoveryD
     type: "village_tavern",
     maxCount: 1,
     discoveryRange: { min: 0, max: 100 },
+    rarity: 0.1,
+  },
+  village_blacksmith: {
+    type: "village_blacksmith",
+    maxCount: 1,
+    discoveryRange: { min: 50, max: 200 },
     rarity: 0.1,
   },
 };

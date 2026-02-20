@@ -1,4 +1,16 @@
-import type { NumberRange } from "./definitions";
+import type { NumberRange, ToolTier } from "./definitions";
+import type { Skills } from "../skills/types";
+import { objectEntries } from "../../util";
+
+export const resolveSkillBonuses = (tierDef: ToolTier, level: number) => {
+  if (!tierDef.skillBonus) return {};
+  return Object.fromEntries(
+    objectEntries(tierDef.skillBonus).map(([skill, range]) => [
+      skill,
+      getValueByLevel(level, range),
+    ]),
+  ) as Partial<Record<Skills, number>>;
+};
 
 export const getValueByLevel = (level = 1, range: NumberRange = { min: 1 }) => {
   if (range.max) {

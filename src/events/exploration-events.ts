@@ -94,6 +94,22 @@ export const EXPLORATION_EVENTS: Partial<Record<AllDiscoveries, ExplorationEvent
       "A farmer calls out to you, gesturing toward a section of broken fencing. Looks like he could use an extra pair of hands.",
     ],
   },
+  village_tavern: {
+    id: "village_tavern",
+    name: "Discovered the Tavern",
+    category: "exploration",
+    descriptions: [
+      "Following the sound of laughter and clinking mugs, you find the village tavern tucked between two timber-framed buildings. A wooden sign creaks above the door. Inside, warmth and the smell of hearty stew welcome you.",
+    ],
+  },
+  village_blacksmith: {
+    id: "village_blacksmith",
+    name: "Discovered the Blacksmith",
+    category: "exploration",
+    descriptions: [
+      "The rhythmic ring of hammer on metal draws you toward a stone workshop at the edge of the village square. Smoke rises from a heavy chimney, and through the open doorway you glimpse the orange glow of a forge. The blacksmith pauses his work to size you up.",
+    ],
+  },
 };
 
 export const buildExplorationEventLog = (

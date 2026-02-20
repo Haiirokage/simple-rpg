@@ -17,7 +17,8 @@ export type ExtraUnlockables =
   | "find_tubers"
   | "village_rumor"
   | "hide_and_seek_seeker"
-  | "hide_and_seek_hider";
+  | "hide_and_seek_hider"
+  | "copper_identified";
 
 // Biome unlockables (have definitions)
 export type AllBiomeUnlockables = ForestUnlockable | VillageUnlockable;

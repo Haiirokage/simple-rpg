@@ -6,7 +6,7 @@ interface ConsumableStatus {
   max?: number;
 }
 
-export const tools = ["hatchet", "knife", "bow", "shoes"] as const;
+export const tools = ["hatchet", "knife", "bow", "shoes", "pick"] as const;
 export type ToolType = (typeof tools)[number];
 
 export type BowType = "crude" | "stone";

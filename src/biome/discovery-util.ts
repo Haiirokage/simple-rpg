@@ -80,7 +80,8 @@ export const pickRandomDiscovery = <T extends BiomeType>(
 
   // Check each discovery in random order
   for (const [discoveryType, definition] of discoveryEntries) {
-    const discoveredCount = discoveries[discoveryType];
+    console.log("discoverytype: ", definition);
+    const discoveredCount = discoveries[discoveryType] || 0;
     // Skip if already at max
     if (discoveredCount >= definition.maxCount) {
       continue;

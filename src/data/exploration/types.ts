@@ -1,7 +1,7 @@
 import type { BiomeType } from "../../biome/discovery-types";
 import type { ResourceStore } from "../resources/types";
 
-export type LocationId = "lake" | "tavern";
+export type LocationId = "lake" | "tavern" | "blacksmith";
 
 export type Lodging = {
   location: string;

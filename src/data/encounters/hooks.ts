@@ -14,10 +14,11 @@ import type {
   CreatureDefinition,
   CreatureInstance as CreatureInstance,
 } from "../../npc/creature-definitions";
-import type { AtLeast } from "../../util";
+import { objectEntries, type AtLeast } from "../../util";
 import type { Skills } from "../skills/types";
 import { sum } from "lodash";
 import { getFullSkillBonus } from "./util";
+import { useHandleEquipment } from "../equipment/hooks";
 
 export const defaultEncounterStore: EncounterStore = {
   active: false,
@@ -154,6 +155,7 @@ export const useSkillRoll = () => {
   const { knowledge } = useHandleKnowledge(encounter.biome);
   const { skills } = useSkills();
   const { attributes } = useAttributes();
+  const { getSkillBonuses } = useHandleEquipment();
 
   return useCallback(
     (config: Pick<SkillCheck, "skill" | "knowledge">) => {
@@ -163,6 +165,9 @@ export const useSkillRoll = () => {
       const score = tier * 100 + level;
       const knowledgeBonus = config.knowledge ? Math.floor(score / KNOWLEDGE_SCALE) - 1 : 0;
 
+      const equipmentBonuses = objectEntries(getSkillBonuses()).filter(([skill]) =>
+        config.skill.includes(skill),
+      );
       const skillBonus = config.skill.reduce(
         (acc, skill) => {
           return {
@@ -173,11 +178,14 @@ export const useSkillRoll = () => {
         {} as Record<Skills, number>,
       );
 
-      console.info("bonus:", skillBonus);
-      const bonus = knowledgeBonus + sum(Object.values(skillBonus));
-      return { roll, bonus, skillBonus, knowledgeBonus };
+      console.info("bonus:", skillBonus, equipmentBonuses);
+      const bonus =
+        knowledgeBonus +
+        sum(Object.values(skillBonus)) +
+        sum(equipmentBonuses.map(([_, value]) => value));
+      return { roll, bonus, skillBonus, equipmentBonuses, knowledgeBonus };
     },
-    [knowledge, attributes, skills],
+    [knowledge, attributes, skills, getSkillBonuses],
   );
 };
 
@@ -199,10 +207,10 @@ export const useHandleSkillCheck = () => {
       console.info(`Roll:${roll} + Bonus:${bonus} vs DC:${skillCheck.dc}`);
       if (success) {
         skillCheck.skill.forEach((skill) => {
-          console.log(skillBonus);
           const reverseContribution = Math.floor(bonus - skillBonus[skill]);
-          const expReward = Math.round(
-            getExpRewardByDC(Math.max(skillCheck.dc - reverseContribution, 3)),
+          const expReward = Math.max(
+            Math.round(getExpRewardByDC(Math.max(skillCheck.dc - reverseContribution, 3))),
+            10,
           );
           console.info(`Gained ${expReward} exp in ${skill} skill.`);
           grantExperience({ [skill]: expReward });

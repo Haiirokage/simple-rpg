@@ -12,16 +12,18 @@ const PlayerEquipment = () => {
       <h3>Equipment</h3>
       <ul style={{ fontFamily: "monospace" }}>
         {objectEntries(TOOL_DEFINITIONS).map(([toolKey, toolDef]) => {
-          const { bonuses, toolStatus } = getTool(toolKey);
+          const { bonuses, skillBonuses, toolStatus } = getTool(toolKey);
           const { tier, level } = toolStatus;
           if (tier === 0) {
             return null;
           }
           const tierName = toolDef.tiers[tier].name;
-          const bonusDesc = objectEntries(bonuses)
-            .filter(([_, value]) => value !== 1)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join(", ");
+          const bonusDesc = [
+            ...objectEntries(bonuses)
+              .filter(([_, value]) => value !== 1)
+              .map(([key, value]) => `${key}: ${value}`),
+            ...objectEntries(skillBonuses).map(([skill, value]) => `${skill}: +${value}`),
+          ].join(", ");
           return (
             <TooltipWrapper description={bonusDesc}>
               <li key={toolKey}>

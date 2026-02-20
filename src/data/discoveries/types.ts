@@ -9,8 +9,10 @@ export const defaultDiscoveriesStore: DiscoveriesStore = {
   rabbit_trail: 0,
   strong_inspiration: 0,
   large_lake: 0,
+  copper_identified: 0,
   // Village unlockables
   village_tavern: 0,
+  village_blacksmith: 0,
   // Extras
   successful_hunt: 0,
   failed_hunt: 0,

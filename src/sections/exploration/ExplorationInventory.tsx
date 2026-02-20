@@ -12,6 +12,7 @@ import { objectEntries } from "../../util";
 import type { ResourceKeys } from "../../data/resources/types";
 import { useHandleResources } from "../../data/resources/hooks";
 import { Header3, ButtonGroup, SmallButton } from "../../style/elements";
+import CurrencyDisplay from "../../components/CurrencyDisplay";
 
 const WeightBar = styled.div`
   height: 8px;
@@ -129,11 +130,19 @@ const ExplorationInventory = () => {
           return (
             <InventoryItem key={resource}>
               <span>
-                {resource}: {amount}
-                {weight > 0 && (
-                  <span style={{ opacity: 0.6, marginLeft: 4 }}>
-                    ({(weight * amount).toFixed(2)})
-                  </span>
+                {resource === "coin" ? (
+                  <>
+                    Coins: <CurrencyDisplay amount={amount} />
+                  </>
+                ) : (
+                  <>
+                    {resource}: {amount}
+                    {weight > 0 && (
+                      <span style={{ opacity: 0.6, marginLeft: 4 }}>
+                        ({(weight * amount).toFixed(2)})
+                      </span>
+                    )}
+                  </>
                 )}
               </span>
               {exploration.active ? (

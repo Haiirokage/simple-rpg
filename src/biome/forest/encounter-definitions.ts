@@ -5,7 +5,9 @@ export type ForestEncounterFrameId =
   | "deer_tracks_found"
   | "edable_roots"
   | "wolf_encounter"
-  | "npc_encounter";
+  | "npc_encounter"
+  | "rock_outcropping"
+  | "copper_vein";
 
 export const FOREST_ENCOUNTERS: Record<ForestEncounterFrameId, EncounterFrame> = {
   deer_tracks_found: {
@@ -116,5 +118,49 @@ export const FOREST_ENCOUNTERS: Record<ForestEncounterFrameId, EncounterFrame> =
       "You discover a young woman kneeling in the bushes near a patch of berries. She looks up, startled but not afraid. She says she's from a village not far from here.",
     npc: { type: "barmaid", id: "village_barmaid" },
     actions: [],
+  },
+  rock_outcropping: {
+    id: "rock_outcropping",
+    title: "Unusual Rock Formation",
+    description:
+      "You come across a rocky outcropping jutting from a hillside. The stone here looks different from the usual grey rock. Maybe you should investigate",
+    actions: [
+      makeEncounterSkillAction(
+        "Examine the rock",
+        { knowledge: true, skill: ["lore"], dc: 7 },
+        {
+          success: makeOutcome(
+            "You recognize a greenish tinge on some of the rocks. it's copper ore, oxidized by years of exposure. There could be workable metal beneath the surface.",
+            { discovery: "copper_identified", nextFrameId: "copper_vein" },
+          ),
+          failure: makeOutcome(
+            "The rock is unusual, but you can't quite place what makes it different.",
+          ),
+        },
+        { cost: { minutes: 15, energy: 3 } },
+      ),
+    ],
+  },
+  copper_vein: {
+    id: "copper_vein",
+    title: "Copper Vein",
+    description:
+      "You can see veins of copper ore running through the rock face. If only you could extract it somehow.",
+    actions: [
+      makeEncounterSkillAction(
+        "Try to break off a piece",
+        { skill: ["mining"], dc: 9 },
+        {
+          success: makeOutcome(
+            "With effort, you manage to pry loose a chunk of ore from a crack in the rock.",
+            { resourceYield: { copperOre: 2 } },
+          ),
+          failure: makeOutcome(
+            "You scrape and pull at the rock face, but it won't budge. You'd need a proper pick to break through this.",
+          ),
+        },
+        { cost: { minutes: 30, energy: 10 } },
+      ),
+    ],
   },
 };

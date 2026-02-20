@@ -29,5 +29,7 @@ export const MATERIAL_STORAGE: MaterialResourceDefinition[] = [
   { key: "hide", baseCapacity: 2, decayRate: 0.01 },
   { key: "fur", baseCapacity: 4 },
   { key: "iron", baseCapacity: 5 },
+  { key: "copperOre", baseCapacity: 4 }, // About 5 lbs
+  { key: "copperBar", baseCapacity: 20 }, // About 1 lb of refined copper
   { key: "coin", baseCapacity: 0 }, // weightless currency
 ];

@@ -14,7 +14,8 @@ export type ForestRepeatable =
   | "deer_tracks"
   | "mysterious_roots"
   | "wolf_sighting"
-  | "foraging_npc";
+  | "foraging_npc"
+  | "rock_outcropping";
 
 export const FOREST_DISCOVERIES: Record<ForestUnlockable, UnlockableDiscoveryDefinition> = {
   berry_patch: {
@@ -80,5 +81,11 @@ export const REPEATABLE_DISCOVERIES: Record<ForestRepeatable, RepeatableDiscover
     nightRarity: 0.01,
     knowledgeRequirement: 200,
     triggerEncounter: "npc_encounter",
+  },
+  rock_outcropping: {
+    type: "rock_outcropping",
+    rarity: 0.05,
+    knowledgeRequirement: 180,
+    triggerEncounter: "rock_outcropping",
   },
 };

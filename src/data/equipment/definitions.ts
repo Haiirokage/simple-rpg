@@ -1,4 +1,5 @@
 import type { ResourceStore } from "../resources/types";
+import type { Skills } from "../skills/types";
 import type { ConsumableType, ToolType } from "./types";
 
 export type EquipmentDefinition = {
@@ -20,6 +21,7 @@ export interface ToolTier {
   name: string; // e.g. "wooden", "stone", "iron"
   cost: Partial<ResourceStore>;
   bonus: Partial<Record<EquipmentBonusType, NumberRange>>;
+  skillBonus?: Partial<Record<Skills, NumberRange>>;
 }
 
 export interface ToolDefinition {
@@ -73,6 +75,19 @@ export const TOOL_DEFINITIONS = {
         name: "iron",
         cost: { wood: 1, iron: 3, leather: 2 },
         bonus: { skinning: { min: 1, max: 2, decimals: 1 } },
+      },
+    ],
+  },
+  pick: {
+    key: "pick",
+    name: "Pick",
+    tiers: [
+      NO_TOOL,
+      {
+        name: "stone",
+        cost: { wood: 5, stone: 8 },
+        bonus: {},
+        skillBonus: { mining: { min: 3 } },
       },
     ],
   },

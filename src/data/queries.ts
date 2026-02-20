@@ -11,6 +11,7 @@ import { knowledgeQuery } from "./knowledge/hooks";
 import { playerStatusQuery } from "./playerStatus/hooks";
 import { resourcesQuery } from "./resources/hooks";
 import { skillsQuery } from "./skills/hooks";
+import { smithingQuery } from "./smithing/hooks";
 import { structuresQuery } from "./structures/hooks";
 import { timeQuery } from "./time/hooks";
 
@@ -28,6 +29,7 @@ export const storeQueries = [
   playerStatusQuery,
   resourcesQuery,
   skillsQuery,
+  smithingQuery,
   structuresQuery,
   timeQuery,
 ];

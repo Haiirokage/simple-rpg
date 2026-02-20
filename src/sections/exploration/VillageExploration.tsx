@@ -61,6 +61,16 @@ const VillageExploration = () => {
           Go to the tavern
         </button>
       )}
+      {discoveries.village_blacksmith > 0 && (
+        <button
+          disabled={encounter.active}
+          onClick={() => {
+            mutateExploration({ location: "blacksmith" });
+          }}
+        >
+          Go to the blacksmith
+        </button>
+      )}
       <button
         disabled={encounter.active}
         onClick={() => {

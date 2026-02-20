@@ -2,7 +2,7 @@ import type { ToolStatus, ToolType } from "../data/equipment/types";
 import type { ResourceCost, ResourceKeys } from "../data/resources/types";
 import type { BiomeType } from "../biome/discovery-types";
 
-export type HumanType = "barmaid";
+export type HumanType = "barmaid" | "blacksmith";
 
 export interface NPCHome {
   biome: BiomeType;
@@ -55,5 +55,16 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
       { type: "tool", tool: "knife", price: 15 },
       { type: "resource", resource: "jar", price: 5, stock: 1 },
     ],
+  },
+  blacksmith: {
+    id: "blacksmith",
+    sex: "male",
+    age: { min: 30, max: 50 },
+    home: { biome: "village", location: "blacksmith" },
+    equipment: {},
+    resources: {},
+    allowance: 100,
+    budget: [{ resource: "copperOre", price: 8 }],
+    sellList: [],
   },
 };
