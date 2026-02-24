@@ -1,21 +1,22 @@
+import { useState } from "preact/hooks";
 import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
 import { useHandleEncounter, useSetEncounter } from "../../data/encounters/hooks";
 import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
-import { useNPCs, useMutateNPCs } from "../../npc/npc-hooks";
-import type { HumanInstance } from "../../npc/npc-types";
-import type { BudgetEntry, ToolSellEntry, ResourceSellEntry } from "../../npc/human-definitions";
+import { useHandleNPCs } from "../../npc/npc-hooks";
+import type { ToolSellEntry } from "../../npc/human-definitions";
 import CurrencyDisplay from "../../components/CurrencyDisplay";
 import { useHandleExploration } from "../../data/exploration/hooks";
 import { mergeNumericRecords } from "../../util";
 import { useHandleDiscoveries } from "../../data/discoveries/hooks";
+import NPCResourceTradePanel from "../../npc/NPCResourceTradePanel";
 
 const NPCInteractionView = () => {
+  const [trading, setTrading] = useState(false);
   const { exploration, mutateExploration } = useHandleExploration();
   const { encounter } = useHandleEncounter();
   const setEncounter = useSetEncounter();
-  const npcs = useNPCs();
-  const mutateNPCs = useMutateNPCs();
+  const { npcs, mutateNPC } = useHandleNPCs();
   const equipment = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const { discoveries, updateDiscovery } = useHandleDiscoveries();
@@ -31,58 +32,27 @@ const NPCInteractionView = () => {
 
   if (!npc || !frame) return null;
 
-  const npcIronScribble = npc.resources.coin ?? 0;
+  const npcCoin = npc.resources.coin ?? 0;
 
-  const updateNPC = (updates: Partial<HumanInstance>) => {
+  const triggerVillageRumor = () => {
     if (npc.home?.biome === "village" && discoveries.village_rumor === 0) {
       updateDiscovery("village_rumor");
     }
-    mutateNPCs({ [npc.id]: { ...npc, ...updates } });
-  };
-
-  const handleSellToNPC = (entry: BudgetEntry) => {
-    mutateExploration({
-      inventory: mergeNumericRecords(inventory, { [entry.resource]: -1, coin: entry.price }),
-    });
-    updateNPC({
-      resources: {
-        ...npc.resources,
-        coin: npcIronScribble - entry.price,
-        [entry.resource]: (npc.resources[entry.resource] ?? 0) + 1,
-      },
-    });
   };
 
   const handleBuyToolFromNPC = (entry: ToolSellEntry) => {
     const toolStatus = npc.equipment[entry.tool];
     if (!toolStatus) return;
 
+    triggerVillageRumor();
     mutateExploration({
       inventory: mergeNumericRecords(inventory, { coin: -entry.price }),
     });
     mutateSpecific("tools", { [entry.tool]: { ...toolStatus } });
-    updateNPC({
-      resources: {
-        ...npc.resources,
-        coin: npcIronScribble + entry.price,
-      },
+    mutateNPC(npcId, {
+      resources: { ...npc.resources, coin: npcCoin + entry.price },
       equipment: { ...npc.equipment, [entry.tool]: undefined },
-      sellList: npc.sellList.filter((s) => s.type !== "tool" || s.tool !== entry.tool),
-    });
-  };
-
-  const handleBuyResourceFromNPC = (entry: ResourceSellEntry) => {
-    mutateExploration({
-      inventory: mergeNumericRecords(inventory, { coin: -entry.price, [entry.resource]: 1 }),
-    });
-    updateNPC({
-      resources: {
-        ...npc.resources,
-        coin: npcIronScribble + entry.price,
-      },
-      sellList: npc.sellList.map((s) =>
-        s.type === "resource" && s.resource === entry.resource ? { ...s, stock: s.stock - 1 } : s,
-      ),
+      sellList: npc.sellList.filter((s) => s.tool !== entry.tool),
     });
   };
 
@@ -92,68 +62,47 @@ const NPCInteractionView = () => {
     <div>
       <h2>{frame.title}</h2>
       <p>{frame.description}</p>
-      <p style={{ opacity: 0.7 }}>
+      <p>
         Your coin: <CurrencyDisplay amount={playerCoin} />
       </p>
       <div style={{ marginTop: "1rem" }}>
-        {npc.budget.map((entry) => {
-          const playerHas = (inventory[entry.resource] ?? 0) >= 1;
-          const npcCanAfford = npcIronScribble >= entry.price;
+        {trading ? (
+          <NPCResourceTradePanel
+            npc={npc}
+            onTrade={triggerVillageRumor}
+            onCancel={() => setTrading(false)}
+          />
+        ) : (
+          <>
+            {npc.interests.length > 0 && (
+              <button onClick={() => setTrading(true)} style={{ marginRight: "0.5rem" }}>
+                Trade
+              </button>
+            )}
+            {npc.sellList.map((entry) => {
+              const toolStatus = npc.equipment[entry.tool];
+              if (!toolStatus) return null;
+              const tierName = TOOL_DEFINITIONS[entry.tool].tiers[toolStatus.tier]?.name ?? "";
+              const playerCanAfford = playerCoin >= entry.price;
+              const playerTier = equipment.tools[entry.tool]?.tier ?? 0;
+              const alreadyHasBetter = playerTier >= toolStatus.tier;
 
-          return (
-            <button
-              key={`sell-${entry.resource}`}
-              disabled={!playerHas || !npcCanAfford}
-              onClick={() => handleSellToNPC(entry)}
-              style={{ marginRight: "0.5rem" }}
-            >
-              Sell {entry.resource} (<CurrencyDisplay amount={entry.price} />)
+              return (
+                <button
+                  key={`buy-${entry.tool}`}
+                  disabled={!playerCanAfford || alreadyHasBetter}
+                  onClick={() => handleBuyToolFromNPC(entry)}
+                  style={{ marginRight: "0.5rem" }}
+                >
+                  Buy {tierName} {entry.tool} (<CurrencyDisplay amount={entry.price} />)
+                </button>
+              );
+            })}
+            <button onClick={() => setEncounter("exit")} style={{ marginRight: "0.5rem" }}>
+              Leave
             </button>
-          );
-        })}
-        {npc.sellList.map((entry) => {
-          if (entry.type === "tool") {
-            const toolStatus = npc.equipment[entry.tool];
-            if (!toolStatus) return null;
-            const tierName = TOOL_DEFINITIONS[entry.tool].tiers[toolStatus.tier]?.name ?? "";
-            const playerCanAfford = playerCoin >= entry.price;
-            const playerTier = equipment.tools[entry.tool]?.tier ?? 0;
-            const alreadyHasBetter = playerTier >= toolStatus.tier;
-
-            return (
-              <button
-                key={`buy-${entry.tool}`}
-                disabled={!playerCanAfford || alreadyHasBetter}
-                onClick={() => handleBuyToolFromNPC(entry)}
-                style={{ marginRight: "0.5rem" }}
-              >
-                Buy {tierName} {entry.tool} (<CurrencyDisplay amount={entry.price} />)
-              </button>
-            );
-          }
-
-          if (entry.type === "resource") {
-            const playerCanAfford = playerCoin >= entry.price;
-            const inStock = entry.stock > 0;
-
-            return (
-              <button
-                key={`buy-${entry.resource}`}
-                disabled={!playerCanAfford || !inStock}
-                onClick={() => handleBuyResourceFromNPC(entry)}
-                style={{ marginRight: "0.5rem" }}
-              >
-                Buy {entry.resource} (<CurrencyDisplay amount={entry.price} />)
-                {entry.stock > 0 && ` [${entry.stock}]`}
-              </button>
-            );
-          }
-
-          return null;
-        })}
-        <button onClick={() => setEncounter("exit")} style={{ marginRight: "0.5rem" }}>
-          Leave
-        </button>
+          </>
+        )}
       </div>
     </div>
   );

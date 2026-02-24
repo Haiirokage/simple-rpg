@@ -9,9 +9,9 @@ export interface NPCHome {
   location?: string;
 }
 
-export interface BudgetEntry {
+export interface ResourceInterest {
   resource: ResourceKeys;
-  price: number; // coin per unit
+  value: number; // intrinsic coin value per unit — actual trade prices apply a bid/ask spread
 }
 
 export interface ToolSellEntry {
@@ -20,25 +20,16 @@ export interface ToolSellEntry {
   price: number;
 }
 
-export interface ResourceSellEntry {
-  type: "resource";
-  resource: ResourceKeys;
-  price: number;
-  stock: number;
-}
-
-export type SellEntry = ToolSellEntry | ResourceSellEntry;
-
 export interface HumanDefinition {
   id: HumanType;
   sex?: "male" | "female";
   age: { min: number; max: number };
   home?: NPCHome;
   equipment: Partial<Record<ToolType, ToolStatus>>;
-  resources: ResourceCost;
   allowance: number; // coin received per month
-  budget: BudgetEntry[];
-  sellList: SellEntry[];
+  interests: ResourceInterest[]; // resources the NPC will buy and sell
+  replenishment: ResourceCost; // resources added to inventory each month (also used as initial stock)
+  sellList: ToolSellEntry[]; // tools the NPC will sell
 }
 
 export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
@@ -48,13 +39,13 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
     age: { min: 18, max: 30 },
     home: { biome: "village", location: "tavern" },
     equipment: { knife: { tier: 2, level: 7 } },
-    resources: {},
     allowance: 40,
-    budget: [{ resource: "wood", price: 2 }],
-    sellList: [
-      { type: "tool", tool: "knife", price: 15 },
-      { type: "resource", resource: "jar", price: 5, stock: 1 },
+    interests: [
+      { resource: "wood", value: 3 },
+      { resource: "jar", value: 5 },
     ],
+    replenishment: { jar: 1 },
+    sellList: [{ type: "tool", tool: "knife", price: 15 }],
   },
   blacksmith: {
     id: "blacksmith",
@@ -62,9 +53,12 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
     age: { min: 30, max: 50 },
     home: { biome: "village", location: "blacksmith" },
     equipment: {},
-    resources: {},
-    allowance: 100,
-    budget: [{ resource: "copperOre", price: 8 }],
+    allowance: 200,
+    interests: [
+      { resource: "copperOre", value: 10 },
+      { resource: "charcoal", value: 5 },
+    ],
+    replenishment: { charcoal: 10 },
     sellList: [],
   },
 };

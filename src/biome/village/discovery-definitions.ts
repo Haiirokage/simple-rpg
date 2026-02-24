@@ -11,13 +11,13 @@ export const VILLAGE_DISCOVERIES: Record<VillageUnlockable, UnlockableDiscoveryD
   village_tavern: {
     type: "village_tavern",
     maxCount: 1,
-    discoveryRange: { min: 0, max: 100 },
+    discoveryRange: { min: 0, max: 50 },
     rarity: 0.1,
   },
   village_blacksmith: {
     type: "village_blacksmith",
     maxCount: 1,
-    discoveryRange: { min: 50, max: 200 },
+    discoveryRange: { min: 10, max: 50 },
     rarity: 0.1,
   },
 };

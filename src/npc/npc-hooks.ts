@@ -1,8 +1,9 @@
-import { useCallback } from "preact/hooks";
+import { useCallback, useEffect } from "preact/hooks";
 import { makeDataQuery, useDefinedQuery, useUpdateData } from "../data/util";
 import { HUMAN_DEFINITIONS, type HumanType } from "./human-definitions";
 import { defaultNPCStore, type HumanInstance, type NPCStore } from "./npc-types";
-import { objectEntries } from "../util";
+import { mergeNumericRecords, objectEntries } from "../util";
+import type { ResourceKeys } from "../data/resources/types";
 
 export const npcQuery = makeDataQuery("NPCS", defaultNPCStore);
 
@@ -20,9 +21,9 @@ const generateInstance = (id: string, type: HumanType): HumanInstance => {
     home: def.home,
     attributes: { strength: 20, constitution: 20, dexterity: 20, wisdom: 20, intelligence: 20 },
     equipment: { ...def.equipment },
-    resources: { ...def.resources, coin: def.allowance },
+    resources: { ...def.replenishment, coin: def.allowance },
     allowance: def.allowance,
-    budget: def.budget,
+    interests: def.interests,
     sellList: [...def.sellList],
     trust: 0,
   };
@@ -34,13 +35,36 @@ export const useNPCs = () => {
 };
 
 export const useMutateNPCs = () => {
+  const npcs = useNPCs();
   const { mutate } = useUpdateData<NPCStore>("NPCS", defaultNPCStore);
-  return mutate;
+
+  const mutateNPC = (id: string, updatedInstance: Partial<HumanInstance>) => {
+    const npc = npcs[id] || {};
+    mutate({
+      [id]: {
+        ...npc,
+        ...updatedInstance,
+      },
+    });
+  };
+  return { mutateNPCs: mutate, mutateNPC };
+};
+
+/** Price the NPC pays when buying a resource from the player (below intrinsic value). */
+export const npcBuyPrice = (value: number) => Math.floor(value * 0.8);
+/** Price the NPC charges when selling a resource to the player (above intrinsic value). */
+export const npcSellPrice = (value: number) => Math.ceil(value * 1.3);
+
+export const useHandleNPCs = () => {
+  const npcs = useNPCs();
+  const { mutateNPC } = useMutateNPCs();
+
+  return { npcs, mutateNPC };
 };
 
 export const useGetOrCreateNPC = () => {
   const npcs = useNPCs();
-  const mutate = useMutateNPCs();
+  const { mutateNPCs } = useMutateNPCs();
 
   const getOrCreate = useCallback(
     (id: string, type: HumanType): HumanInstance => {
@@ -48,30 +72,46 @@ export const useGetOrCreateNPC = () => {
       if (existing) return existing;
 
       const instance = generateInstance(id, type);
-      mutate({ [id]: instance });
+      mutateNPCs({ [id]: instance });
       return instance;
     },
-    [npcs, mutate],
+    [npcs, mutateNPCs],
   );
 
   return getOrCreate;
 };
 
+export const useNPC = (id: string, type: HumanType) => {
+  const npcs = useNPCs();
+  const { mutateNPCs } = useMutateNPCs();
+  const existing = npcs[id];
+
+  useEffect(() => {
+    if (!existing) {
+      const instance = generateInstance(id, type);
+      mutateNPCs({ [id]: instance });
+    }
+  });
+
+  return existing;
+};
+
 export const useHandleNPCAllowance = () => {
   const npcs = useNPCs();
-  const mutate = useMutateNPCs();
+  const { mutateNPCs } = useMutateNPCs();
 
   return useCallback(() => {
     const updates = objectEntries(npcs).reduce((acc, [id, npc]) => {
+      const def = HUMAN_DEFINITIONS[npc.type];
       const currentCoin = npc.resources.coin ?? 0;
       const maxCoin = Math.floor(npc.allowance * 1.5);
       const newCoin = Math.min(currentCoin + npc.allowance, maxCoin);
       acc[id] = {
         ...npc,
-        resources: { ...npc.resources, coin: newCoin },
+        resources: { ...mergeNumericRecords(npc.resources, def.replenishment), coin: newCoin },
       };
       return acc;
     }, {} as NPCStore);
-    mutate(updates);
-  }, [npcs, mutate]);
+    mutateNPCs(updates);
+  }, [npcs, mutateNPCs]);
 };

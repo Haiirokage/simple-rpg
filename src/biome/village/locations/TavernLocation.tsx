@@ -4,7 +4,7 @@ import { usePlayerRegenRates, useHandlePlayerStatus } from "../../../data/player
 import { getSeasonByDay } from "../../../data/time/season-util";
 import CurrencyDisplay from "../../../components/CurrencyDisplay";
 
-const LODGING_COST = 80;
+const LODGING_COST = 40;
 
 const TavernLocation = () => {
   const { exploration, mutateExploration } = useHandleExploration();
