@@ -3,7 +3,6 @@ import { makeDataQuery, useDefinedQuery, useUpdateData } from "../data/util";
 import { HUMAN_DEFINITIONS, type HumanType } from "./human-definitions";
 import { defaultNPCStore, type HumanInstance, type NPCStore } from "./npc-types";
 import { mergeNumericRecords, objectEntries } from "../util";
-import type { ResourceKeys } from "../data/resources/types";
 
 export const npcQuery = makeDataQuery("NPCS", defaultNPCStore);
 
