@@ -108,6 +108,7 @@ export const useHandleNPCAllowance = () => {
       acc[id] = {
         ...npc,
         resources: { ...mergeNumericRecords(npc.resources, def.replenishment), coin: newCoin },
+        interests: def.interests,
       };
       return acc;
     }, {} as NPCStore);

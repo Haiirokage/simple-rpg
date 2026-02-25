@@ -153,7 +153,6 @@ const EncounterView = () => {
             const skillBonus =
               action.type === "skill" &&
               action.skillCheck.skill.map((s) => getFullSkillBonus(s, skills, attributes));
-            console.log(skillBonus);
 
             const hitChance =
               action.type === "attack" && getHitChance(encounter.enemies[action.attack.target]);

@@ -43,7 +43,10 @@ export const biasedGaussRandom = (bias: number, influence = 50, min = 1, max = 1
     : rnd - Math.floor(gauss(inf, influence) * rnd - bias);
 };
 
+export const getLevelBias = (craftingLevel: number, tier: number) =>
+  craftingLevel * 3 - (tier - 1) * 30;
+
 export const getEquipmentLevel = (craftingLevel: number, tier: number) => {
-  const influence = 50 * tier;
-  return biasedGaussRandom(craftingLevel, influence);
+  const influence = 70 - tier * 8;
+  return biasedGaussRandom(getLevelBias(craftingLevel, tier), influence);
 };

@@ -57,6 +57,7 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
     interests: [
       { resource: "copperOre", value: 10 },
       { resource: "charcoal", value: 5 },
+      { resource: "copperBar", value: 50 },
     ],
     replenishment: { charcoal: 10 },
     sellList: [],

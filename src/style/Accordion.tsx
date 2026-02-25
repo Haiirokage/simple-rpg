@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import styled from "styled-components";
 
 export const Accordion = styled.div`
-  width: 180px;
+  width: 200px;
   height: 350px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -35,6 +35,7 @@ const TopicContent = styled.div`
   padding: 6px 10px 10px;
   font-size: 0.85em;
   border-top: 1px solid #eee;
+  font-size: 0.8em;
 `;
 
 export const AccordionTopic = ({

@@ -8,6 +8,41 @@ export const getTestExpRewardByDC = (dc: number): number => {
   return Math.round(Math.pow(1.44, (dc - 3) * 7 - 31) + (dc - 3) * 10);
 };
 
+describe("crafting exp", () => {
+  it("exp per craft and crafts per level by crafting level and tier", () => {
+    // formula: getExpThreshold((tier-1) * 10) / 3^(tier-1) * newLevel
+    const rows = [
+      { craftingLevel: 1, tier: 1, newLevel: 1 },
+      { craftingLevel: 9, tier: 1, newLevel: 50 },
+      { craftingLevel: 10, tier: 1, newLevel: 40 },
+      { craftingLevel: 19, tier: 2, newLevel: 55 },
+      { craftingLevel: 20, tier: 1, newLevel: 100 },
+      { craftingLevel: 20, tier: 2, newLevel: 30 },
+      { craftingLevel: 29, tier: 3, newLevel: 60 },
+      { craftingLevel: 30, tier: 2, newLevel: 60 },
+      { craftingLevel: 30, tier: 3, newLevel: 30 },
+      { craftingLevel: 39, tier: 4, newLevel: 70 },
+    ];
+
+    console.table(
+      rows.map(({ craftingLevel, tier, newLevel }) => {
+        const threshold = getExpThreshold(craftingLevel);
+        const exp = Math.round(
+          (getExpThreshold((tier - 1) * 10) / Math.pow(2, tier - 1)) * Math.sqrt(newLevel),
+        );
+        return {
+          craftingLevel,
+          tier,
+          newLevel,
+          exp,
+          threshold,
+          craftsPerLevel: (threshold / exp).toFixed(1),
+        };
+      }),
+    );
+  });
+});
+
 describe("exp curves", () => {
   it("exp thresholds by level", () => {
     const levels = [0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100];

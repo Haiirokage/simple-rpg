@@ -19,6 +19,7 @@ const defaultSkillStore: SkillStore = {
   meditation: { ...defaultSkill },
   lore: { ...defaultSkill },
   mining: { ...defaultSkill },
+  smithing: { ...defaultSkill },
 } as const;
 
 export const skillsQuery = makeDataQuery("SKILLS", defaultSkillStore);

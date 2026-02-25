@@ -44,8 +44,6 @@ const BiomeOverview = () => {
   const { biome } = useExploration();
   const { knowledge } = useHandleKnowledge(biome);
 
-  console.log(knowledge);
-
   const foundDiscoveries = objectEntries(BIOME_DISCOVERIES[biome].unlockable).filter(
     ([key]) => (discoveries[key] || 0) > 0,
   );

@@ -5,7 +5,8 @@ export type Skills =
   | "stealth"
   | "meditation"
   | "lore"
-  | "mining";
+  | "mining"
+  | "smithing";
 
 export type Skill = {
   /** Current level 1-100 */

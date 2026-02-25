@@ -70,10 +70,14 @@ export const TOOL_DEFINITIONS = {
     name: "Knife",
     tiers: [
       NO_TOOL,
-      { name: "stone", cost: { wood: 2, fiber: 1, stone: 4 }, bonus: { skinning: { min: 1 } } },
       {
-        name: "iron",
-        cost: { wood: 1, iron: 3, leather: 2 },
+        name: "stone",
+        cost: { wood: 2, fiber: 1, stone: 4 },
+        bonus: { skinning: { min: 1, max: 1.5, decimals: 1 } },
+      },
+      {
+        name: "copper",
+        cost: { wood: 1, copperBar: 1, leather: 2 },
         bonus: { skinning: { min: 1, max: 2, decimals: 1 } },
       },
     ],

@@ -6,8 +6,9 @@ import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
 import type { ResourceStore } from "../../data/resources/types";
 import { objectEntries } from "../../util";
 import type { ToolType } from "../../data/equipment/types";
-import { getEquipmentLevel } from "../../data/equipment/util";
+import { getEquipmentLevel, getLevelBias } from "../../data/equipment/util";
 import { useGrantSkillExperience, useSkills } from "../../data/skills/hooks";
+import { getExpThreshold } from "../../data/leveling-util";
 import TooltipWrapper from "../../style/TooltipWrapper";
 
 const ToolCrafting = () => {
@@ -19,11 +20,13 @@ const ToolCrafting = () => {
   const { mutateSpecific } = useUpdateEquipment();
   const advanceTime = useAdvanceTime();
 
+  const craftingLevel = skills.crafting.level;
+
   const craftTool = (toolKey: ToolType, tier: number, resourceResult: Partial<ResourceStore>) => {
     // Subtract costs from resources
     mutateResources(resourceResult);
 
-    const newLevel = getEquipmentLevel(skills.crafting.level, tier);
+    const newLevel = getEquipmentLevel(craftingLevel, tier);
     const { toolStatus } = getTool(toolKey);
     const improvement = newLevel > toolStatus.level || tier > toolStatus.tier;
     if (improvement) {
@@ -33,7 +36,7 @@ const ToolCrafting = () => {
       });
     }
 
-    const exp = Math.pow(tier, 1.3) * (50 + newLevel);
+    const exp = (getExpThreshold((tier - 1) * 10) / Math.pow(2, tier - 1)) * Math.sqrt(newLevel);
     grantExperience({ crafting: improvement ? exp : exp / 4 });
 
     advanceTime(1);
@@ -53,15 +56,23 @@ const ToolCrafting = () => {
             .map(([key, cost]) => `${cost} ${key}`)
             .join(", ");
           const { canAfford, resourceResult } = getAffordability(nextTierData.cost, resources);
+          const bias = getLevelBias(craftingLevel, nextTier);
+          const levelGated = bias < 0;
+
+          const tooltip = levelGated
+            ? `Requires crafting level ${(nextTier - 1) * 10}`
+            : `Median level: ${bias}`;
           return (
-            <button
-              disabled={!canAfford}
-              onClick={() => craftTool(toolDef.key, nextTier, resourceResult)}
-              style={{ fontSize: "0.9em" }}
-            >
-              Craft {nextTierData.name} {toolDef.name}{" "}
-              {nextCostText ? `(${nextCostText})` : "(free)"}
-            </button>
+            <TooltipWrapper description={tooltip}>
+              <button
+                disabled={!canAfford || levelGated}
+                onClick={() => craftTool(toolDef.key, nextTier, resourceResult)}
+                style={{ fontSize: "0.9em" }}
+              >
+                Craft {nextTierData.name} {toolDef.name}{" "}
+                {nextCostText ? `(${nextCostText})` : "(free)"}
+              </button>
+            </TooltipWrapper>
           );
         };
         const tierDefinition = toolDef.tiers[toolTier];
@@ -88,7 +99,9 @@ const ToolCrafting = () => {
                 description={`(${costText}). You already have a ${tierDefinition.name} ${toolDef.name}, but if you are displeased with it's quality you can attempt to reforge it to get a higher level. Maybe you will also learn something`}
               >
                 <button
-                  disabled={!reforgeAffordability.canAfford}
+                  disabled={
+                    !reforgeAffordability.canAfford || getLevelBias(craftingLevel, toolTier) < 0
+                  }
                   onClick={() =>
                     craftTool(toolDef.key, toolTier, reforgeAffordability.resourceResult)
                   }
