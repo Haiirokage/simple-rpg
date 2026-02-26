@@ -105,7 +105,7 @@ const ForestBiome = () => {
       {consumables.trap && (
         <ActionButton
           name="Set trap"
-          cost={{ time: 1, energy: 2 + energyModifier, resources: { berry: 4 } }}
+          cost={{ time: 1, energy: 2 + energyModifier, resources: { berry: 3 } }}
           disabled={consumables.trap.current <= 0 || !isActionWithinDaylight(time, 1, day)}
           onClick={() => {
             mutateSpecific("consumables", {

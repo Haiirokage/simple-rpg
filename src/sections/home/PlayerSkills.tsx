@@ -18,6 +18,7 @@ const SKILL_COLORS: Record<Skills, string> = {
   meditation: "#1abc9c",
   lore: "#ab47bc",
   mining: "#8d6e63",
+  smithing: "#e74c3c",
 };
 
 const SkillBox = styled.div`

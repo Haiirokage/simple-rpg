@@ -1,4 +1,5 @@
 import type { BiomeType } from "../../biome/discovery-types";
+import { defaultComponentStore, type ComponentStore } from "../craftComponents/types";
 import type { ResourceStore } from "../resources/types";
 
 export type LocationId = "lake" | "tavern" | "blacksmith";
@@ -12,6 +13,7 @@ export type ExplorationStore = {
   active: boolean;
   biome: BiomeType;
   inventory: Partial<ResourceStore>; // temporary storage while exploring
+  craftComponents: ComponentStore;
   actions: { cur: number; max: number }; // exploration actions this trip
   location?: LocationId; // current location if visiting one
   lodging: Partial<Record<BiomeType, Lodging>>;
@@ -21,6 +23,7 @@ export const defaultExplorationStore: ExplorationStore = {
   active: false,
   biome: "forest",
   inventory: {},
+  craftComponents: defaultComponentStore,
   actions: { cur: 0, max: 0 },
   lodging: {},
 };

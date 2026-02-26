@@ -10,6 +10,19 @@ import { getEquipmentLevel, getLevelBias } from "../../data/equipment/util";
 import { useGrantSkillExperience, useSkills } from "../../data/skills/hooks";
 import { getExpThreshold } from "../../data/leveling-util";
 import TooltipWrapper from "../../style/TooltipWrapper";
+import styled from "styled-components";
+
+const ButtonRow = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const ToolCraftingWrapper = styled.div`
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+`;
 
 const ToolCrafting = () => {
   const { skills } = useSkills();
@@ -43,7 +56,7 @@ const ToolCrafting = () => {
   };
 
   return (
-    <div className="tool-crafting">
+    <ToolCraftingWrapper>
       {objectEntries(TOOL_DEFINITIONS).map(([toolKey, toolDef]) => {
         const { toolStatus } = getTool(toolKey);
         const toolTier = toolStatus?.tier || 0;
@@ -61,7 +74,7 @@ const ToolCrafting = () => {
 
           const tooltip = levelGated
             ? `Requires crafting level ${(nextTier - 1) * 10}`
-            : `Median level: ${bias}`;
+            : `Median level: ${bias}, cost: ${nextCostText}`;
           return (
             <TooltipWrapper description={tooltip}>
               <button
@@ -69,8 +82,7 @@ const ToolCrafting = () => {
                 onClick={() => craftTool(toolDef.key, nextTier, resourceResult)}
                 style={{ fontSize: "0.9em" }}
               >
-                Craft {nextTierData.name} {toolDef.name}{" "}
-                {nextCostText ? `(${nextCostText})` : "(free)"}
+                Craft {nextTierData.name} tier
               </button>
             </TooltipWrapper>
           );
@@ -87,33 +99,33 @@ const ToolCrafting = () => {
 
         return hasDiscovered ? (
           <div key={toolDef.key}>
-            {hasNextTier ? (
-              getNextTierButton()
-            ) : (
-              <p style={{ marginBottom: "0.25rem", opacity: 0.7 }}>
-                {toolDef.name} (current: {tierDefinition.name}) - Max tier reached
-              </p>
-            )}
-            {toolTier !== 0 && (
-              <TooltipWrapper
-                description={`(${costText}). You already have a ${tierDefinition.name} ${toolDef.name}, but if you are displeased with it's quality you can attempt to reforge it to get a higher level. Maybe you will also learn something`}
-              >
-                <button
-                  disabled={
-                    !reforgeAffordability.canAfford || getLevelBias(craftingLevel, toolTier) < 0
-                  }
-                  onClick={() =>
-                    craftTool(toolDef.key, toolTier, reforgeAffordability.resourceResult)
-                  }
+            <label style={{ fontWeight: "700" }}>
+              {toolDef.name}
+              {tierDefinition.name === "none" ? "" : ` (${tierDefinition.name})`}
+            </label>
+            <ButtonRow>
+              {toolTier !== 0 && (
+                <TooltipWrapper
+                  description={`Median level: ${getLevelBias(craftingLevel, toolTier)}, (${costText}). You already have a ${tierDefinition.name} ${toolDef.name}, but if you are displeased with it's quality you can attempt to reforge it to get a higher level. Maybe you will also learn something`}
                 >
-                  reforge
-                </button>
-              </TooltipWrapper>
-            )}
+                  <button
+                    disabled={
+                      !reforgeAffordability.canAfford || getLevelBias(craftingLevel, toolTier) < 0
+                    }
+                    onClick={() =>
+                      craftTool(toolDef.key, toolTier, reforgeAffordability.resourceResult)
+                    }
+                  >
+                    reforge
+                  </button>
+                </TooltipWrapper>
+              )}
+              {hasNextTier && getNextTierButton()}
+            </ButtonRow>
           </div>
         ) : null;
       })}
-    </div>
+    </ToolCraftingWrapper>
   );
 };
 

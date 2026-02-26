@@ -9,6 +9,8 @@ import { mergeNumericRecords, objectEntries, rollFractional } from "../../../uti
 import { Paragraph } from "../../../style/elements";
 import { BLACKSMITH_TEXT } from "./blacksmith-text";
 import NPCResourceTradePanel from "../../../npc/NPCResourceTradePanel";
+import { CASTING_DEFINITIONS } from "../../../data/craftComponents/definitions";
+import type { CastingDefinition } from "../../../data/craftComponents/definitions";
 
 const COPPER_HARD_CAP = 0.3;
 const COPPER_BASE_SKILL = 0.3;
@@ -16,9 +18,10 @@ const SKILL_PER_LEVEL = 0.02;
 const COPPER_XP_PER_YIELD = 25;
 
 const BlacksmithLocation = () => {
-  const [display, setDisplay] = useState<"trading" | "smelting">();
+  const [display, setDisplay] = useState<"trading" | "smelting" | "casting">();
   const [selectedOre, setSelectedOre] = useState(1);
   const [selectedCharcoal, setSelectedCharcoal] = useState(1);
+  const [selectedCast, setSelectedCast] = useState<CastingDefinition>(CASTING_DEFINITIONS[0]);
   const { exploration, mutateExploration } = useHandleExploration();
   const { smithing, unlockKnowledge } = useSmithingActions();
   const { skills } = useSkills();
@@ -29,6 +32,7 @@ const BlacksmithLocation = () => {
   const inventory = exploration.inventory;
   const copperOre = inventory.copperOre ?? 0;
   const charcoal = inventory.charcoal ?? 0;
+  const carryBars = exploration.craftComponents.bar.copper;
   const knowsCopper = smithing.copper.ore;
 
   if (!npc) return null;
@@ -47,14 +51,32 @@ const BlacksmithLocation = () => {
   const expectedYield =
     selectedOre * COPPER_HARD_CAP * Math.min(1, charcoalFactor * skillMultiplier);
 
+  const barCost = selectedCast.barCost;
+  const canCast = carryBars >= barCost && charcoal >= barCost;
+
+  const handleCast = () => {
+    const { craftComponents } = exploration;
+    mutateExploration({
+      inventory: mergeNumericRecords(inventory, { charcoal: -barCost }),
+      craftComponents: {
+        ...craftComponents,
+        bar: { type: "metal", copper: craftComponents.bar.copper - barCost },
+        knifeBlade: { type: "metal", copper: craftComponents.knifeBlade.copper + 1 },
+      },
+    });
+  };
+
   const handleSmelt = () => {
     const bars = rollFractional(expectedYield);
     mutateExploration({
       inventory: mergeNumericRecords(inventory, {
         copperOre: -selectedOre,
         charcoal: -selectedCharcoal,
-        copperBar: bars,
       }),
+      craftComponents: {
+        ...exploration.craftComponents,
+        bar: { type: "metal", copper: exploration.craftComponents.bar.copper + bars },
+      },
     });
     const baseExp = bars > 0 ? bars : expectedYield;
     grantExperience({ smithing: baseExp * COPPER_XP_PER_YIELD });
@@ -91,6 +113,35 @@ const BlacksmithLocation = () => {
             </Paragraph>
             {display === "trading" && (
               <NPCResourceTradePanel npc={npc} onCancel={() => setDisplay(undefined)} />
+            )}
+            {display === "casting" && (
+              <div>
+                <p>
+                  Component:{" "}
+                  <select
+                    value={selectedCast.type}
+                    onChange={(e) => {
+                      const def = CASTING_DEFINITIONS.find(
+                        (d) => d.type === (e.target as HTMLSelectElement).value,
+                      );
+                      if (def) setSelectedCast(def);
+                    }}
+                  >
+                    {CASTING_DEFINITIONS.map((def) => (
+                      <option key={def.type} value={def.type}>
+                        {def.label}
+                      </option>
+                    ))}
+                  </select>
+                </p>
+                <p>
+                  Cost: {barCost} copper {barCost === 1 ? "bar" : "bars"}, {barCost} charcoal
+                </p>
+                <button disabled={!canCast} onClick={handleCast}>
+                  Cast
+                </button>
+                <button onClick={() => setDisplay(undefined)}>Cancel</button>
+              </div>
             )}
             {display === "smelting" && (
               <div>
@@ -141,6 +192,9 @@ const BlacksmithLocation = () => {
                 <button onClick={() => setDisplay("trading")}>Trade</button>
                 {smithing.smelting.basics && (
                   <button onClick={() => setDisplay("smelting")}>Smelt</button>
+                )}
+                {smithing.smelting.basics && (
+                  <button onClick={() => setDisplay("casting")}>Cast</button>
                 )}
               </div>
             )}
