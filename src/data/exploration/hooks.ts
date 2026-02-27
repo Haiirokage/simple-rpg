@@ -23,8 +23,7 @@ export const explorationQuery = makeDataQuery("EXPLORATION", defaultExplorationS
 
 export const useExploration = () => {
   const { data } = useDefinedQuery(explorationQuery);
-  console.log(defaultExplorationStore);
-  return { ...data, craftComponents: defaultExplorationStore.craftComponents };
+  return data;
 };
 
 export const useMutateExploration = () => {

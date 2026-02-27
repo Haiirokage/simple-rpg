@@ -1,10 +1,13 @@
 import { useResources, useMutateResources } from "../../data/resources/hooks";
 import { getAffordability, hasDiscoveredResources } from "../../data/resources/util";
 import { useHandleEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
+import { useHandleExploration } from "../../data/exploration/hooks";
 import { useAdvanceTime } from "../../data/time/hooks";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
+import type { ToolTier } from "../../data/equipment/definitions";
+import { getCraftComponentLabel } from "../../data/craftComponents/util";
 import type { ResourceStore } from "../../data/resources/types";
-import { objectEntries } from "../../util";
+import { objectEntries, subtractNumericRecords } from "../../util";
 import type { ToolType } from "../../data/equipment/types";
 import { getEquipmentLevel, getLevelBias } from "../../data/equipment/util";
 import { useGrantSkillExperience, useSkills } from "../../data/skills/hooks";
@@ -31,19 +34,43 @@ const ToolCrafting = () => {
   const { mutate: mutateResources } = useMutateResources();
   const { getTool } = useHandleEquipment();
   const { mutateSpecific } = useUpdateEquipment();
+  const { exploration, mutateExploration } = useHandleExploration();
   const advanceTime = useAdvanceTime();
 
   const craftingLevel = skills.crafting.level;
 
-  const craftTool = (toolKey: ToolType, tier: number, resourceResult: Partial<ResourceStore>) => {
-    // Subtract costs from resources
+  const canAffordComponents = (componentCost: ToolTier["componentCost"]) =>
+    objectEntries(componentCost).every(
+      ([type, materialCost]) =>
+        !materialCost ||
+        objectEntries(materialCost).every(
+          ([material, needed]) => exploration.craftComponents[type][material] >= needed,
+        ),
+    );
+
+  const craftTool = (
+    toolKey: ToolType,
+    tier: number,
+    resourceResult: Partial<ResourceStore>,
+    componentCost: ToolTier["componentCost"],
+  ) => {
     mutateResources(resourceResult);
+
+    if (objectEntries(componentCost).length > 0) {
+      const newCraftComponents = objectEntries(componentCost).reduce(
+        (acc, [type, materialCost]) => ({
+          ...acc,
+          [type]: subtractNumericRecords(acc[type], materialCost),
+        }),
+        exploration.craftComponents,
+      );
+      mutateExploration({ craftComponents: newCraftComponents });
+    }
 
     const newLevel = getEquipmentLevel(craftingLevel, tier);
     const { toolStatus } = getTool(toolKey);
     const improvement = newLevel > toolStatus.level || tier > toolStatus.tier;
     if (improvement) {
-      // Update tool to new level
       mutateSpecific("tools", {
         [toolKey]: { tier, level: newLevel },
       });
@@ -65,10 +92,19 @@ const ToolCrafting = () => {
 
         const nextTierData = toolDef.tiers[nextTier];
         const getNextTierButton = () => {
-          const nextCostText = objectEntries(nextTierData.cost)
-            .map(([key, cost]) => `${cost} ${key}`)
-            .join(", ");
+          const allCostEntries = [
+            ...objectEntries(nextTierData.cost).map(([key, cost]) => `${cost} ${key}`),
+            ...objectEntries(nextTierData.componentCost).flatMap(([type, materialCost]) =>
+              materialCost
+                ? objectEntries(materialCost).map(
+                    ([mat, n]) => `${n} ${getCraftComponentLabel(String(type), String(mat))}`,
+                  )
+                : [],
+            ),
+          ];
+          const nextCostText = allCostEntries.join(", ");
           const { canAfford, resourceResult } = getAffordability(nextTierData.cost, resources);
+          const canAffordAll = canAfford && canAffordComponents(nextTierData.componentCost);
           const bias = getLevelBias(craftingLevel, nextTier);
           const levelGated = bias < 0;
 
@@ -78,8 +114,10 @@ const ToolCrafting = () => {
           return (
             <TooltipWrapper description={tooltip}>
               <button
-                disabled={!canAfford || levelGated}
-                onClick={() => craftTool(toolDef.key, nextTier, resourceResult)}
+                disabled={!canAffordAll || levelGated}
+                onClick={() =>
+                  craftTool(toolDef.key, nextTier, resourceResult, nextTierData.componentCost)
+                }
                 style={{ fontSize: "0.9em" }}
               >
                 Craft {nextTierData.name} tier
@@ -89,10 +127,19 @@ const ToolCrafting = () => {
         };
         const tierDefinition = toolDef.tiers[toolTier];
 
-        const costText = objectEntries(tierDefinition.cost)
-          .map(([key, cost]) => `${cost} ${key}`)
-          .join(", ");
+        const costText = [
+          ...objectEntries(tierDefinition.cost).map(([key, cost]) => `${cost} ${key}`),
+          ...objectEntries(tierDefinition.componentCost).flatMap(([type, materialCost]) =>
+            materialCost
+              ? objectEntries(materialCost).map(
+                  ([mat, n]) => `${n} ${getCraftComponentLabel(String(type), String(mat))}`,
+                )
+              : [],
+          ),
+        ].join(", ");
         const reforgeAffordability = getAffordability(tierDefinition.cost, resources);
+        const canReforge =
+          reforgeAffordability.canAfford && canAffordComponents(tierDefinition.componentCost);
 
         const hasDiscovered =
           (hasNextTier && hasDiscoveredResources(nextTierData.cost, data)) || nextTier > 0;
@@ -109,11 +156,14 @@ const ToolCrafting = () => {
                   description={`Median level: ${getLevelBias(craftingLevel, toolTier)}, (${costText}). You already have a ${tierDefinition.name} ${toolDef.name}, but if you are displeased with it's quality you can attempt to reforge it to get a higher level. Maybe you will also learn something`}
                 >
                   <button
-                    disabled={
-                      !reforgeAffordability.canAfford || getLevelBias(craftingLevel, toolTier) < 0
-                    }
+                    disabled={!canReforge || getLevelBias(craftingLevel, toolTier) < 0}
                     onClick={() =>
-                      craftTool(toolDef.key, toolTier, reforgeAffordability.resourceResult)
+                      craftTool(
+                        toolDef.key,
+                        toolTier,
+                        reforgeAffordability.resourceResult,
+                        tierDefinition.componentCost,
+                      )
                     }
                   >
                     reforge

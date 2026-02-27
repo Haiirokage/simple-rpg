@@ -21,6 +21,12 @@ export const mergeNumericRecords = <T extends Record<string, number>>(
   additions: Partial<T>,
 ): Partial<T> => mergeWith({}, base, additions, addValues);
 
+/** Subtract a numeric record from a base object, leaving non-numeric fields untouched. */
+export const subtractNumericRecords = <T extends Record<string, number>>(
+  base: T,
+  subtractions: Partial<T>,
+): T => mergeWith({}, base, subtractions, (a, b = 0) => (a ? a - b : b));
+
 /**
  * Convert a fractional value to an integer using probability.
  * Floor value is guaranteed, fractional part is probability for +1 bonus.

@@ -2,10 +2,11 @@ import { useState } from "preact/hooks";
 import styled from "styled-components";
 
 export const Accordion = styled.div`
-  width: 200px;
+  width: 250px;
   height: 350px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  overflow-y: scroll;
 `;
 
 const TopicWrapper = styled.div`

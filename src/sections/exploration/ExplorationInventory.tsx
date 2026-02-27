@@ -7,6 +7,12 @@ import {
   getResourceWeight,
   getStorageCapacity,
 } from "../../data/resources/util";
+import {
+  getTotalCraftComponentsWeight,
+  getCraftComponentLabel,
+} from "../../data/craftComponents/util";
+import { MATERIAL_WEIGHTS } from "../../data/craftComponents/definitions";
+import type { MetalMaterial } from "../../data/craftComponents/types";
 import { useStructures } from "../../data/structures/hooks";
 import { objectEntries } from "../../util";
 import type { ResourceKeys } from "../../data/resources/types";
@@ -69,7 +75,9 @@ const ExplorationInventory = () => {
   const force = usePlayerForce();
 
   const carryCapacity = getCarryCapacity(force);
-  const currentWeight = getInventoryWeight(exploration.inventory);
+  const currentWeight =
+    getInventoryWeight(exploration.inventory) +
+    getTotalCraftComponentsWeight(exploration.craftComponents);
   const weightPercent = (currentWeight / carryCapacity) * 100;
   const overweight = currentWeight > carryCapacity;
 
@@ -163,6 +171,23 @@ const ExplorationInventory = () => {
             </InventoryItem>
           );
         })}
+        {objectEntries(exploration.craftComponents).flatMap(([componentType, entry]) =>
+          (Object.keys(MATERIAL_WEIGHTS) as MetalMaterial[])
+            .filter((material) => entry[material] > 0)
+            .map((material) => {
+              const amount = entry[material];
+              const weight = amount * MATERIAL_WEIGHTS[material];
+              const label = getCraftComponentLabel(componentType, material);
+              return (
+                <InventoryItem key={`${componentType}-${material}`}>
+                  <span>
+                    {label}: {amount}
+                    <span style={{ opacity: 0.6, marginLeft: 4 }}>({weight.toFixed(2)})</span>
+                  </span>
+                </InventoryItem>
+              );
+            }),
+        )}
       </InventoryList>
     </>
   );

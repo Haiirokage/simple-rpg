@@ -7,9 +7,13 @@ export type MetalEntry = { type: "metal" } & Record<MetalMaterial, number>;
 export type ComponentStore = {
   bar: MetalEntry;
   knifeBlade: MetalEntry;
+  axeHead: MetalEntry;
+  swordBlade: MetalEntry;
 };
 
 export const defaultComponentStore: ComponentStore = {
   bar: { type: "metal", copper: 0 },
   knifeBlade: { type: "metal", copper: 0 },
+  axeHead: { type: "metal", copper: 0 },
+  swordBlade: { type: "metal", copper: 0 },
 };

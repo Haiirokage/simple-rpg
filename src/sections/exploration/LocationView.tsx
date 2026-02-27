@@ -1,7 +1,7 @@
 import type { LocationId } from "../../data/exploration/types";
 import LakeLocation from "../../biome/forest/locations/LakeLocation";
 import TavernLocation from "../../biome/village/locations/TavernLocation";
-import BlacksmithLocation from "../../biome/village/locations/BlacksmithLocation";
+import BlacksmithLocation from "../../biome/village/locations/blacksmith/BlacksmithLocation";
 
 interface Props {
   location: LocationId;

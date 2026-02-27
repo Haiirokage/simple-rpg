@@ -1,6 +1,7 @@
 import type { ResourceStore } from "../resources/types";
 import type { Skills } from "../skills/types";
 import type { ConsumableType, ToolType } from "./types";
+import type { CraftComponentType, MetalMaterial } from "../craftComponents/types";
 
 export type EquipmentDefinition = {
   key: ConsumableType;
@@ -20,6 +21,7 @@ export type EquipmentBonusType = "woodGathering" | "range" | "explorationChance"
 export interface ToolTier {
   name: string; // e.g. "wooden", "stone", "iron"
   cost: Partial<ResourceStore>;
+  componentCost: Partial<Record<CraftComponentType, Partial<Record<MetalMaterial, number>>>>;
   bonus: Partial<Record<EquipmentBonusType, NumberRange>>;
   skillBonus?: Partial<Record<Skills, NumberRange>>;
 }
@@ -30,7 +32,7 @@ export interface ToolDefinition {
   tiers: ToolTier[]; // index 0+ are tier names (level 1+), level 0 is always "none"
 }
 
-const NO_TOOL = { name: "none", cost: {}, bonus: {} };
+const NO_TOOL = { name: "none", cost: {}, componentCost: {}, bonus: {} };
 
 export const TOOL_DEFINITIONS = {
   hatchet: {
@@ -41,6 +43,7 @@ export const TOOL_DEFINITIONS = {
       {
         name: "stone",
         cost: { wood: 5, stone: 8 },
+        componentCost: {},
         bonus: { woodGathering: { min: 3, max: 4.5, decimals: 1 } },
       },
     ],
@@ -50,7 +53,12 @@ export const TOOL_DEFINITIONS = {
     name: "Bow",
     tiers: [
       NO_TOOL,
-      { name: "crude", cost: { wood: 5, fiber: 6 }, bonus: { range: { min: 130, max: 170 } } },
+      {
+        name: "crude",
+        cost: { wood: 5, fiber: 6 },
+        componentCost: {},
+        bonus: { range: { min: 130, max: 170 } },
+      },
     ],
   },
   shoes: {
@@ -61,6 +69,7 @@ export const TOOL_DEFINITIONS = {
       {
         name: "crude",
         cost: { fiber: 2, leather: 5 },
+        componentCost: {},
         bonus: { explorationChance: { min: 1, max: 2, decimals: 1 } },
       },
     ],
@@ -73,11 +82,13 @@ export const TOOL_DEFINITIONS = {
       {
         name: "stone",
         cost: { wood: 2, fiber: 1, stone: 4 },
+        componentCost: {},
         bonus: { skinning: { min: 1, max: 1.5, decimals: 1 } },
       },
       {
         name: "copper",
-        cost: { wood: 1, copperBar: 1, leather: 2 },
+        cost: { wood: 1, leather: 2 },
+        componentCost: { knifeBlade: { copper: 1 } },
         bonus: { skinning: { min: 1, max: 2, decimals: 1 } },
       },
     ],
@@ -90,6 +101,7 @@ export const TOOL_DEFINITIONS = {
       {
         name: "stone",
         cost: { wood: 5, stone: 8 },
+        componentCost: {},
         bonus: {},
         skillBonus: { mining: { min: 3 } },
       },
