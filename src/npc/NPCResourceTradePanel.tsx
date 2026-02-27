@@ -66,6 +66,7 @@ const NPCResourceTradePanel = ({ npc, onTrade, onCancel }: Props) => {
   const playerCoin = inventory.coin ?? 0;
 
   const visibleEntries = npc.interests;
+  console.log(npc);
 
   if (visibleEntries.length === 0) return null;
 

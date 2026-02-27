@@ -18,7 +18,7 @@ const EventPopover = styled.div<{ $top?: number; $left?: number }>`
 `;
 
 const Wrapper = styled.span<{ inline: boolean }>`
-  width: fit-content;
+  width: ${(props) => (props.inline ? "max-content" : "100%")};
   display: ${(props) => (props.inline ? "inline-block" : "block")};
 `;
 

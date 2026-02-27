@@ -50,7 +50,10 @@ const HomeUpgrades = () => {
 
   return (
     <div>
-      <TooltipWrapper description="Rest until sunrise and restore energy based on satiation. You will consume food when you pass midnight.">
+      <TooltipWrapper
+        inline
+        description="Rest until sunrise and restore energy based on satiation. You will consume food when you pass midnight."
+      >
         <Button
           onClick={() => {
             const nextDay = day + 1;

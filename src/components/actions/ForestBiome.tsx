@@ -50,7 +50,10 @@ const ForestBiome = () => {
       <Paragraph>
         Knowledge Tier {knowledge.tier} (Level {knowledge.level})
       </Paragraph>
-      <TooltipWrapper description="Venture into the forest to discover new resources, encounters, and more.">
+      <TooltipWrapper
+        inline
+        description="Venture into the forest to discover new resources, encounters, and more."
+      >
         <ExploreButton />
       </TooltipWrapper>
 

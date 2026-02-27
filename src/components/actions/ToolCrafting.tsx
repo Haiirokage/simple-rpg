@@ -97,7 +97,7 @@ const ToolCrafting = () => {
             ...objectEntries(nextTierData.componentCost).flatMap(([type, materialCost]) =>
               materialCost
                 ? objectEntries(materialCost).map(
-                    ([mat, n]) => `${n} ${getCraftComponentLabel(String(type), String(mat))}`,
+                    ([mat, n]) => `${n} ${getCraftComponentLabel(type, String(mat))}`,
                   )
                 : [],
             ),
@@ -132,7 +132,7 @@ const ToolCrafting = () => {
           ...objectEntries(tierDefinition.componentCost).flatMap(([type, materialCost]) =>
             materialCost
               ? objectEntries(materialCost).map(
-                  ([mat, n]) => `${n} ${getCraftComponentLabel(String(type), String(mat))}`,
+                  ([mat, n]) => `${n} ${getCraftComponentLabel(type, String(mat))}`,
                 )
               : [],
           ),

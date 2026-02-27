@@ -13,7 +13,6 @@ export const resourceRecord = {
   iron: 0,
   charcoal: 0,
   copperOre: 0,
-  copperBar: 0,
   jar: 0,
   // Currency
   coin: 0,

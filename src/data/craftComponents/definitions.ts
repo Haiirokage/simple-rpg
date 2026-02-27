@@ -4,6 +4,10 @@ export const MATERIAL_WEIGHTS: Record<CraftComponentMaterial, number> = {
   copper: 0.2,
 };
 
+export const CASTING_XP_MULTIPLIERS: Record<CraftComponentMaterial, number> = {
+  copper: 3,
+};
+
 const _ = false;
 const X = true;
 
@@ -44,11 +48,19 @@ const SWORD_BLADE_MOLD: boolean[][] = [
   [X, _, _, _, _, _],
 ];
 
-export const CASTING_DEFINITIONS: CastingDefinition[] = [
-  { type: "knifeBlade", label: "Knife blade", barCost: 1, mold: KNIFE_BLADE_MOLD },
-  { type: "axeHead", label: "Axe head", barCost: 3, mold: AXE_HEAD_MOLD },
-  { type: "swordBlade", label: "Sword blade", barCost: 5, mold: SWORD_BLADE_MOLD },
+// prettier-ignore
+const BAR_MOLD: boolean[][] = [
+  [X, X],
+  [X, X],
+  [X, X],
 ];
+
+export const CASTING_DEFINITIONS: Record<CraftComponentType, CastingDefinition> = {
+  bar: { type: "bar", label: "Bar", barCost: 1, mold: BAR_MOLD },
+  knifeBlade: { type: "knifeBlade", label: "Knife blade", barCost: 1, mold: KNIFE_BLADE_MOLD },
+  axeHead: { type: "axeHead", label: "Axe head", barCost: 3, mold: AXE_HEAD_MOLD },
+  swordBlade: { type: "swordBlade", label: "Sword blade", barCost: 5, mold: SWORD_BLADE_MOLD },
+};
 
 /** Returns the CastingDefinition whose mold matches the filled bounding box of the grid, or null. */
 export const matchMold = (grid: boolean[][]): CastingDefinition | null => {
@@ -61,7 +73,7 @@ export const matchMold = (grid: boolean[][]): CastingDefinition | null => {
   const maxC = Math.max(...filled.map((p) => p.c));
 
   return (
-    CASTING_DEFINITIONS.find(({ mold }) => {
+    Object.values(CASTING_DEFINITIONS).find(({ mold }) => {
       if (maxR - minR + 1 !== mold.length || maxC - minC + 1 !== mold[0].length) return false;
       return mold.every((row, r) => row.every((cell, c) => grid[minR + r][minC + c] === cell));
     }) ?? null

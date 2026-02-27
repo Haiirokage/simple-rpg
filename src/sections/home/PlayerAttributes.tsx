@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useMemo } from "preact/hooks";
 import type { Attributes } from "../../data/attributes/types";
 import { getExpThreshold } from "../../data/leveling-util";
+import TooltipWrapper from "../../style/TooltipWrapper";
 
 const ATTRIBUTE_COLORS: Record<Attributes, string> = {
   strength: "#ff6b6b",
@@ -13,12 +14,21 @@ const ATTRIBUTE_COLORS: Record<Attributes, string> = {
   intelligence: "#ab47bc",
 };
 
+const ATTRIBUTE_DESCRIPTIONS: Record<Attributes, string> = {
+  strength: "Increases carry capacity.",
+  constitution: "Increases health and energy regeneration.",
+  dexterity: "Improves combat accuracy and evasion.",
+  wisdom: "Your creativity and problem solving skills.",
+  intelligence: "Your capacity for knowledge.",
+};
+
 const AttributeBox = styled.div`
   border: 1px solid #333;
   border-radius: 3px;
   background-color: #fff;
   font-weight: 500;
   overflow: hidden;
+  width: 100%;
 
   & > div:first-child {
     padding: 4px 28px;
@@ -50,14 +60,16 @@ const PlayerAttributes = () => {
         const expProgress = (attribute.exp / expThreshold) * 100;
 
         return (
-          <AttributeBox key={name}>
-            <div>
-              {name.charAt(0).toUpperCase() + name.slice(1)}: {attribute.level}
-            </div>
-            <ExperienceBar color={ATTRIBUTE_COLORS[name]}>
-              <div style={{ width: `${expProgress}%` }} />
-            </ExperienceBar>
-          </AttributeBox>
+          <TooltipWrapper key={name} description={ATTRIBUTE_DESCRIPTIONS[name]}>
+            <AttributeBox>
+              <div>
+                {name.charAt(0).toUpperCase() + name.slice(1)}: {attribute.level}
+              </div>
+              <ExperienceBar color={ATTRIBUTE_COLORS[name]}>
+                <div style={{ width: `${expProgress}%` }} />
+              </ExperienceBar>
+            </AttributeBox>
+          </TooltipWrapper>
         );
       })}
     </div>

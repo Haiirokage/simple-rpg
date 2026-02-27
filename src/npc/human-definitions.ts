@@ -54,10 +54,10 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
     home: { biome: "village", location: "blacksmith" },
     equipment: {},
     allowance: 200,
+    // TODO: add craft components (bars, cast parts) to trading
     interests: [
       { resource: "copperOre", value: 10 },
       { resource: "charcoal", value: 5 },
-      { resource: "copperBar", value: 50 },
     ],
     replenishment: { charcoal: 10 },
     sellList: [],

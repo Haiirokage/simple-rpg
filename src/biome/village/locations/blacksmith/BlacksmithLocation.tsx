@@ -10,8 +10,15 @@ import { BLACKSMITH_TEXT } from "./blacksmith-text";
 import NPCResourceTradePanel from "../../../../npc/NPCResourceTradePanel";
 import SmeltingPanel from "./SmeltingPanel";
 import CastingPanel from "./CastingPanel";
+import type { SmithingKnowledgeMap, SmithingTopicId } from "../../../../data/smithing/types";
+import {
+  CASTING_DEFINITIONS,
+  type CastingDefinition,
+} from "../../../../data/craftComponents/definitions";
+import { moldToAscii } from "../../../../data/craftComponents/util";
 
 const BlacksmithLocation = () => {
+  const [flavorText, setFlavorText] = useState<string | undefined>(undefined);
   const [display, setDisplay] = useState<"trading" | "smelting" | "casting">();
   const { exploration, mutateExploration } = useHandleExploration();
   const { smithing, unlockKnowledge } = useSmithingActions();
@@ -26,10 +33,30 @@ const BlacksmithLocation = () => {
 
   const trust = Math.floor(npc.trust);
 
-  const handleShowOre = () => {
-    unlockKnowledge("copper", "ore");
+  const handleConversation = <T extends SmithingTopicId>(
+    topic: T,
+    key: keyof SmithingKnowledgeMap[T],
+  ) => {
+    unlockKnowledge(topic, key);
+    setFlavorText(BLACKSMITH_TEXT[topic].entries[key]);
     mutateNPC("village_blacksmith", { trust: npc.trust + 1 });
   };
+
+  const getMoldReference = ({ label, mold }: CastingDefinition) => (
+    <div>
+      <pre
+        style={{
+          fontFamily: "monospace",
+          fontSize: "0.4rem",
+          lineHeight: 0.95,
+          margin: "0 0 0.25rem",
+        }}
+      >
+        {moldToAscii(mold)}
+      </pre>
+      <div style={{ fontSize: "0.6rem" }}>{label}</div>
+    </div>
+  );
 
   return (
     <div style={{ display: "flex", gap: "1rem" }}>
@@ -38,31 +65,37 @@ const BlacksmithLocation = () => {
         <Paragraph>Trust: {trust}</Paragraph>
 
         {!display && (
-          <Paragraph margin="0.5rem 0">
-            The clang of hammer on anvil echoes from inside the workshop. A broad-shouldered smith
-            works near a glowing forge, surrounded by tools and half-finished metalwork. He glances
-            up as you enter.
-          </Paragraph>
-        )}
+          <>
+            {flavorText ? (
+              <Paragraph>{flavorText}</Paragraph>
+            ) : (
+              <Paragraph margin="0.5rem 0">
+                The clang of hammer on anvil echoes from inside the workshop. A broad-shouldered
+                smith works near a glowing forge, surrounded by tools and half-finished metalwork.
+                He glances up as you enter.
+              </Paragraph>
+            )}
+            {copperOre > 0 && !knowsCopper && (
+              <button onClick={() => handleConversation("copper", "ore")}>
+                Show him the copper ore
+              </button>
+            )}
 
-        {copperOre > 0 && !knowsCopper && (
-          <button onClick={handleShowOre}>Show him the copper ore</button>
+            {knowsCopper && !smithing.smelting.basics && trust >= 5 && (
+              <button onClick={() => handleConversation("smelting", "basics")}>
+                Ask him about smelting
+              </button>
+            )}
+            {smithing.smelting.basics &&
+              !smithing.casting.knifeBlade &&
+              trust >= 6 &&
+              carryBars >= 1 && (
+                <button onClick={() => handleConversation("casting", "knifeBlade")}>
+                  Show him the copper bar you made
+                </button>
+              )}
+          </>
         )}
-
-        {knowsCopper && !smithing.smelting.basics && trust >= 5 && (
-          <button onClick={() => unlockKnowledge("smelting", "basics")}>
-            Ask him about smelting
-          </button>
-        )}
-
-        {smithing.smelting.basics &&
-          !smithing.casting.knifeBlade &&
-          trust >= 6 &&
-          carryBars >= 1 && (
-            <button onClick={() => unlockKnowledge("casting", "knifeBlade")}>
-              Show him the copper bar you made
-            </button>
-          )}
 
         {knowsCopper && (
           <>
@@ -91,20 +124,26 @@ const BlacksmithLocation = () => {
           </>
         )}
       </div>
-      <Accordion>
-        {objectEntries(smithing).map(([topic, knowledge]) => {
-          const topicText = BLACKSMITH_TEXT[topic];
-          const activeEntries = objectEntries(knowledge).filter(([, active]) => active);
-          if (activeEntries.length === 0) return null;
-          return (
-            <AccordionTopic key={topic} label={topicText.label}>
-              {activeEntries.map(([key]) => (
-                <p key={key}>{topicText.entries[key]}</p>
-              ))}
-            </AccordionTopic>
-          );
-        })}
-      </Accordion>
+      {!display && (
+        <Accordion>
+          {objectEntries(smithing).map(([topic, knowledge]) => {
+            const topicText = BLACKSMITH_TEXT[topic];
+            const activeEntries = objectEntries(knowledge).filter(([, active]) => active);
+            if (activeEntries.length === 0) return null;
+
+            return (
+              <AccordionTopic key={topic} label={topicText.label}>
+                {activeEntries.map(([key]) => (
+                  <>
+                    <p key={key}>{topicText.entries[key]}</p>
+                    {topic === "casting" && <p>{getMoldReference(CASTING_DEFINITIONS[key])}</p>}
+                  </>
+                ))}
+              </AccordionTopic>
+            );
+          })}
+        </Accordion>
+      )}
     </div>
   );
 };

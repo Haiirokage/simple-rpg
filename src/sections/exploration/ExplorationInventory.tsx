@@ -81,7 +81,10 @@ const ExplorationInventory = () => {
   const weightPercent = (currentWeight / carryCapacity) * 100;
   const overweight = currentWeight > carryCapacity;
 
-  const inventoryEntries = objectEntries(exploration.inventory).filter(([, amount]) => amount > 0);
+  const coinAmount = exploration.inventory.coin ?? 0;
+  const inventoryEntries = objectEntries(exploration.inventory).filter(
+    ([key, amount]) => amount > 0 && key !== "coin",
+  );
 
   const handleDrop = (resource: ResourceKeys, amount = 1) => {
     const current = exploration.inventory[resource] ?? 0;
@@ -100,12 +103,20 @@ const ExplorationInventory = () => {
   return (
     <>
       <Header3>Exploration inventory</Header3>
+
       <WeightLabel overweight={overweight}>
         Weight: {currentWeight.toFixed(1)} / {carryCapacity.toFixed(1)}
       </WeightLabel>
       <WeightBar>
         <WeightFill percent={weightPercent} overweight={overweight} />
       </WeightBar>
+      {coinAmount > 0 && (
+        <InventoryItem>
+          <span>
+            Coins: <CurrencyDisplay amount={coinAmount} />
+          </span>
+        </InventoryItem>
+      )}
       {!exploration.active && (
         <InventoryList>
           {explorationItems
@@ -138,19 +149,11 @@ const ExplorationInventory = () => {
           return (
             <InventoryItem key={resource}>
               <span>
-                {resource === "coin" ? (
-                  <>
-                    Coins: <CurrencyDisplay amount={amount} />
-                  </>
-                ) : (
-                  <>
-                    {resource}: {amount}
-                    {weight > 0 && (
-                      <span style={{ opacity: 0.6, marginLeft: 4 }}>
-                        ({(weight * amount).toFixed(2)})
-                      </span>
-                    )}
-                  </>
+                {resource}: {amount}
+                {weight > 0 && (
+                  <span style={{ opacity: 0.6, marginLeft: 4 }}>
+                    ({(weight * amount).toFixed(2)})
+                  </span>
                 )}
               </span>
               {exploration.active ? (

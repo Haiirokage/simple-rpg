@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import styled from "styled-components";
 
 export const Accordion = styled.div`
-  width: 250px;
+  width: 300px;
   height: 350px;
   border: 1px solid #ccc;
   border-radius: 4px;

@@ -1,11 +1,17 @@
-import type { ComponentStore, MetalEntry, MetalMaterial } from "./types";
+import type { ComponentStore, CraftComponentType, MetalEntry, MetalMaterial } from "./types";
 import { MATERIAL_WEIGHTS, CASTING_DEFINITIONS } from "./definitions";
 import { objectEntries } from "../../util";
 
-export const getCraftComponentLabel = (componentType: string, material: string): string => {
-  const def = CASTING_DEFINITIONS.find((d) => d.type === componentType);
+export const getCraftComponentLabel = (
+  componentType: CraftComponentType,
+  material: string,
+): string => {
+  const def = CASTING_DEFINITIONS[componentType];
   return `${material} ${(def?.label ?? componentType).toLowerCase()}`;
 };
+
+export const moldToAscii = (mold: boolean[][]): string =>
+  mold.map((row) => row.map((cell) => (cell ? "X" : " ")).join(" ")).join("\n");
 
 export const getMetalEntryWeight = (entry: MetalEntry): number =>
   (Object.keys(MATERIAL_WEIGHTS) as MetalMaterial[]).reduce(
