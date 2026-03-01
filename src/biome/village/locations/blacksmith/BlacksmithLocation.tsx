@@ -28,6 +28,7 @@ const BlacksmithLocation = () => {
   const copperOre = exploration.inventory.copperOre ?? 0;
   const carryBars = exploration.craftComponents.bar.copper;
   const knowsCopper = smithing.copper.ore;
+  const hasKnifeBlade = exploration.craftComponents.knifeBlade.copper > 0;
 
   if (!npc) return null;
 
@@ -43,7 +44,7 @@ const BlacksmithLocation = () => {
   };
 
   const getMoldReference = ({ label, mold }: CastingDefinition) => (
-    <div>
+    <>
       <pre
         style={{
           fontFamily: "monospace",
@@ -54,8 +55,8 @@ const BlacksmithLocation = () => {
       >
         {moldToAscii(mold)}
       </pre>
-      <div style={{ fontSize: "0.6rem" }}>{label}</div>
-    </div>
+      <span style={{ fontSize: "0.6rem" }}>{label}</span>
+    </>
   );
 
   return (
@@ -94,6 +95,11 @@ const BlacksmithLocation = () => {
                   Show him the copper bar you made
                 </button>
               )}
+            {hasKnifeBlade && trust >= 7 && !smithing.casting.axeHead && (
+              <button onClick={() => handleConversation("casting", "axeHead")}>
+                Show him the knife blade
+              </button>
+            )}
           </>
         )}
 
@@ -136,7 +142,9 @@ const BlacksmithLocation = () => {
                 {activeEntries.map(([key]) => (
                   <>
                     <p key={key}>{topicText.entries[key]}</p>
-                    {topic === "casting" && <p>{getMoldReference(CASTING_DEFINITIONS[key])}</p>}
+                    {topic === "casting" && (
+                      <span>{getMoldReference(CASTING_DEFINITIONS[key])}</span>
+                    )}
                   </>
                 ))}
               </AccordionTopic>

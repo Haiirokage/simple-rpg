@@ -74,7 +74,7 @@ const NPCInteractionView = () => {
           />
         ) : (
           <>
-            {npc.interests.length > 0 && (
+            {Object.keys(npc.interestValues).length > 0 && (
               <button onClick={() => setTrading(true)} style={{ marginRight: "0.5rem" }}>
                 Trade
               </button>

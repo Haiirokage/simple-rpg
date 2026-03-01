@@ -1,7 +1,7 @@
 import type { Attributes } from "../data/attributes/types";
 import type { ToolType, ToolStatus } from "../data/equipment/types";
 import type { ResourceCost } from "../data/resources/types";
-import type { HumanType, ResourceInterest, ToolSellEntry, NPCHome } from "./human-definitions";
+import type { HumanType, ToolSellEntry, NPCHome } from "./human-definitions";
 
 export interface HumanInstance {
   id: string;
@@ -14,7 +14,7 @@ export interface HumanInstance {
   equipment: Partial<Record<ToolType, ToolStatus>>;
   resources: ResourceCost;
   allowance: number;
-  interests: ResourceInterest[];
+  interestValues: ResourceCost;
   sellList: ToolSellEntry[];
   /** -100: Openly hostile, 0: neutral, 100: complete trust */
   trust: number;

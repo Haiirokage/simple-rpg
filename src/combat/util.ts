@@ -1,6 +1,8 @@
 import { clamp } from "lodash";
 import type { CreatureInstance } from "../npc/creature-definitions";
 
+export type HitTarget = "head" | "body" | "legs";
+
 /** multiplier based on distance and range in meters */
 export const getDistanceMultiplier = (distance: number, bowRange = 150) => {
   const confidentRange = bowRange / 5;
@@ -32,7 +34,7 @@ export const calculateHitChance = (
 ): number => {
   const distanceMultiplier = getDistanceMultiplier(distance, bowRange);
   const dexMult = 0.8 + playerDex / 100;
-  const rangedMult = 0.15 + playerRanged / 30;
+  const rangedMult = 0.2 + playerRanged / 25;
   const composureMult = getComposureMultiplier(acuity);
   const enemyDexMult = discovered ? clamp((playerDex - enemyDex + 30) / 40, 0, 1) : 1;
 
@@ -47,6 +49,9 @@ export const calculateHitChance = (
 export const HIT_SEVERITY = ["critical", "severe", "miss"] as const;
 export type HitSeverity = (typeof HIT_SEVERITY)[number];
 
+/** Higher multiplier = narrower critical/severe bands = harder to land a clean hit. */
+const SEVERITY_MULTIPLIER: Record<HitTarget, number> = { head: 15, body: 5, legs: 10 };
+
 /**
  * Rolls to determine hit severity based on hit chance and target.
  * @param target - The body part being targeted
@@ -54,25 +59,22 @@ export type HitSeverity = (typeof HIT_SEVERITY)[number];
  * @returns The severity of the hit: critical, severe, or miss
  */
 export const calculateHitSeverity = (
-  target: "head" | "body" | "legs",
+  target: HitTarget,
   hitChance: number,
 ): "critical" | "severe" | "miss" => {
   const roll = Math.random();
   const hitMargin = Math.max(0, roll - hitChance + 0.4);
-
-  console.log("hit margin", hitMargin, "roll", roll);
-  const getHitType = (multiplier: number) =>
-    HIT_SEVERITY[Math.min(Math.floor(hitMargin * multiplier), 2)];
-  switch (target) {
-    case "head":
-      return getHitType(15);
-    case "body":
-      return getHitType(5);
-    case "legs":
-    default:
-      return getHitType(10);
-  }
+  const multiplier = SEVERITY_MULTIPLIER[target];
+  console.log("roll", roll, hitMargin, multiplier);
+  return HIT_SEVERITY[Math.min(Math.floor(hitMargin * multiplier), 2)];
 };
+
+/**
+ * Effective probability of not missing for a given target.
+ * Head and legs have tighter hit windows, reducing effective hit chance.
+ */
+export const getEffectiveHitChance = (hitChance: number, target: HitTarget): number =>
+  clamp(hitChance - (0.4 - 2 / SEVERITY_MULTIPLIER[target]), 0, 1);
 
 /**
  * Calculate exp multiplier based on shot difficulty.
@@ -126,8 +128,9 @@ export const getHealthLost = (defence: number, damageMultiplier: number): number
    * A damage of 5 should be critical. It means full penetration. A higher damage than that should however have an impact on targets that normally wouldn't be fatal.
    * We can add a damage multiplier per target. i.e. head * 25, body * 15, legs * 5.
    */
-  const baseDamage = Math.min(5, force - defence);
-  const excessDamage = Math.sqrt(Math.max(0, force - defence - 4)) - 1;
+  const penetration = Math.max(0, force - defence);
+  const baseDamage = Math.min(5, penetration);
+  const excessDamage = Math.max(0, Math.sqrt(penetration - 4) - 1 || 0);
   const damage = baseDamage + excessDamage;
   const healthLost = damage * damageMultiplier;
   return healthLost;

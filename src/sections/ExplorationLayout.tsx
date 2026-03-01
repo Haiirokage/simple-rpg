@@ -8,29 +8,37 @@ import EncounterView from "./exploration/EncounterView";
 import BiomeOverview from "./overview/BiomeOverview";
 import ExplorationInventory from "./exploration/ExplorationInventory";
 import { useExploration } from "../data/exploration/hooks";
+import { useHandleEncounter } from "../data/encounters/hooks";
 import LocationView from "./exploration/LocationView";
+import CombatView from "./combat/CombatView";
 import PlayerEquipment from "./home/PlayerEquipment";
 
-const ExplorationGameContainer = styled(GameViewContainer)<{ hasLocation: boolean }>`
+const ExplorationGameContainer = styled(GameViewContainer)<{ hasFullWidthPanel: boolean }>`
   grid-template-columns: 250px 400px 400px 280px;
   grid-template-areas:
-    "status ${(props) => (!props.hasLocation ? "actions encounter" : "location location")} log"
+    "status ${(props) => (!props.hasFullWidthPanel ? "actions encounter" : "panel panel")} log"
     "inventory biome biome log";
 `;
 
 const ExplorationLayout = () => {
   const { location, biome } = useExploration();
-  const hasLocation = !!location;
+  const { encounter } = useHandleEncounter();
+  const inCombat = Object.keys(encounter.enemies).length > 0;
+  const hasFullWidthPanel = !!location || inCombat;
 
   return (
-    <ExplorationGameContainer hasLocation={hasLocation}>
+    <ExplorationGameContainer hasFullWidthPanel={hasFullWidthPanel}>
       <GameSection area="status">
         <PlayerStatus />
         <PlayerEquipment />
       </GameSection>
-      {hasLocation ? (
-        <GameSection area="location">
-          <LocationView location={location} />
+      {hasFullWidthPanel ? (
+        <GameSection area="panel">
+          {inCombat ? (
+            <CombatView enemies={encounter.enemies} />
+          ) : (
+            <LocationView location={location!} />
+          )}
         </GameSection>
       ) : (
         <>

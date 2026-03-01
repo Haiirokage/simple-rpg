@@ -1,7 +1,9 @@
 import styled from "styled-components";
+import type { HitTarget } from "../../combat/util";
 import type { CreatureInstance } from "../../npc/creature-definitions";
 import { objectEntries, usePrevious } from "../../util";
 import { useState } from "preact/hooks";
+import DistanceBar from "./DistanceBar";
 import {
   useSetEncounter,
   useUpdateEnemies,
@@ -10,12 +12,7 @@ import {
 } from "../../data/encounters/hooks";
 import { useHandleAttack } from "../../combat/hooks";
 import { useAcuity, useGrantAcuityExp } from "../../data/acuity/hooks";
-import {
-  getHealthLost,
-  getSprintDistance,
-  getWoundStatus,
-  type WoundStatus,
-} from "../../combat/util";
+import { getEffectiveHitChance, getHealthLost, getSprintDistance } from "../../combat/util";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import { useAttributes } from "../../data/attributes/hooks";
 import { useSkills } from "../../data/skills/hooks";
@@ -23,57 +20,19 @@ import { useHandleDiscoveries } from "../../data/discoveries/hooks";
 import { useHandlePlayerStatus } from "../../data/playerStatus/hooks";
 import TooltipWrapper from "../../style/TooltipWrapper";
 import CombatResolution from "./CombatResolution";
+import EnemyCard from "./EnemyCard";
 
-const EnemyCard = styled.div<{ borderColor: string; selected?: boolean }>`
-  display: inline-block;
-  border: 2px solid ${(props) => props.borderColor};
-  border-radius: 8px;
-  padding: 12px;
-  margin-right: 6px;
-  width: 150px;
-  transition:
-    background-color 0.2s,
-    box-shadow 0.2s;
-  background-color: ${(props) => (props.selected ? "#eff6ff" : "white")};
-  box-shadow: ${(props) =>
-    props.selected
-      ? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-      : "none"};
+const TargetButton = styled.button<{ $selected: boolean }>`
+  background-color: ${(props) => (props.$selected ? "#1d4ed8" : "")};
+  color: ${(props) => (props.$selected ? "#fff" : "")};
 `;
 
-const Header = styled.div`
+const ActionRow = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-
-  h2 {
-    font-size: 20px;
-    font-weight: bold;
-    margin: 0;
-    color: #333;
-  }
-`;
-
-const Icon = styled.span`
-  font-size: 18px;
-`;
-
-const StatusRow = styled.div`
-  display: flex;
+  gap: 8px;
   align-items: center;
-  justify-content: space-between;
+  margin-top: 8px;
 `;
-
-const StatusLabel = styled.span`
-  font-size: 14px;
-  color: #666;
-`;
-
-const STATUS_CONFIG: Record<WoundStatus, { label: string; borderColor: string; icon: string }> = {
-  healthy: { label: "Healthy", borderColor: "#10b981", icon: "⚔️" },
-  wounded: { label: "Wounded", borderColor: "#f59e0b", icon: "🩹" },
-  critical: { label: "Critically Wounded", borderColor: "#ef4444", icon: "💀" },
-};
 
 const getShootInterval = (rangedLevel = 0, combatAcuity = 0) =>
   Math.max(5, 10 * (1 - rangedLevel / 200) * (1 - combatAcuity / 200));
@@ -94,6 +53,7 @@ const CombatView = ({ enemies }: Props) => {
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const { attributes } = useAttributes();
   const [selectedEnemy, setSelectedEnemy] = useState(Object.keys(enemies)[0]);
+  const [selectedTarget, setSelectedTarget] = useState<HitTarget>("body");
   const grantAcuityExp = useGrantAcuityExp();
   const acuity = useAcuity();
 
@@ -116,7 +76,7 @@ const CombatView = ({ enemies }: Props) => {
 
   const handleShoot = () => {
     if (!enemy) return;
-    const result = handleAttack(enemy, "body", enemy.discovered);
+    const result = handleAttack(enemy, selectedTarget, enemy.discovered);
     updatePlayerStatus({ energy: -2 });
     const healthLost = result !== "failure" ? result.healthLost : 0;
 
@@ -200,7 +160,9 @@ const CombatView = ({ enemies }: Props) => {
     return <CombatResolution enemies={enemies} combatContext={combatContext} />;
   }
 
-  const hitChance = enemy ? Math.floor(getHitChance(enemy) * 1000) / 10 : undefined;
+  const hitChance = enemy
+    ? Math.floor(getEffectiveHitChance(getHitChance(enemy), selectedTarget) * 1000) / 10
+    : undefined;
 
   return (
     <>
@@ -210,52 +172,61 @@ const CombatView = ({ enemies }: Props) => {
           {!aware && " It hasn't noticed you yet."}
         </p>
       )}
-      {enemyEntries.map(([id, enemy]) => {
-        const config = STATUS_CONFIG[getWoundStatus(enemy)];
-        return (
+      <DistanceBar enemies={enemies} selectedEnemy={selectedEnemy} />
+      <div>
+        {enemyEntries.map(([id, e]) => (
           <EnemyCard
-            borderColor={config.borderColor}
+            key={id}
+            id={id}
+            enemy={e}
             selected={id === selectedEnemy}
-            onClick={() => setSelectedEnemy(id)}
+            onSelect={() => setSelectedEnemy(id)}
+          />
+        ))}
+      </div>
+      {enemy && (
+        <div style={{ marginTop: "0.5rem" }}>
+          {(["head", "body", "legs"] as HitTarget[]).map((t) => (
+            <TargetButton
+              key={t}
+              $selected={selectedTarget === t}
+              onClick={() => setSelectedTarget(t)}
+            >
+              {t.charAt(0).toUpperCase() + t.slice(1)}
+            </TargetButton>
+          ))}
+        </div>
+      )}
+      <ActionRow>
+        {!aware && enemy && (
+          <TooltipWrapper
+            description={`Sneak to ${enemy.distance - sneakDistance}m (DC ${getSneakDC(enemy.distance - sneakDistance)})`}
+            inline
           >
-            <Header>
-              <h2>{id}</h2>
-              <Icon>{config.icon}</Icon>
-            </Header>
-
-            <StatusRow>
-              <StatusLabel>Distance:</StatusLabel>
-              <span>{enemy.distance} meters</span>
-            </StatusRow>
-          </EnemyCard>
-        );
-      })}
-      {!anyHostile && (
-        <button onClick={() => setEncounter("exit", 10, combatContext?.exitMessage)}>
-          {outOfRange ? "Give up" : "Flee"}
-        </button>
-      )}
-      {outOfRange && aware && enemy && !anyHostile && (
-        <button onClick={() => handleTrack(enemy)}>Track</button>
-      )}
-      {!aware && enemy && (
-        <TooltipWrapper
-          description={`Sneak to ${enemy.distance - sneakDistance}m (DC ${getSneakDC(enemy.distance - sneakDistance)})`}
-          inline
-        >
-          <button onClick={() => handleSneak(enemy)}>Sneak closer</button>
-        </TooltipWrapper>
-      )}
-      {!outOfRange && enemy && (
-        <TooltipWrapper
-          description={noWeapon ? "You need a weapon" : `Attack roll: ${hitChance}%`}
-          inline
-        >
-          <button disabled={noWeapon} onClick={handleShoot}>
-            Shoot
+            <button onClick={() => handleSneak(enemy)}>Sneak closer</button>
+          </TooltipWrapper>
+        )}
+        {outOfRange && aware && enemy && !anyHostile && (
+          <button onClick={() => handleTrack(enemy)}>Track</button>
+        )}
+        {!outOfRange && enemy && (
+          <TooltipWrapper
+            description={noWeapon ? "You need a weapon" : `Attack roll: ${hitChance}%`}
+            inline
+          >
+            <button disabled={noWeapon} onClick={handleShoot}>
+              Shoot
+            </button>
+          </TooltipWrapper>
+        )}
+      </ActionRow>
+      <ActionRow>
+        {!anyHostile && (
+          <button onClick={() => setEncounter("exit", 10, combatContext?.exitMessage)}>
+            {outOfRange ? "Give up" : "Flee"}
           </button>
-        </TooltipWrapper>
-      )}
+        )}
+      </ActionRow>
     </>
   );
 };

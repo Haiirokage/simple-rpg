@@ -5,7 +5,7 @@ import { useHandleAttack } from "../../combat/hooks";
 import { getBasicNPC } from "../../data/encounters/util";
 import { useState } from "preact/hooks";
 import { objectKeys } from "../../util";
-import { getDistanceMultiplier } from "../../combat/util";
+import { getDistanceMultiplier, type HitTarget } from "../../combat/util";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 
 const trainStrengthCost = {
@@ -26,6 +26,7 @@ const targets = {
 const HomeActions = () => {
   const { getEquipmentBonus } = useHandleEquipment();
   const [rangeTarget, setRangeTarget] = useState("100");
+  const [hitTarget, setHitTarget] = useState<HitTarget>("body");
   const { data: homeUpgrades } = useHomeUpgrades();
   const grantExperience = useGrantExperience();
   const playerForce = usePlayerForce();
@@ -44,7 +45,7 @@ const HomeActions = () => {
   };
 
   const trainRanged = () => {
-    const result = handleAttack(targets[rangeTarget as "50" | "100" | "150"], "body");
+    const result = handleAttack(targets[rangeTarget as "50" | "100" | "150"], hitTarget);
 
     if (result === "failure") {
       return;
@@ -92,6 +93,16 @@ const HomeActions = () => {
                 penalty)
               </option>
             ))}
+          </select>
+          <label for="target-select">Target</label>
+          <select
+            id="target-select"
+            value={hitTarget}
+            onChange={(e) => setHitTarget(e.currentTarget.value as HitTarget)}
+          >
+            <option value="head">Head</option>
+            <option value="body">Body</option>
+            <option value="legs">Legs</option>
           </select>
         </>
       )}

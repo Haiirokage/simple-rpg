@@ -2,7 +2,8 @@ import { useCallback, useEffect } from "preact/hooks";
 import { makeDataQuery, useDefinedQuery, useUpdateData } from "../data/util";
 import { HUMAN_DEFINITIONS, type HumanType } from "./human-definitions";
 import { defaultNPCStore, type HumanInstance, type NPCStore } from "./npc-types";
-import { mergeNumericRecords, objectEntries } from "../util";
+import { objectEntries } from "../util";
+import { mergeWith } from "lodash";
 
 export const npcQuery = makeDataQuery("NPCS", defaultNPCStore);
 
@@ -22,7 +23,7 @@ const generateInstance = (id: string, type: HumanType): HumanInstance => {
     equipment: { ...def.equipment },
     resources: { ...def.replenishment, coin: def.allowance },
     allowance: def.allowance,
-    interests: def.interests,
+    interestValues: def.interestValues,
     sellList: [...def.sellList],
     trust: 0,
   };
@@ -50,9 +51,9 @@ export const useMutateNPCs = () => {
 };
 
 /** Price the NPC pays when buying a resource from the player (below intrinsic value). */
-export const npcBuyPrice = (value: number) => Math.floor(value * 0.8);
+export const npcBuyPrice = (value: number) => Math.floor(value * 0.7);
 /** Price the NPC charges when selling a resource to the player (above intrinsic value). */
-export const npcSellPrice = (value: number) => Math.ceil(value * 1.3);
+export const npcSellPrice = (value: number) => Math.ceil(value * 1.4);
 
 export const useHandleNPCs = () => {
   const npcs = useNPCs();
@@ -92,7 +93,7 @@ export const useNPC = (id: string, type: HumanType) => {
     }
   });
 
-  return existing;
+  return { ...existing };
 };
 
 export const useHandleNPCAllowance = () => {
@@ -105,10 +106,19 @@ export const useHandleNPCAllowance = () => {
       const currentCoin = npc.resources.coin ?? 0;
       const maxCoin = Math.floor(npc.allowance * 1.5);
       const newCoin = Math.min(currentCoin + npc.allowance, maxCoin);
+      const resourcesCapped = mergeWith({ ...npc.resources }, def.interestValues, (a = 0, b) => {
+        const cap = Math.floor(npc.allowance / b);
+        return Math.min(a, cap);
+      });
       acc[id] = {
         ...npc,
-        resources: { ...mergeNumericRecords(npc.resources, def.replenishment), coin: newCoin },
-        interests: def.interests,
+        resources: {
+          ...mergeWith({ ...resourcesCapped }, def.replenishment, (a = 0, b) => {
+            return Math.min(a + b, Math.floor(b * 1.5));
+          }),
+          coin: newCoin,
+        },
+        interestValues: def.interestValues,
       };
       return acc;
     }, {} as NPCStore);

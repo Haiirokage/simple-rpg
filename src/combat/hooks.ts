@@ -8,8 +8,10 @@ import {
   calculateHitSeverity,
   getDifficultyMultiplier,
   getEffectiveDex,
+  getEffectiveHitChance,
   getHealthLost,
   type HitSeverity,
+  type HitTarget,
 } from "./util";
 import { useHandleEquipment } from "../data/equipment/hooks";
 
@@ -44,7 +46,7 @@ export const useHandleAttack = () => {
   return {
     getHitChance,
     handleAttack: useCallback(
-      (creature: CreatureInstance, target: "head" | "body" | "legs", discovered = false) => {
+      (creature: CreatureInstance, target: HitTarget, discovered = false) => {
         if (!creature) return "failure";
 
         const bowRange = getEquipmentBonus("bow", "range");
@@ -61,14 +63,16 @@ export const useHandleAttack = () => {
           acuity.combat.level,
         );
         const hitSeverity = calculateHitSeverity(target, hitChance);
+        const actualHC = getEffectiveHitChance(hitChance, target);
+        console.log("Hit chance: ", hitChance, actualHC, hitSeverity);
 
         const damageMultiplier = TARGET_DAMAGE[target] * SEVERITY_MULT[hitSeverity];
 
         const healthLost = getHealthLost(creature.targets[target].armor_rating, damageMultiplier);
 
-        const distanceFactor = Math.max(0.1, (creature.distance - 20) / 100);
-        const discFactor = discovered ? 1 + creatureDex / 10 : 1;
-        const difficultyMultiplier = getDifficultyMultiplier(hitChance);
+        const distanceFactor = Math.max(0.1, ((creature.distance - 20) / 60) ** 3); //Math.max(0.1, (creature.distance - 20) / 100);
+        const discFactor = discovered ? (1 + creatureDex / 10) ** 2 : 1;
+        const difficultyMultiplier = getDifficultyMultiplier(actualHC);
         const severityBonus = hitSeverity === "critical" ? 2 : 1;
         const skillExperience = {
           ranged:

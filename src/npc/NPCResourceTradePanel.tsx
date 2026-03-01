@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import styled from "styled-components";
 import { useHandleExploration } from "../data/exploration/hooks";
-import { mergeNumericRecords } from "../util";
+import { mergeNumericRecords, objectEntries } from "../util";
 import CurrencyDisplay from "../components/CurrencyDisplay";
 import { npcBuyPrice, npcSellPrice, useHandleNPCs } from "./npc-hooks";
 import type { HumanInstance } from "./npc-types";
@@ -65,8 +65,7 @@ const NPCResourceTradePanel = ({ npc, onTrade, onCancel }: Props) => {
   const npcCoin = npc.resources.coin ?? 0;
   const playerCoin = inventory.coin ?? 0;
 
-  const visibleEntries = npc.interests;
-  console.log(npc);
+  const visibleEntries = objectEntries(npc.interestValues);
 
   if (visibleEntries.length === 0) return null;
 
@@ -81,13 +80,14 @@ const NPCResourceTradePanel = ({ npc, onTrade, onCancel }: Props) => {
     }
   };
 
-  const netCoin = visibleEntries.reduce((sum, entry) => {
-    const r = entry.resource;
-    return sum + selling[r] * npcBuyPrice(entry.value) - buying[r] * npcSellPrice(entry.value);
-  }, 0);
+  const netCoin = visibleEntries.reduce(
+    (sum, [r, value = 0]) =>
+      sum + selling[r] * npcBuyPrice(value) - buying[r] * npcSellPrice(value),
+    0,
+  );
 
   const coinValid = netCoin >= 0 ? npcCoin >= netCoin : playerCoin >= -netCoin;
-  const hasPending = visibleEntries.some((e) => selling[e.resource] > 0 || buying[e.resource] > 0);
+  const hasPending = visibleEntries.some(([r]) => selling[r] > 0 || buying[r] > 0);
 
   return (
     <Panel>
@@ -96,8 +96,7 @@ const NPCResourceTradePanel = ({ npc, onTrade, onCancel }: Props) => {
         <span />
         <span className="theirs">{npc.name}</span>
       </div>
-      {visibleEntries.map((entry) => {
-        const r = entry.resource;
+      {visibleEntries.map(([r]) => {
         const playerQty = (inventory[r] ?? 0) - selling[r] + buying[r];
         const npcQty = (npc.resources[r] ?? 0) + selling[r] - buying[r];
 
@@ -125,20 +124,15 @@ const NPCResourceTradePanel = ({ npc, onTrade, onCancel }: Props) => {
             disabled={!coinValid}
             onClick={() => {
               const trustDelta = visibleEntries.reduce(
-                (sum, e) =>
-                  sum + selling[e.resource] * (e.value / 60) + buying[e.resource] * (e.value / 40),
+                (sum, [r, value = 0]) => sum + selling[r] * (value / 60) + buying[r] * (value / 40),
                 0,
               );
               const npcDelta: ResourceCost = {
-                ...Object.fromEntries(
-                  visibleEntries.map((e) => [e.resource, selling[e.resource] - buying[e.resource]]),
-                ),
+                ...Object.fromEntries(visibleEntries.map(([r]) => [r, selling[r] - buying[r]])),
                 coin: -netCoin,
               };
               const playerDelta: ResourceCost = {
-                ...Object.fromEntries(
-                  visibleEntries.map((e) => [e.resource, buying[e.resource] - selling[e.resource]]),
-                ),
+                ...Object.fromEntries(visibleEntries.map(([r]) => [r, buying[r] - selling[r]])),
                 coin: netCoin,
               };
               const newTrust = Math.min(TRADE_TRUST_CAP, npc.trust + trustDelta);

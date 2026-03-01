@@ -15,8 +15,6 @@ import { useHandleDiscoveries } from "../../data/discoveries/hooks";
 import { useHandleEffect } from "../../data/effect-util";
 import { useSkills } from "../../data/skills/hooks";
 import TooltipWrapper from "../../style/TooltipWrapper";
-import { objectKeys } from "../../util";
-import CombatView from "./CombatView";
 import NPCInteractionView from "./NPCInteractionView";
 import DiscoverySplash from "./DiscoverySplash";
 import { EXPLORATION_EVENTS } from "../../events/exploration-events";
@@ -37,11 +35,6 @@ const EncounterView = () => {
   const { skills } = useSkills();
   const { attributes } = useAttributes();
 
-  const enemies = objectKeys(encounter.enemies);
-
-  if (enemies.length > 0) {
-    return <CombatView enemies={encounter.enemies} />;
-  }
   if (encounter.encounteredDiscovery) {
     const event = EXPLORATION_EVENTS[encounter.encounteredDiscovery];
     if (event) {
