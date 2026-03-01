@@ -4,6 +4,10 @@ export type CraftComponentType = keyof ComponentStore;
 
 export type MetalEntry = { type: "metal" } & Record<MetalMaterial, number>;
 
+export type ComponentCost = Partial<
+  Record<CraftComponentType, Partial<Record<MetalMaterial, number>>>
+>;
+
 export type ComponentStore = {
   bar: MetalEntry;
   knifeBlade: MetalEntry;

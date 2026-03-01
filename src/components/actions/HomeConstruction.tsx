@@ -9,6 +9,8 @@ import {
 } from "../../data/time/season-util";
 import { useMemo } from "preact/hooks";
 import { STRUCTURES, type StructureDefinition } from "../../data/structures/definitions";
+import { useSmithing } from "../../data/smithing/hooks";
+import { useComponentCost, formatComponentCost } from "../../data/craftComponents/hooks";
 import type { ResourceStore } from "../../data/resources/types";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import ActionButton from "../ActionButton";
@@ -34,39 +36,35 @@ const HomeConstruction = () => {
   const { time, day } = useTime();
   const updateTime = useUpdateTime();
   const { getTool } = useHandleEquipment();
+  const smithing = useSmithing();
+  const { canAffordComponents, deductComponents } = useComponentCost();
 
   const berryIncomeMultiplier = useMemo(() => getBerryIncomeMultiplier(day), [day]);
+  const visibleStructures = STRUCTURES.filter((s) => !s.unlocked || s.unlocked({ smithing }));
 
-  // Helper to check if player has enough plots
-  const hasPlots = (building: StructureDefinition) => {
-    return !building.plotCost || usedPlots + building.plotCost <= plots;
-  };
+  const hasPlots = (building: StructureDefinition) =>
+    !building.plotCost || usedPlots + building.plotCost <= plots;
 
-  // Helper to build a structure
   const buildStructure = (
     building: StructureDefinition,
     resourceResult: Partial<ResourceStore>,
   ) => {
     const currentCount = structures[building.key] || 0;
-
     mutate(resourceResult);
     updateTime({ time: time + building.timeCost });
     updateStructures({ [building.key]: currentCount + 1 });
+    if (building.componentCost) deductComponents(building.componentCost);
   };
 
-  // Plot chance: base 0.2 (20%) at 8 plots, divided by 10 for each additional plot
-  // Hatchet multiplies chance by 50x per level
-  const plotDifficulty = Math.pow(10, plots - 8);
+  const plotDifficulty = Math.pow(8, plots - 8);
   const basePlotChance = 0.2 / plotDifficulty;
   const { toolStatus } = getTool("hatchet");
-  const hatchetMultiplier = Math.max(toolStatus.tier * toolStatus.level, 1);
+  const hatchetMultiplier = Math.max(toolStatus.tier ** 2 * toolStatus.level, 1);
   const strengthMultiplier = 1 + playerForce / 80;
-  const plotChance = Math.min(basePlotChance * hatchetMultiplier * strengthMultiplier, 1); // Cap at 100%
+  const plotChance = Math.min(basePlotChance * hatchetMultiplier * strengthMultiplier, 1);
 
-  // Clear ground action
   const clearGround = () => {
     mutate({ wood: resources.wood + 2, stone: resources.stone + 1 });
-
     if (Math.random() < plotChance) {
       updateStructures({ plots: plots + 1 });
     }
@@ -88,9 +86,15 @@ const HomeConstruction = () => {
         </div>
         Plots: {usedPlots}/{plots}
       </div>
-      {STRUCTURES.map((building) => {
+      {visibleStructures.map((building) => {
         const { canAfford, resourceResult } = getAffordability(building.resourceCost, resources);
-        const isDisabled = !canAfford || !hasPlots(building);
+        const componentCostLabel = building.componentCost
+          ? formatComponentCost(building.componentCost)
+          : null;
+        const isDisabled =
+          !canAfford ||
+          !hasPlots(building) ||
+          (building.componentCost ? !canAffordComponents(building.componentCost) : false);
         const currentCount = (structures[building.key as keyof typeof structures] as number) || 0;
 
         return (
@@ -102,6 +106,7 @@ const HomeConstruction = () => {
               >
                 {building.name} ({currentCount}) - Costs:{" "}
                 {formatResourceCost(building.resourceCost)}
+                {componentCostLabel ? `, ${componentCostLabel}` : ""}
                 {building.plotCost ? ` | ${building.plotCost} plots` : ""}
               </Button>
               {currentCount > 0 && (

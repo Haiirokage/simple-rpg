@@ -1,13 +1,12 @@
 import { useResources, useMutateResources } from "../../data/resources/hooks";
 import { getAffordability, hasDiscoveredResources } from "../../data/resources/util";
 import { useHandleEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
-import { useHandleExploration } from "../../data/exploration/hooks";
 import { useAdvanceTime } from "../../data/time/hooks";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
 import type { ToolTier } from "../../data/equipment/definitions";
-import { getCraftComponentLabel } from "../../data/craftComponents/util";
+import { useComponentCost, formatComponentCost } from "../../data/craftComponents/hooks";
 import type { ResourceStore } from "../../data/resources/types";
-import { objectEntries, subtractNumericRecords } from "../../util";
+import { objectEntries } from "../../util";
 import type { ToolType } from "../../data/equipment/types";
 import { getEquipmentLevel, getLevelBias } from "../../data/equipment/util";
 import { useGrantSkillExperience, useSkills } from "../../data/skills/hooks";
@@ -34,19 +33,10 @@ const ToolCrafting = () => {
   const { mutate: mutateResources } = useMutateResources();
   const { getTool } = useHandleEquipment();
   const { mutateSpecific } = useUpdateEquipment();
-  const { exploration, mutateExploration } = useHandleExploration();
+  const { canAffordComponents, deductComponents } = useComponentCost();
   const advanceTime = useAdvanceTime();
 
   const craftingLevel = skills.crafting.level;
-
-  const canAffordComponents = (componentCost: ToolTier["componentCost"]) =>
-    objectEntries(componentCost).every(
-      ([type, materialCost]) =>
-        !materialCost ||
-        objectEntries(materialCost).every(
-          ([material, needed]) => exploration.craftComponents[type][material] >= needed,
-        ),
-    );
 
   const craftTool = (
     toolKey: ToolType,
@@ -55,17 +45,7 @@ const ToolCrafting = () => {
     componentCost: ToolTier["componentCost"],
   ) => {
     mutateResources(resourceResult);
-
-    if (objectEntries(componentCost).length > 0) {
-      const newCraftComponents = objectEntries(componentCost).reduce(
-        (acc, [type, materialCost]) => ({
-          ...acc,
-          [type]: subtractNumericRecords(acc[type], materialCost),
-        }),
-        exploration.craftComponents,
-      );
-      mutateExploration({ craftComponents: newCraftComponents });
-    }
+    deductComponents(componentCost);
 
     const newLevel = getEquipmentLevel(craftingLevel, tier);
     const { toolStatus } = getTool(toolKey);
@@ -92,21 +72,16 @@ const ToolCrafting = () => {
 
         const nextTierData = toolDef.tiers[nextTier];
         const getNextTierButton = () => {
-          const allCostEntries = [
-            ...objectEntries(nextTierData.cost).map(([key, cost]) => `${cost} ${key}`),
-            ...objectEntries(nextTierData.componentCost).flatMap(([type, materialCost]) =>
-              materialCost
-                ? objectEntries(materialCost).map(
-                    ([mat, n]) => `${n} ${getCraftComponentLabel(type, String(mat))}`,
-                  )
-                : [],
-            ),
-          ];
-          const nextCostText = allCostEntries.join(", ");
           const { canAfford, resourceResult } = getAffordability(nextTierData.cost, resources);
           const canAffordAll = canAfford && canAffordComponents(nextTierData.componentCost);
           const bias = getLevelBias(craftingLevel, nextTier);
           const levelGated = bias < 0;
+          const nextCostText = [
+            ...objectEntries(nextTierData.cost).map(([key, cost]) => `${cost} ${key}`),
+            formatComponentCost(nextTierData.componentCost),
+          ]
+            .filter(Boolean)
+            .join(", ");
 
           const tooltip = levelGated
             ? `Requires crafting level ${(nextTier - 1) * 10}`
@@ -129,14 +104,10 @@ const ToolCrafting = () => {
 
         const costText = [
           ...objectEntries(tierDefinition.cost).map(([key, cost]) => `${cost} ${key}`),
-          ...objectEntries(tierDefinition.componentCost).flatMap(([type, materialCost]) =>
-            materialCost
-              ? objectEntries(materialCost).map(
-                  ([mat, n]) => `${n} ${getCraftComponentLabel(type, String(mat))}`,
-                )
-              : [],
-          ),
-        ].join(", ");
+          formatComponentCost(tierDefinition.componentCost),
+        ]
+          .filter(Boolean)
+          .join(", ");
         const reforgeAffordability = getAffordability(tierDefinition.cost, resources);
         const canReforge =
           reforgeAffordability.canAfford && canAffordComponents(tierDefinition.componentCost);

@@ -7,10 +7,7 @@ import {
   getResourceWeight,
   getStorageCapacity,
 } from "../../data/resources/util";
-import {
-  getTotalCraftComponentsWeight,
-  getCraftComponentLabel,
-} from "../../data/craftComponents/util";
+import { getCraftComponentLabel } from "../../data/craftComponents/util";
 import { MATERIAL_WEIGHTS } from "../../data/craftComponents/definitions";
 import type { MetalMaterial } from "../../data/craftComponents/types";
 import { useStructures } from "../../data/structures/hooks";
@@ -66,7 +63,7 @@ const DropButton = styled.button`
   cursor: pointer;
 `;
 
-const explorationItems: ResourceKeys[] = ["jerky", "wood"];
+const explorationItems: ResourceKeys[] = ["jerky", "wood", "charcoal", "copperOre"];
 
 const ExplorationInventory = () => {
   const { resources, addResources } = useHandleResources();
@@ -75,9 +72,7 @@ const ExplorationInventory = () => {
   const force = usePlayerForce();
 
   const carryCapacity = getCarryCapacity(force);
-  const currentWeight =
-    getInventoryWeight(exploration.inventory) +
-    getTotalCraftComponentsWeight(exploration.craftComponents);
+  const currentWeight = getInventoryWeight(exploration.inventory, exploration.craftComponents);
   const weightPercent = (currentWeight / carryCapacity) * 100;
   const overweight = currentWeight > carryCapacity;
 

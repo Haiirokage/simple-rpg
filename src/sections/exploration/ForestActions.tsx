@@ -46,7 +46,7 @@ const ForestActions = () => {
   const { lookAround, knowledgeLevel } = useLookAround("forest");
   const hasViableDiscoveries = useHasViableDiscoveries("forest", knowledgeLevel, discoveries);
 
-  const currentWeight = getInventoryWeight(exploration.inventory);
+  const currentWeight = getInventoryWeight(exploration.inventory, exploration.craftComponents);
   const carryCapacity = getCarryCapacity(force);
   const overweight = currentWeight > carryCapacity;
   const noActions = exploration.actions.cur <= 0;

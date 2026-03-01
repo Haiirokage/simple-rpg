@@ -4,6 +4,8 @@ import { objectEntries } from "../../util";
 import { FOOD_STORAGE } from "./food-definitions";
 import { MATERIAL_STORAGE } from "./material-definitions";
 import type { StructuresStore } from "../structures/hooks";
+import type { ComponentStore } from "../craftComponents/types";
+import { getTotalCraftComponentsWeight } from "../craftComponents/util";
 
 /**
  * Check if player can afford a cost and calculate resulting resources.
@@ -54,6 +56,9 @@ export const getStorageCapacity = (
     if ("capacityPerStonePile" in def) {
       return def.baseCapacity + (def.capacityPerStonePile || 0) * structures.stonePile;
     }
+    if ("capacityPerWorkshop" in def) {
+      return def.baseCapacity + (def.capacityPerWorkshop || 0) * structures.workshop;
+    }
     return def.baseCapacity;
   }
 
@@ -98,12 +103,16 @@ export const getResourceWeight = (resourceKey: ResourceKeys): number => {
 };
 
 /**
- * Get total weight of an inventory (Partial<ResourceStore>).
+ * Get total weight of an exploration inventory, including craft components.
  */
-export const getInventoryWeight = (inventory: Partial<ResourceStore>): number => {
-  return objectEntries(inventory).reduce((total, [key, amount]) => {
+export const getInventoryWeight = (
+  inventory: Partial<ResourceStore>,
+  craftComponents: ComponentStore,
+): number => {
+  const resourceWeight = objectEntries(inventory).reduce((total, [key, amount]) => {
     return total + getResourceWeight(key) * amount;
   }, 0);
+  return resourceWeight + getTotalCraftComponentsWeight(craftComponents);
 };
 
 /**

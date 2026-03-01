@@ -48,7 +48,7 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
     allowance: 180,
     // TODO: add craft components (bars, cast parts) to trading
     interestValues: { copperOre: 10, charcoal: 5 },
-    replenishment: { charcoal: 12 },
+    replenishment: { charcoal: 20 },
     sellList: [],
   },
 };

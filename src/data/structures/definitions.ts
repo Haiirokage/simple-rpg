@@ -1,5 +1,11 @@
 import type { ResourceStore } from "../resources/types";
 import type { StructureKey } from "./hooks";
+import type { SmithingKnowledgeMap } from "../smithing/types";
+import type { ComponentCost } from "../craftComponents/types";
+
+export type StructureUnlockContext = {
+  smithing: SmithingKnowledgeMap;
+};
 
 export type StructureDefinition = {
   key: StructureKey;
@@ -7,7 +13,9 @@ export type StructureDefinition = {
   tooltip?: string;
   timeCost: number;
   resourceCost: Partial<ResourceStore>;
+  componentCost?: ComponentCost;
   plotCost: number;
+  unlocked?: (ctx: StructureUnlockContext) => boolean;
 };
 
 export const BERRY_PLANTER: StructureDefinition = {
@@ -46,4 +54,16 @@ export const STONE_PILE: StructureDefinition = {
   plotCost: 1,
 } as const;
 
-export const STRUCTURES = [BERRY_PLANTER, PANTRY, WOOD_SHED, STONE_PILE];
+export const WORKSHOP: StructureDefinition = {
+  key: "workshop",
+  name: "Workshop",
+  tooltip:
+    "Provides a convenient place to craft new tools. Also has lots of storage space for your crafting components",
+  timeCost: 8,
+  resourceCost: { wood: 30, stone: 10 },
+  componentCost: { bar: { copper: 2 } },
+  plotCost: 3,
+  unlocked: ({ smithing }) => smithing.smelting.basics,
+};
+
+export const STRUCTURES = [BERRY_PLANTER, PANTRY, WOOD_SHED, STONE_PILE, WORKSHOP];

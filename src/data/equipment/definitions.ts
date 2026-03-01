@@ -1,7 +1,7 @@
 import type { ResourceStore } from "../resources/types";
 import type { Skills } from "../skills/types";
 import type { ConsumableType, ToolType } from "./types";
-import type { CraftComponentType, MetalMaterial } from "../craftComponents/types";
+import type { ComponentCost } from "../craftComponents/types";
 
 export type EquipmentDefinition = {
   key: ConsumableType;
@@ -21,7 +21,7 @@ export type EquipmentBonusType = "woodGathering" | "range" | "explorationChance"
 export interface ToolTier {
   name: string; // e.g. "wooden", "stone", "iron"
   cost: Partial<ResourceStore>;
-  componentCost: Partial<Record<CraftComponentType, Partial<Record<MetalMaterial, number>>>>;
+  componentCost: ComponentCost;
   bonus: Partial<Record<EquipmentBonusType, NumberRange>>;
   skillBonus?: Partial<Record<Skills, NumberRange>>;
 }

@@ -3,7 +3,7 @@ import { STRUCTURES } from "./definitions";
 import { getBerryIncomeMultiplier } from "../time/season-util";
 import { useCallback } from "preact/hooks";
 
-export type StructureKey = "berryPlanter" | "pantry" | "woodShed" | "stonePile";
+export type StructureKey = "berryPlanter" | "pantry" | "woodShed" | "stonePile" | "workshop";
 export type StructuresStore = Record<StructureKey | "plots", number>;
 
 const defaultStructuresStore: StructuresStore = {
@@ -12,6 +12,7 @@ const defaultStructuresStore: StructuresStore = {
   pantry: 0,
   woodShed: 0,
   stonePile: 0,
+  workshop: 0,
 };
 
 export const structuresQuery = makeDataQuery("STRUCTURES", defaultStructuresStore);

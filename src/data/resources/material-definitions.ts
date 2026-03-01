@@ -5,6 +5,7 @@ export type MaterialResourceDefinition = {
   baseCapacity: number; // capacity without storage buildings
   capacityPerShed?: number; // bonus capacity per building
   capacityPerStonePile?: number; // bonus capacity per stone pile
+  capacityPerWorkshop?: number; // bonus capacity per workshop
   decayRate?: number; // daily decay as percentage (0 = no decay, 0.01 = 1% per day)
 };
 
@@ -25,11 +26,11 @@ export const MATERIAL_STORAGE: MaterialResourceDefinition[] = [
     baseCapacity: 20,
     decayRate: 0.01, // 1% decay per day
   },
-  { key: "leather", baseCapacity: 8, decayRate: 0 },
-  { key: "hide", baseCapacity: 2, decayRate: 0.01 },
-  { key: "fur", baseCapacity: 4 },
+  { key: "leather", baseCapacity: 8, capacityPerWorkshop: 20, decayRate: 0 },
+  { key: "hide", baseCapacity: 3, decayRate: 0.01 },
+  { key: "fur", baseCapacity: 4, capacityPerWorkshop: 10 },
   { key: "iron", baseCapacity: 5 },
-  { key: "charcoal", baseCapacity: 10 }, // About 2 lbs per piece
+  { key: "charcoal", baseCapacity: 10, capacityPerWorkshop: 30 }, // About 2 lbs per piece
   { key: "copperOre", baseCapacity: 4 }, // About 5 lbs
   { key: "coin", baseCapacity: 0 }, // weightless currency
 ];

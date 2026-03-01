@@ -3,8 +3,8 @@ import { useHandleExploration } from "../../../../data/exploration/hooks";
 import { useGrantSkillExperience, useSkills } from "../../../../data/skills/hooks";
 import { mergeNumericRecords, rollFractional } from "../../../../util";
 
-const COPPER_HARD_CAP = 0.3;
-const COPPER_BASE_SKILL = 0.3;
+const COPPER_HARD_CAP = 0.35;
+const COPPER_BASE_SKILL = 0.4;
 const SKILL_PER_LEVEL = 0.02;
 const COPPER_XP_PER_YIELD = 25;
 
@@ -22,8 +22,12 @@ const SmeltingPanel = ({ onCancel }: Props) => {
 
   const skillMultiplier = COPPER_BASE_SKILL + skills.smithing.level * SKILL_PER_LEVEL;
   const charcoalFactor = 0.8 * Math.sqrt(selectedCharcoal / selectedOre);
-  const expectedYield =
-    selectedOre * COPPER_HARD_CAP * Math.min(1, charcoalFactor * skillMultiplier);
+  const expectedYield = Math.min(
+    selectedOre * COPPER_HARD_CAP * Math.min(1, charcoalFactor * skillMultiplier),
+    Math.floor(COPPER_HARD_CAP * selectedOre),
+  );
+
+  console.log("exp yield", expectedYield, charcoalFactor, skillMultiplier);
 
   const handleSmelt = () => {
     const bars = rollFractional(expectedYield);
