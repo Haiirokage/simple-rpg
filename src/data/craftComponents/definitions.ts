@@ -38,6 +38,15 @@ const AXE_HEAD_MOLD: boolean[][] = [
 ];
 
 // prettier-ignore
+const PICK_HEAD_MOLD: boolean[][] = [
+  [_, _, _, X, X, X],
+  [_, _, X, X, X, X],
+  [_, X, X, X, _, _],
+  [X, X, _, _, _, _],
+  [X, _, _, _, _, _],
+];
+
+// prettier-ignore
 const SWORD_BLADE_MOLD: boolean[][] = [
   [_, _, _, _, _, X],
   [_, _, _, _, X, X],
@@ -59,6 +68,7 @@ export const CASTING_DEFINITIONS: Record<CraftComponentType, CastingDefinition> 
   bar: { type: "bar", label: "Bar", barCost: 1, mold: BAR_MOLD },
   knifeBlade: { type: "knifeBlade", label: "Knife blade", barCost: 1, mold: KNIFE_BLADE_MOLD },
   axeHead: { type: "axeHead", label: "Axe head", barCost: 3, mold: AXE_HEAD_MOLD },
+  pickHead: { type: "pickHead", label: "Pick head", barCost: 3, mold: PICK_HEAD_MOLD },
   swordBlade: { type: "swordBlade", label: "Sword blade", barCost: 5, mold: SWORD_BLADE_MOLD },
 };
 

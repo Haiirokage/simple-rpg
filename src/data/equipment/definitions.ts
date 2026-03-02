@@ -111,6 +111,13 @@ export const TOOL_DEFINITIONS = {
         bonus: {},
         skillBonus: { mining: { min: 3 } },
       },
+      {
+        name: "copper",
+        cost: { wood: 1, leather: 2 },
+        componentCost: { pickHead: { copper: 1 } },
+        bonus: {},
+        skillBonus: { mining: { min: 3, max: 4, decimals: 1 } },
+      },
     ],
   },
 } as const satisfies Record<ToolType, ToolDefinition>;

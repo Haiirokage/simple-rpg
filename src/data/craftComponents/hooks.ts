@@ -10,9 +10,10 @@ export const useComponentCost = () => {
     objectEntries(componentCost).every(
       ([type, materialCost]) =>
         !materialCost ||
-        objectEntries(materialCost).every(
-          ([material, needed]) =>
-            exploration.craftComponents[type as CraftComponentType][material] >= (needed ?? 0),
+        objectEntries(materialCost).every(([material, needed]) =>
+          exploration.craftComponents[type]
+            ? exploration.craftComponents[type][material] >= needed
+            : false,
         ),
     );
 
