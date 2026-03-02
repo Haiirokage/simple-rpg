@@ -15,11 +15,18 @@ export type AtLeast<T, K extends keyof T> = Partial<T> & Pick<T, K>;
 
 const addValues = (a = 0, b = 0) => a + b;
 
-/** Merge two partial numeric records, summing values for shared keys. */
+/** Depricated
+ * Merge two partial numeric records, summing values for shared keys. */
 export const mergeNumericRecords = <T extends Record<string, number>>(
   base: Partial<T>,
   additions: Partial<T>,
 ): Partial<T> => mergeWith({}, base, additions, addValues);
+
+/** Add a numeric record to a base object, leaving non-numeric fields untouched. */
+export const addNumericRecords = <T extends Record<string, number>>(
+  base: T,
+  additions: Partial<T>,
+): T => mergeWith({}, base, additions, (a, b = 0) => (a ? a + b : b));
 
 /** Subtract a numeric record from a base object, leaving non-numeric fields untouched. */
 export const subtractNumericRecords = <T extends Record<string, number>>(

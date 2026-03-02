@@ -3,6 +3,7 @@ import { useHandleExploration } from "../../../../data/exploration/hooks";
 import { useHandlePlayerStatus } from "../../../../data/playerStatus/hooks";
 import { useAdvanceTime } from "../../../../data/time/hooks";
 import { CASTING_XP_MULTIPLIERS, matchMold } from "../../../../data/craftComponents/definitions";
+import { addComponents } from "../../../../data/craftComponents/util";
 import { useGrantSkillExperience } from "../../../../data/skills/hooks";
 import { mergeNumericRecords } from "../../../../util";
 import MoldGrid from "./MoldGrid";
@@ -48,11 +49,10 @@ const CastingPanel = ({ onCancel }: Props) => {
     const { type, mold } = matchedCast;
     mutateExploration({
       inventory: mergeNumericRecords(exploration.inventory, { charcoal: -barCost }),
-      craftComponents: {
-        ...craftComponents,
-        bar: { type: "metal", copper: craftComponents.bar.copper - barCost },
-        [type]: { type: "metal", copper: craftComponents[type].copper + 1 },
-      },
+      craftComponents: addComponents(craftComponents, {
+        bar: { copper: -barCost },
+        [type]: { copper: 1 },
+      }),
     });
     grantExperience({
       smithing: barCost * mold.length * mold[0].length * CASTING_XP_MULTIPLIERS.copper,

@@ -46,6 +46,12 @@ export const TOOL_DEFINITIONS = {
         componentCost: {},
         bonus: { woodGathering: { min: 3, max: 4.5, decimals: 1 } },
       },
+      {
+        name: "copper",
+        cost: { wood: 1, leather: 2 },
+        componentCost: { axeHead: { copper: 1 } },
+        bonus: { woodGathering: { min: 4, max: 5.5, decimals: 1 } },
+      },
     ],
   },
   bow: {

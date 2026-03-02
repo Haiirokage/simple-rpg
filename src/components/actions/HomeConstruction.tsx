@@ -11,6 +11,7 @@ import { useMemo } from "preact/hooks";
 import { STRUCTURES, type StructureDefinition } from "../../data/structures/definitions";
 import { useSmithing } from "../../data/smithing/hooks";
 import { useComponentCost, formatComponentCost } from "../../data/craftComponents/hooks";
+import { useItems, hasStoredComponents } from "../../data/items/hooks";
 import type { ResourceStore } from "../../data/resources/types";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import ActionButton from "../ActionButton";
@@ -38,6 +39,7 @@ const HomeConstruction = () => {
   const { getTool } = useHandleEquipment();
   const smithing = useSmithing();
   const { canAffordComponents, deductComponents } = useComponentCost();
+  const items = useItems();
 
   const berryIncomeMultiplier = useMemo(() => getBerryIncomeMultiplier(day), [day]);
   const visibleStructures = STRUCTURES.filter((s) => !s.unlocked || s.unlocked({ smithing }));
@@ -59,8 +61,9 @@ const HomeConstruction = () => {
   const plotDifficulty = Math.pow(8, plots - 8);
   const basePlotChance = 0.2 / plotDifficulty;
   const { toolStatus } = getTool("hatchet");
-  const hatchetMultiplier = Math.max(toolStatus.tier ** 2 * toolStatus.level, 1);
-  const strengthMultiplier = 1 + playerForce / 80;
+  const hatchetMultiplier = Math.max(toolStatus.tier ** 3 * (toolStatus.level + 50), 1);
+  const strengthMultiplier = Math.pow(2, playerForce / 30);
+
   const plotChance = Math.min(basePlotChance * hatchetMultiplier * strengthMultiplier, 1);
 
   const clearGround = () => {
@@ -111,6 +114,11 @@ const HomeConstruction = () => {
               </Button>
               {currentCount > 0 && (
                 <Button
+                  disabled={
+                    building.key === "workshop" &&
+                    currentCount === 1 &&
+                    hasStoredComponents(items.craftComponents)
+                  }
                   onClick={() => {
                     updateStructures({ [building.key]: currentCount - 1 });
                     const refundedResources = objectEntries(building.resourceCost).reduce(

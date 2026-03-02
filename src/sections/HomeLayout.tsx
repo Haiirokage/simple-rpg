@@ -48,7 +48,7 @@ const HomeLayout = () => {
         <PlayerSkills />
       </GameSection>
       <GameSection area="resources">
-        <h2>Resources</h2>
+        <h2>Items</h2>
         <ResourceBox />
       </GameSection>
       <ForestSection area="forest">

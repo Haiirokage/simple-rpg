@@ -7,6 +7,7 @@ import { equipmentQuery } from "./equipment/hooks";
 import { eventLogQuery } from "./eventLog/hooks";
 import { explorationQuery } from "./exploration/hooks";
 import { homeUpgradesQuery } from "./homeUpgrades/hooks";
+import { itemsQuery } from "./items/hooks";
 import { knowledgeQuery } from "./knowledge/hooks";
 import { playerStatusQuery } from "./playerStatus/hooks";
 import { resourcesQuery } from "./resources/hooks";
@@ -24,6 +25,7 @@ export const storeQueries = [
   eventLogQuery,
   explorationQuery,
   homeUpgradesQuery,
+  itemsQuery,
   knowledgeQuery,
   npcQuery,
   playerStatusQuery,

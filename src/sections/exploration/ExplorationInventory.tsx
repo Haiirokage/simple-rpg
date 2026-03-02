@@ -7,9 +7,10 @@ import {
   getResourceWeight,
   getStorageCapacity,
 } from "../../data/resources/util";
-import { getCraftComponentLabel } from "../../data/craftComponents/util";
+import { getCraftComponentLabel, addComponents } from "../../data/craftComponents/util";
 import { MATERIAL_WEIGHTS } from "../../data/craftComponents/definitions";
-import type { MetalMaterial } from "../../data/craftComponents/types";
+import type { CraftComponentType, MetalMaterial } from "../../data/craftComponents/types";
+import { useItems, useUpdateItemComponents } from "../../data/items/hooks";
 import { useStructures } from "../../data/structures/hooks";
 import { objectEntries } from "../../util";
 import type { ResourceKeys } from "../../data/resources/types";
@@ -69,6 +70,8 @@ const ExplorationInventory = () => {
   const { resources, addResources } = useHandleResources();
   const { exploration, mutateExploration } = useHandleExploration();
   const { structures } = useStructures();
+  const items = useItems();
+  const updateItemComponents = useUpdateItemComponents();
   const force = usePlayerForce();
 
   const carryCapacity = getCarryCapacity(force);
@@ -80,6 +83,12 @@ const ExplorationInventory = () => {
   const inventoryEntries = objectEntries(exploration.inventory).filter(
     ([key, amount]) => amount > 0 && key !== "coin",
   );
+
+  const storeComponent = (componentType: CraftComponentType, material: MetalMaterial) => {
+    const delta = { [componentType]: { [material]: 1 } };
+    mutateExploration({ craftComponents: addComponents(exploration.craftComponents, delta, true) });
+    updateItemComponents(delta);
+  };
 
   const handleDrop = (resource: ResourceKeys, amount = 1) => {
     const current = exploration.inventory[resource] ?? 0;
@@ -182,6 +191,11 @@ const ExplorationInventory = () => {
                     {label}: {amount}
                     <span style={{ opacity: 0.6, marginLeft: 4 }}>({weight.toFixed(2)})</span>
                   </span>
+                  {!exploration.active && structures.workshop > 0 && (
+                    <DropButton onClick={() => storeComponent(componentType, material)}>
+                      Store
+                    </DropButton>
+                  )}
                 </InventoryItem>
               );
             }),

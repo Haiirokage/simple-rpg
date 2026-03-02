@@ -1,6 +1,6 @@
 import { useHandleExploration } from "../exploration/hooks";
-import { objectEntries, subtractNumericRecords } from "../../util";
-import { getCraftComponentLabel } from "./util";
+import { objectEntries } from "../../util";
+import { addComponents, getCraftComponentLabel } from "./util";
 import type { ComponentCost, CraftComponentType } from "./types";
 
 export const useComponentCost = () => {
@@ -18,14 +18,9 @@ export const useComponentCost = () => {
 
   const deductComponents = (componentCost: ComponentCost) => {
     if (!objectEntries(componentCost).length) return;
-    const newCraftComponents = objectEntries(componentCost).reduce(
-      (acc, [type, materialCost]) => ({
-        ...acc,
-        [type]: subtractNumericRecords(acc[type as CraftComponentType], materialCost),
-      }),
-      exploration.craftComponents,
-    );
-    mutateExploration({ craftComponents: newCraftComponents });
+    mutateExploration({
+      craftComponents: addComponents(exploration.craftComponents, componentCost, true),
+    });
   };
 
   return { canAffordComponents, deductComponents };
