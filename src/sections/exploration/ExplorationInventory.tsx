@@ -10,7 +10,7 @@ import {
 import { getCraftComponentLabel, addComponents } from "../../data/craftComponents/util";
 import { MATERIAL_WEIGHTS } from "../../data/craftComponents/definitions";
 import type { CraftComponentType, MetalMaterial } from "../../data/craftComponents/types";
-import { useItems, useUpdateItemComponents } from "../../data/items/hooks";
+import { useUpdateItemComponents } from "../../data/items/hooks";
 import { useStructures } from "../../data/structures/hooks";
 import { objectEntries } from "../../util";
 import type { ResourceKeys } from "../../data/resources/types";
@@ -70,7 +70,6 @@ const ExplorationInventory = () => {
   const { resources, addResources } = useHandleResources();
   const { exploration, mutateExploration } = useHandleExploration();
   const { structures } = useStructures();
-  const items = useItems();
   const updateItemComponents = useUpdateItemComponents();
   const force = usePlayerForce();
 
