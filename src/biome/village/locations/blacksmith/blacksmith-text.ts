@@ -28,7 +28,7 @@ export const BLACKSMITH_TEXT: SmithingText = {
     entries: {
       knifeBlade:
         "He turns the bar over in his hands, nice work, now you can begin making something useful. \"Casting's not complicated once you know what you're doing. You start with casting sand, pack it tight in a frame, then press your pattern into it to leave the shape you want. Melt your metal, and pour it in. A knife blade is a good first piece. Simple shape, one bar, not much that can go wrong.\"",
-      axeHead: "Very good, here's some other shapes you can try.",
+      basicShapes: "Very good, here's some other shapes you can try.",
     },
   },
 };

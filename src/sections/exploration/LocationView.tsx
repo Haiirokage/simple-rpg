@@ -2,6 +2,7 @@ import type { LocationId } from "../../data/exploration/types";
 import LakeLocation from "../../biome/forest/locations/LakeLocation";
 import TavernLocation from "../../biome/village/locations/TavernLocation";
 import BlacksmithLocation from "../../biome/village/locations/blacksmith/BlacksmithLocation";
+import AbandonedFieldLocation from "../../biome/village/locations/AbandonedFieldLocation";
 
 interface Props {
   location: LocationId;
@@ -15,6 +16,8 @@ const LocationView = ({ location }: Props) => {
       return <TavernLocation />;
     case "blacksmith":
       return <BlacksmithLocation />;
+    case "abandoned_field":
+      return <AbandonedFieldLocation />;
   }
 };
 

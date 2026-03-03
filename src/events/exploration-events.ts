@@ -110,6 +110,14 @@ export const EXPLORATION_EVENTS: Partial<Record<AllDiscoveries, ExplorationEvent
       "The rhythmic ring of hammer on metal draws you toward a stone workshop at the edge of the village square. Smoke rises from a heavy chimney, and through the open doorway you glimpse the orange glow of a forge. The blacksmith pauses his work to size you up.",
     ],
   },
+  village_fight_club: {
+    id: "village_fight_club",
+    name: "Discovered the Fighting League",
+    category: "exploration",
+    descriptions: [
+      "A rhythmic crack of wood draws you toward an abandoned field at the far edge of the village. Two figures circle each other in the moonlight, trading blows with long quarterstaffs. They move with purpose — this isn't a brawl, it's practice. One of them glances your way and gives a slow nod before turning back to his opponent.",
+    ],
+  },
 };
 
 export const buildExplorationEventLog = (

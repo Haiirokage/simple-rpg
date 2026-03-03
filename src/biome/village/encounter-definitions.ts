@@ -25,6 +25,7 @@ export const VILLAGE_ENCOUNTERS: Record<VillageEncounterFrameId, EncounterFrame>
             "Despite your best efforts, the repair proves trickier than expected. A beam splits when you try to nail it in place. The farmer sighs but thanks you for trying.",
           ),
         },
+        { cost: { minutes: 60, energy: 5 } },
       ),
     ],
   },
@@ -71,7 +72,7 @@ export const VILLAGE_ENCOUNTERS: Record<VillageEncounterFrameId, EncounterFrame>
       ),
       makeEncounterSkillAction(
         "Search for Pip",
-        { skill: ["hunter"], dc: 12 },
+        { skill: ["hunter"], dc: 11 },
         {
           success: makeOutcome(
             "A rustling above catches your attention. Pip grins down from a tree branch before climbing down. Just one left!",
@@ -88,7 +89,7 @@ export const VILLAGE_ENCOUNTERS: Record<VillageEncounterFrameId, EncounterFrame>
       ),
       makeEncounterSkillAction(
         "Search for Mira",
-        { skill: ["hunter"], dc: 13 },
+        { skill: ["hunter"], dc: 12 },
         {
           success: makeOutcome(
             "Finally! Mira emerges from inside an empty rain barrel, applauding your skills. The children cheer and reward you with a treasure they found.",
@@ -130,7 +131,7 @@ export const VILLAGE_ENCOUNTERS: Record<VillageEncounterFrameId, EncounterFrame>
       ),
       makeEncounterSkillAction(
         "Evade Timmy and Sara",
-        { skill: ["stealth"], dc: 9 },
+        { skill: ["stealth"], dc: 8 },
         {
           success: makeOutcome(
             "You slip behind a barrel just as Sara peeks around the corner. Two down, two to go. Pip joins the hunt...",
@@ -147,7 +148,7 @@ export const VILLAGE_ENCOUNTERS: Record<VillageEncounterFrameId, EncounterFrame>
       ),
       makeEncounterSkillAction(
         "Outsmart three seekers",
-        { skill: ["stealth"], dc: 11 },
+        { skill: ["stealth"], dc: 10 },
         {
           success: makeOutcome(
             "You hold your breath as Pip climbs overhead, scanning the area. He moves on. Just Mira left...",
@@ -164,7 +165,7 @@ export const VILLAGE_ENCOUNTERS: Record<VillageEncounterFrameId, EncounterFrame>
       ),
       makeEncounterSkillAction(
         "Evade the whole group",
-        { skill: ["stealth"], dc: 12 },
+        { skill: ["stealth"], dc: 11 },
         {
           success: makeOutcome(
             'All four children search desperately but you\'ve found the perfect spot. When you finally emerge, they stare in awe. "Nobody beats Mira!" she exclaims, impressed. They reward your legendary hiding skills.',

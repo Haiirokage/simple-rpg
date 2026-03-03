@@ -50,8 +50,6 @@ const ForestActions = () => {
   const carryCapacity = getCarryCapacity(force);
   const overweight = currentWeight > carryCapacity;
   const noActions = exploration.actions.cur <= 0;
-  const hasJerky = (exploration.inventory.jerky ?? 0) > 0;
-
   const encounterFrame = encounter.encounterFrameId
     ? ENCOUNTER_FRAMES[encounter.encounterFrameId]
     : undefined;
@@ -150,21 +148,6 @@ const ForestActions = () => {
           }}
         >
           Travel to village
-        </button>
-      )}
-      {hasJerky && (
-        <button
-          onClick={() => {
-            modifyActions(2);
-            mutateExploration({
-              inventory: {
-                ...exploration.inventory,
-                jerky: (exploration.inventory.jerky ?? 0) - 1,
-              },
-            });
-          }}
-        >
-          Eat a ration
         </button>
       )}
       <button disabled={preventLeaving || overweight} onClick={() => endExpedition()}>

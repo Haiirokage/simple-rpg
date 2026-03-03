@@ -2,7 +2,7 @@ import type { BiomeType } from "../../biome/discovery-types";
 import { defaultComponentStore, type ComponentStore } from "../craftComponents/types";
 import type { ResourceStore } from "../resources/types";
 
-export type LocationId = "lake" | "tavern" | "blacksmith";
+export type LocationId = "lake" | "tavern" | "blacksmith" | "abandoned_field";
 
 export type Lodging = {
   location: string;

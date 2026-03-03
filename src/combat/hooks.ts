@@ -70,7 +70,7 @@ export const useHandleAttack = () => {
 
         const healthLost = getHealthLost(creature.targets[target].armor_rating, damageMultiplier);
 
-        const distanceFactor = Math.max(0.1, ((creature.distance - 20) / 60) ** 3); //Math.max(0.1, (creature.distance - 20) / 100);
+        const distanceFactor = Math.max(0.1, ((creature.distance - 40) / 60) ** 3); //Math.max(0.1, (creature.distance - 20) / 100);
         const discFactor = discovered ? (1 + creatureDex / 10) ** 2 : 1;
         const difficultyMultiplier = getDifficultyMultiplier(actualHC);
         const severityBonus = hitSeverity === "critical" ? 2 : 1;

@@ -1,3 +1,4 @@
+import type { CastingKnowledge } from "../smithing/types";
 import type { CraftComponentMaterial, CraftComponentType } from "./types";
 
 export const MATERIAL_WEIGHTS: Record<CraftComponentMaterial, number> = {
@@ -71,6 +72,13 @@ export const CASTING_DEFINITIONS: Record<CraftComponentType, CastingDefinition> 
   pickHead: { type: "pickHead", label: "Pick head", barCost: 3, mold: PICK_HEAD_MOLD },
   swordBlade: { type: "swordBlade", label: "Sword blade", barCost: 5, mold: SWORD_BLADE_MOLD },
 };
+
+const smithingKnowledgeCastingMap: Record<CastingKnowledge, CraftComponentType[]> = {
+  knifeBlade: ["knifeBlade"],
+  basicShapes: ["axeHead", "pickHead"],
+};
+export const getCastKey = (knowledgeKey: CastingKnowledge) =>
+  smithingKnowledgeCastingMap[knowledgeKey] || [];
 
 /** Returns the CastingDefinition whose mold matches the filled bounding box of the grid, or null. */
 export const matchMold = (grid: boolean[][]): CastingDefinition | null => {

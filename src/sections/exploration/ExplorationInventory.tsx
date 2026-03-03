@@ -15,6 +15,7 @@ import { useStructures } from "../../data/structures/hooks";
 import { objectEntries } from "../../util";
 import type { ResourceKeys } from "../../data/resources/types";
 import { useHandleResources } from "../../data/resources/hooks";
+import { useHandleEncounter } from "../../data/encounters/hooks";
 import { Header3, ButtonGroup, SmallButton } from "../../style/elements";
 import CurrencyDisplay from "../../components/CurrencyDisplay";
 
@@ -68,10 +69,14 @@ const explorationItems: ResourceKeys[] = ["jerky", "wood", "charcoal", "copperOr
 
 const ExplorationInventory = () => {
   const { resources, addResources } = useHandleResources();
-  const { exploration, mutateExploration } = useHandleExploration();
+  const { exploration, mutateExploration, modifyActions } = useHandleExploration();
+  const { encounter } = useHandleEncounter();
   const { structures } = useStructures();
   const updateItemComponents = useUpdateItemComponents();
   const force = usePlayerForce();
+
+  const hasEnemies = Object.keys(encounter.enemies).length > 0;
+  const canEat = !encounter.active && !hasEnemies;
 
   const carryCapacity = getCarryCapacity(force);
   const currentWeight = getInventoryWeight(exploration.inventory, exploration.craftComponents);
@@ -160,7 +165,21 @@ const ExplorationInventory = () => {
                 )}
               </span>
               {exploration.active ? (
-                <DropButton onClick={() => handleDrop(resource)}>Drop 1</DropButton>
+                resource === "jerky" ? (
+                  <DropButton
+                    disabled={!canEat}
+                    onClick={() => {
+                      modifyActions(2);
+                      mutateExploration({
+                        inventory: { ...exploration.inventory, jerky: amount - 1 },
+                      });
+                    }}
+                  >
+                    Consume
+                  </DropButton>
+                ) : (
+                  <DropButton onClick={() => handleDrop(resource)}>Drop 1</DropButton>
+                )
               ) : (
                 <ButtonGroup>
                   {amount > 10 && roomAtHome > 10 ? (

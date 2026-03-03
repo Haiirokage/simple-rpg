@@ -13,9 +13,23 @@ import CastingPanel from "./CastingPanel";
 import type { SmithingKnowledgeMap, SmithingTopicId } from "../../../../data/smithing/types";
 import {
   CASTING_DEFINITIONS,
+  getCastKey,
   type CastingDefinition,
 } from "../../../../data/craftComponents/definitions";
 import { moldToAscii } from "../../../../data/craftComponents/util";
+import styled from "styled-components";
+
+const MoldReference = styled.span`
+  display: inline-block;
+  margin-right: 0.5em;
+  pre {
+    font-family: monospace;
+    font-size: 0.4rem;
+    line-height: 0.95;
+    padding-right: 2px;
+    text-align: center;
+  }
+`;
 
 const BlacksmithLocation = () => {
   const [flavorText, setFlavorText] = useState<string | undefined>(undefined);
@@ -43,21 +57,15 @@ const BlacksmithLocation = () => {
     mutateNPC("village_blacksmith", { trust: npc.trust + 1 });
   };
 
-  const getMoldReference = ({ label, mold }: CastingDefinition) => (
-    <>
-      <pre
-        style={{
-          fontFamily: "monospace",
-          fontSize: "0.4rem",
-          lineHeight: 0.95,
-          margin: "0 0 0.25rem",
-        }}
-      >
-        {moldToAscii(mold)}
-      </pre>
-      <span style={{ fontSize: "0.6rem" }}>{label}</span>
-    </>
-  );
+  const getMoldReference = (casts: CastingDefinition[]) =>
+    casts.map((cast) => (
+      <>
+        <pre>{moldToAscii(cast.mold)}</pre>
+        <span style={{ fontSize: "0.6rem" }}>
+          {cast.label} ({cast.barCost} bars)
+        </span>
+      </>
+    ));
 
   return (
     <div style={{ display: "flex", gap: "1rem" }}>
@@ -95,8 +103,12 @@ const BlacksmithLocation = () => {
                   Show him the copper bar you made
                 </button>
               )}
-            {hasKnifeBlade && trust >= 7 && !smithing.casting.axeHead && (
-              <button onClick={() => handleConversation("casting", "axeHead")}>
+            {hasKnifeBlade && trust >= 7 && !smithing.casting.basicShapes && (
+              <button
+                onClick={() => {
+                  handleConversation("casting", "basicShapes");
+                }}
+              >
                 Show him the knife blade
               </button>
             )}
@@ -142,9 +154,12 @@ const BlacksmithLocation = () => {
                 {activeEntries.map(([key]) => (
                   <>
                     <p key={key}>{topicText.entries[key]}</p>
-                    {topic === "casting" && (
-                      <span>{getMoldReference(CASTING_DEFINITIONS[key])}</span>
-                    )}
+                    {topic === "casting" &&
+                      getCastKey(key).map((castKey) => (
+                        <MoldReference>
+                          {getMoldReference([CASTING_DEFINITIONS[castKey]])}
+                        </MoldReference>
+                      ))}
                   </>
                 ))}
               </AccordionTopic>
