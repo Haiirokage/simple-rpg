@@ -13,11 +13,12 @@ export const defaultDiscoveriesStore: DiscoveriesStore = {
   // Village unlockables
   village_tavern: 0,
   village_blacksmith: 0,
+  village_rumor: 0,
+  village_fight_club: 0,
   // Extras
   successful_hunt: 0,
   failed_hunt: 0,
   find_tubers: 0,
-  village_rumor: 0,
   hide_and_seek_hider: 0,
   hide_and_seek_seeker: 0,
 };

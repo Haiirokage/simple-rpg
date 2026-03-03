@@ -5,7 +5,7 @@ import type { SmithingKnowledgeMap, SmithingTopicId } from "./types";
 const defaultSmithingStore: SmithingKnowledgeMap = {
   copper: { ore: false },
   smelting: { basics: false },
-  casting: { knifeBlade: false, axeHead: false },
+  casting: { knifeBlade: false, basicShapes: false },
 };
 
 export const smithingQuery = makeDataQuery("SMITHING", defaultSmithingStore);
