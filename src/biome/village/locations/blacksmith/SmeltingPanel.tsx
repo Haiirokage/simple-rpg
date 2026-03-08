@@ -1,11 +1,11 @@
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { useHandleExploration } from "../../../../data/exploration/hooks";
 import { useGrantSkillExperience, useSkills } from "../../../../data/skills/hooks";
 import { mergeNumericRecords, rollFractional } from "../../../../util";
 
 const COPPER_HARD_CAP = 0.35;
 const COPPER_BASE_SKILL = 0.4;
-const SKILL_PER_LEVEL = 0.02;
+const SKILL_PER_LEVEL = 0.03;
 const COPPER_XP_PER_YIELD = 25;
 
 type Props = { onCancel: () => void };
@@ -21,7 +21,7 @@ const SmeltingPanel = ({ onCancel }: Props) => {
   const charcoal = exploration.inventory.charcoal ?? 0;
 
   const skillMultiplier = COPPER_BASE_SKILL + skills.smithing.level * SKILL_PER_LEVEL;
-  const charcoalFactor = 0.8 * Math.sqrt(selectedCharcoal / selectedOre);
+  const charcoalFactor = 0.8 * selectedOre ? Math.sqrt(selectedCharcoal / selectedOre) : 0.1;
   const expectedYield = Math.min(
     selectedOre * COPPER_HARD_CAP * Math.min(1, charcoalFactor * skillMultiplier),
     Math.floor(COPPER_HARD_CAP * selectedOre),
@@ -44,6 +44,15 @@ const SmeltingPanel = ({ onCancel }: Props) => {
     const baseExp = bars > 0 ? bars : expectedYield;
     grantExperience({ smithing: baseExp * COPPER_XP_PER_YIELD });
   };
+
+  useEffect(() => {
+    if (copperOre < selectedOre) {
+      setSelectedOre(Math.max(copperOre, 0));
+    }
+    if (charcoal < selectedCharcoal) {
+      setSelectedCharcoal(Math.max(charcoal, 0));
+    }
+  }, [copperOre, charcoal, selectedOre, selectedCharcoal]);
 
   return (
     <div>

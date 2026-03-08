@@ -90,7 +90,7 @@ const BlacksmithLocation = () => {
               </button>
             )}
 
-            {knowsCopper && !smithing.smelting.basics && trust >= 5 && (
+            {knowsCopper && !smithing.smelting.basics && trust >= 4 && (
               <button onClick={() => handleConversation("smelting", "basics")}>
                 Ask him about smelting
               </button>
@@ -115,6 +115,9 @@ const BlacksmithLocation = () => {
           </>
         )}
 
+        {!knowsCopper && (
+          <button onClick={() => mutateExploration({ location: undefined })}>Leave</button>
+        )}
         {knowsCopper && (
           <>
             {display === "trading" && (
