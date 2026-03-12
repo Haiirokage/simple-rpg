@@ -60,6 +60,6 @@ export const FOREST_ACTIONS: Record<ActionId, ActionDefinition> = {
     },
     resourceYield: { tuber: 5 },
     discoveriesRequired: { find_tubers: 1 },
-    knowledgeRequired: 250,
+    knowledgeRequired: 220,
   },
 };

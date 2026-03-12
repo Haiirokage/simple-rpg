@@ -114,8 +114,7 @@ export const useLookAround = (biome: BiomeType) => {
           : repeatable.triggerEncounter;
         setEncounter(encounter);
       }
-
-      gainLevels(1);
+      gainLevels(Math.exp(-(knowledgeLevel - repeatable.knowledgeRequirement) / 25));
     } else if (discovery) {
       console.log("Discovery", discovery);
       const foundDiscoveryCount = discoveries[discovery.type];
@@ -136,9 +135,11 @@ export const useLookAround = (biome: BiomeType) => {
 
         mutateExploration({ inventory: newInventory });
       }
-      gainLevels(1);
+
+      gainLevels(2);
       addEventLogEntry(buildExplorationEventLog(discovery.type, year, day, foundDiscoveryCount));
     } else {
+      gainLevels(0.4 * Math.pow(0.25, knowledgeLevel / 100));
       console.log("found nothing");
     }
     modifyActions(-1);

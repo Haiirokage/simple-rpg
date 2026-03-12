@@ -2,7 +2,7 @@ import type { ToolStatus, ToolType } from "../data/equipment/types";
 import type { ResourceCost } from "../data/resources/types";
 import type { BiomeType } from "../biome/discovery-types";
 
-export type HumanType = "barmaid" | "blacksmith";
+export type HumanType = "barmaid" | "blacksmith" | "miller";
 
 export interface NPCHome {
   biome: BiomeType;
@@ -27,6 +27,27 @@ export interface HumanDefinition {
   sellList: ToolSellEntry[]; // tools the NPC will sell
 }
 
+/** Maps hour (0-23) to where the NPC is starting from that hour */
+export type Schedule = Partial<Record<number, NPCHome>>;
+export type NPCSchedules = Partial<Record<HumanType, Schedule>>;
+
+export const NPC_SCHEDULES: NPCSchedules = {
+  miller: {
+    6: { biome: "village" },
+    19: { biome: "village", location: "abandoned_field" },
+    23: { biome: "village" },
+  },
+};
+
+/** Returns where an NPC is scheduled to be at a given hour */
+export const getScheduledLocation = (schedule: Schedule, hour: number): NPCHome | undefined => {
+  const keys = Object.keys(schedule)
+    .map(Number)
+    .filter((h) => h <= hour)
+    .sort((a, b) => b - a);
+  return keys.length > 0 ? schedule[keys[0]] : undefined;
+};
+
 export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
   barmaid: {
     id: "barmaid",
@@ -49,6 +70,17 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
     // TODO: add craft components (bars, cast parts) to trading
     interestValues: { copperOre: 10, charcoal: 5 },
     replenishment: { charcoal: 20 },
+    sellList: [],
+  },
+  miller: {
+    id: "miller",
+    sex: "male",
+    age: { min: 30, max: 55 },
+    home: { biome: "village" },
+    equipment: {},
+    allowance: 60,
+    interestValues: {},
+    replenishment: {},
     sellList: [],
   },
 };

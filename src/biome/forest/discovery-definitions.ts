@@ -49,7 +49,7 @@ export const FOREST_DISCOVERIES: Record<ForestUnlockable, UnlockableDiscoveryDef
   large_lake: {
     type: "large_lake",
     maxCount: 1,
-    discoveryRange: { min: 180, max: 200 },
+    discoveryRange: { min: 170, max: 200 },
     rarity: 0.05,
   },
 };
@@ -79,13 +79,13 @@ export const REPEATABLE_DISCOVERIES: Record<ForestRepeatable, RepeatableDiscover
     type: "foraging_npc",
     rarity: 0.12,
     nightRarity: 0.01,
-    knowledgeRequirement: 200,
+    knowledgeRequirement: 190,
     triggerEncounter: "npc_encounter",
   },
   rock_outcropping: {
     type: "rock_outcropping",
     rarity: 0.05,
-    knowledgeRequirement: 180,
+    knowledgeRequirement: 200,
     triggerEncounter: "rock_outcropping",
   },
 };

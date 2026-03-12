@@ -27,8 +27,6 @@ const SmeltingPanel = ({ onCancel }: Props) => {
     Math.floor(COPPER_HARD_CAP * selectedOre),
   );
 
-  console.log("exp yield", expectedYield, charcoalFactor, skillMultiplier);
-
   const handleSmelt = () => {
     const bars = rollFractional(expectedYield);
     mutateExploration({

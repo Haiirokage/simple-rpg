@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "preact/hooks";
 import { makeDataQuery, useDefinedQuery, useUpdateData } from "../data/util";
-import { HUMAN_DEFINITIONS, type HumanType } from "./human-definitions";
+import { HUMAN_DEFINITIONS, NPC_SCHEDULES, type HumanType } from "./human-definitions";
 import { defaultNPCStore, type HumanInstance, type NPCStore } from "./npc-types";
 import { objectEntries } from "../util";
 import { mergeWith } from "lodash";
@@ -25,6 +25,7 @@ const generateInstance = (id: string, type: HumanType): HumanInstance => {
     allowance: def.allowance,
     interestValues: def.interestValues,
     sellList: [...def.sellList],
+    schedule: NPC_SCHEDULES[type] ?? {},
     trust: 0,
   };
 };
@@ -112,6 +113,7 @@ export const useHandleNPCAllowance = () => {
       });
       acc[id] = {
         ...npc,
+        schedule: NPC_SCHEDULES[npc.type] ?? {},
         resources: {
           ...mergeWith({ ...resourcesCapped }, def.replenishment, (a = 0, b) => {
             return Math.min(a + b, Math.floor(b * 1.5));

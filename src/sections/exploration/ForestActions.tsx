@@ -96,7 +96,7 @@ const ForestActions = () => {
           Track down a deer
         </button>
       )}
-      {discoveries.find_tubers > 0 && knowledgeLevel < 250 && (
+      {discoveries.find_tubers > 0 && knowledgeLevel < 220 && (
         <button
           disabled={disabled || playerStatus.energy < 5}
           onClick={() => {

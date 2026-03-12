@@ -67,8 +67,9 @@ const Header = () => {
     if (time > 23) {
       const newDayRaw = day + 1;
       // day range is 1..360. Wrap into 1..360 and compute year increment.
-      const newDay = ((newDayRaw - 1) % 360) + 1;
-      const yearIncrement = newDayRaw > 360 ? 1 : 0;
+      const daysInYear = 12 * DAYS_IN_MONTH;
+      const newDay = ((newDayRaw - 1) % daysInYear) + 1;
+      const yearIncrement = newDayRaw > daysInYear ? 1 : 0;
       const newYear = year + yearIncrement;
 
       updateTime({
