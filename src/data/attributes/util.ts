@@ -9,5 +9,6 @@
  */
 export const calculateForce = (strengthLevel: number, female = false): number => {
   const sexMultiplier = female ? 1 : 2;
-  return (20 + strengthLevel) * sexMultiplier + 0.005 * strengthLevel * strengthLevel;
+
+  return (20 + strengthLevel) * sexMultiplier + 0.01 * strengthLevel * strengthLevel;
 };

@@ -13,6 +13,7 @@ import { useGrantSkillExperience, useSkills } from "../../data/skills/hooks";
 import { getExpThreshold } from "../../data/leveling-util";
 import TooltipWrapper from "../../style/TooltipWrapper";
 import styled from "styled-components";
+import { useDiscoveries } from "../../data/discoveries/hooks";
 
 const ButtonRow = styled.div`
   display: flex;
@@ -34,6 +35,7 @@ const ToolCrafting = () => {
   const { getTool } = useHandleEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const { canAffordComponents, deductComponents } = useComponentCost();
+  const discoveries = useDiscoveries();
   const advanceTime = useAdvanceTime();
 
   const craftingLevel = skills.crafting.level;
@@ -69,6 +71,8 @@ const ToolCrafting = () => {
         const toolTier = toolStatus?.tier || 0;
         const nextTier = toolTier + 1;
         const hasNextTier = nextTier < toolDef.tiers.length;
+
+        if (toolKey === "pick" && discoveries.copper_identified === 0) return null;
 
         const nextTierData = toolDef.tiers[nextTier];
         const getNextTierButton = () => {
