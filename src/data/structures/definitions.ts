@@ -41,7 +41,7 @@ export const WOOD_SHED: StructureDefinition = {
   name: "Wood Shed",
   tooltip: "Increases wood storage.",
   timeCost: 5,
-  resourceCost: { wood: 15, stone: 5 },
+  resourceCost: { wood: 5, stone: 8 },
   plotCost: 1,
 } as const;
 
