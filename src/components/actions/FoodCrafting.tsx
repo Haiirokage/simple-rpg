@@ -5,7 +5,7 @@ import { Button } from "../../style/elements";
 
 const JERKY_RECIPE = {
   meatCost: 5,
-  wood: 10,
+  firewood: 10,
   output: 20,
   timeCost: 1,
 } as const;
@@ -22,7 +22,7 @@ const FoodCrafting = () => {
   const makeJerky = (meat: MeatType) => {
     mutate({
       [meat]: resources[meat] - JERKY_RECIPE.meatCost,
-      wood: resources.wood - JERKY_RECIPE.wood,
+      firewood: resources.firewood - JERKY_RECIPE.firewood,
       jerky: resources.jerky + JERKY_RECIPE.output,
     });
     advanceTime(JERKY_RECIPE.timeCost);
@@ -33,12 +33,12 @@ const FoodCrafting = () => {
       {homeUpgrades.smoker &&
         MEAT_TYPES.map((meat) => {
           const canMake =
-            resources[meat] >= JERKY_RECIPE.meatCost && resources.wood >= JERKY_RECIPE.wood;
+            resources[meat] >= JERKY_RECIPE.meatCost && resources.firewood >= JERKY_RECIPE.firewood;
 
           if (!(meat in data)) return null;
           return (
             <Button key={meat} onClick={() => makeJerky(meat)} disabled={!canMake}>
-              Dry {meat} (5 {meat}, 10 wood → 20 jerky)
+              Dry {meat} (5 {meat}, 10 firewood → 20 jerky)
             </Button>
           );
         })}

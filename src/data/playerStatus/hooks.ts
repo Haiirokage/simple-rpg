@@ -28,7 +28,8 @@ export const useUpdatePlayerStatus = () => {
         return { ...acc, [status]: acc[status] + value };
       }, previousPlayerStatus);
 
-      const adjustedSatiation = clamp(updatedStatus.satiation, 0, updatedStatus.maxSatiation);
+      const adjustedMaxSatiation = clamp(updatedStatus.maxSatiation, 0, 100);
+      const adjustedSatiation = clamp(updatedStatus.satiation, 0, adjustedMaxSatiation);
       const adjustedEnergy = clamp(updatedStatus.energy, 0, adjustedSatiation);
       const adjustedHealth = clamp(updatedStatus.health, 0, updatedStatus.maxHealth);
 
@@ -38,6 +39,7 @@ export const useUpdatePlayerStatus = () => {
         energy: adjustedEnergy,
         maxEnergy: adjustedSatiation,
         satiation: adjustedSatiation,
+        maxSatiation: adjustedMaxSatiation,
       };
       mutatePlayerStatus(adjustedStatus);
     });

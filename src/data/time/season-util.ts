@@ -60,13 +60,13 @@ export const getRabbitCatchLikelihood = (day: number): number => {
 };
 
 /**
- * Get daily wood cost based on season (day).
+ * Get daily firewood cost based on season (day).
  * Coldest months (Deepcold, Frostmoon, Snowveil) cost the most;
  * warmest months (Sunswept, Harvestrise, Goldleaf) cost nothing.
  */
-export const getWoodCostPerDay = (day: number): number => {
+export const getFirewoodCostPerDay = (day: number): number => {
   const season = getSeasonByDay(day);
-  return season.weights.woodCost;
+  return season.weights.firewoodCost;
 };
 
 /**

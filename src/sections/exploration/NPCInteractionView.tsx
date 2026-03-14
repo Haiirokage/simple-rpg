@@ -1,6 +1,4 @@
 import { useState } from "preact/hooks";
-import { ENCOUNTER_FRAMES } from "../../data/encounters/definitions";
-import { useHandleEncounter, useSetEncounter } from "../../data/encounters/hooks";
 import { useEquipment, useUpdateEquipment } from "../../data/equipment/hooks";
 import { TOOL_DEFINITIONS } from "../../data/equipment/definitions";
 import { useHandleNPCs } from "../../npc/npc-hooks";
@@ -10,29 +8,26 @@ import { useHandleExploration } from "../../data/exploration/hooks";
 import { mergeNumericRecords } from "../../util";
 import { useHandleDiscoveries } from "../../data/discoveries/hooks";
 import NPCResourceTradePanel from "../../npc/NPCResourceTradePanel";
+import type { HumanInstance } from "../../npc/npc-types";
 
-const NPCInteractionView = () => {
+interface Props {
+  npc: HumanInstance;
+  onLeave: () => void;
+  title?: string;
+  description?: string;
+}
+
+const NPCInteractionView = ({ npc, onLeave, title, description }: Props) => {
   const [trading, setTrading] = useState(false);
   const { exploration, mutateExploration } = useHandleExploration();
-  const { encounter } = useHandleEncounter();
-  const setEncounter = useSetEncounter();
-  const { npcs, mutateNPC } = useHandleNPCs();
+  const { mutateNPC } = useHandleNPCs();
   const equipment = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();
   const { discoveries, updateDiscovery } = useHandleDiscoveries();
 
   const inventory = exploration.inventory;
-
-  const frame = encounter.encounterFrameId
-    ? ENCOUNTER_FRAMES[encounter.encounterFrameId]
-    : undefined;
-
-  const npcId = encounter.npcs[0];
-  const npc = npcs[npcId];
-
-  if (!npc || !frame) return null;
-
   const npcCoin = npc.resources.coin ?? 0;
+  const playerCoin = inventory.coin ?? 0;
 
   const triggerVillageRumor = () => {
     if (npc.home?.biome === "village" && discoveries.village_rumor === 0) {
@@ -49,19 +44,17 @@ const NPCInteractionView = () => {
       inventory: mergeNumericRecords(inventory, { coin: -entry.price }),
     });
     mutateSpecific("tools", { [entry.tool]: { ...toolStatus } });
-    mutateNPC(npcId, {
+    mutateNPC(npc.id, {
       resources: { ...npc.resources, coin: npcCoin + entry.price },
       equipment: { ...npc.equipment, [entry.tool]: undefined },
       sellList: npc.sellList.filter((s) => s.tool !== entry.tool),
     });
   };
 
-  const playerCoin = inventory.coin ?? 0;
-
   return (
     <div>
-      <h2>{frame.title}</h2>
-      <p>{frame.description}</p>
+      {title && <h2>{title}</h2>}
+      {description && <p>{description}</p>}
       <p>
         Your coin: <CurrencyDisplay amount={playerCoin} />
       </p>
@@ -98,7 +91,7 @@ const NPCInteractionView = () => {
                 </button>
               );
             })}
-            <button onClick={() => setEncounter("exit")} style={{ marginRight: "0.5rem" }}>
+            <button onClick={onLeave} style={{ marginRight: "0.5rem" }}>
               Leave
             </button>
           </>

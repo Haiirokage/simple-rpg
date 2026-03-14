@@ -1,11 +1,21 @@
+import { useEffect } from "preact/hooks";
 import { useHandleExploration } from "../../../data/exploration/hooks";
 import { useTime } from "../../../data/time/hooks";
 import { isDay } from "../../../data/time/season-util";
+import { useGetOrCreateNPC, useNPCsAtLocation } from "../../../npc/npc-hooks";
 
 const AbandonedFieldLocation = () => {
   const { mutateExploration } = useHandleExploration();
+  const getOrCreate = useGetOrCreateNPC();
   const { time, day } = useTime();
   const isNight = !isDay(time, day);
+
+  useEffect(() => {
+    getOrCreate("village_miller", "miller");
+  });
+
+  const presentNPCs = useNPCsAtLocation("village", "abandoned_field");
+  console.log(presentNPCs);
 
   const handleLeave = () => {
     mutateExploration({ location: undefined });

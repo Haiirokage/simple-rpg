@@ -65,7 +65,7 @@ const DropButton = styled.button`
   cursor: pointer;
 `;
 
-const explorationItems: ResourceKeys[] = ["jerky", "wood", "charcoal", "copperOre"];
+const explorationItems: ResourceKeys[] = ["jerky", "firewood", "charcoal", "copperOre"];
 
 const ExplorationInventory = () => {
   const { resources, addResources } = useHandleResources();

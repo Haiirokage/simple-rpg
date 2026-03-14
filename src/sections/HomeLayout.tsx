@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { GameSection, GameViewContainer } from "../style/game-view";
 import ResourceBox from "./home/ResourceBox";
+import FirewoodPanel from "./home/FirewoodPanel";
 import PlayerEquipment from "./home/PlayerEquipment";
 import PlayerStatus from "./PlayerStatus";
 import PlayerAttributes from "./home/PlayerAttributes";
@@ -50,6 +51,7 @@ const HomeLayout = () => {
       <GameSection area="resources">
         <h2>Items</h2>
         <ResourceBox />
+        <FirewoodPanel />
       </GameSection>
       <ForestSection area="forest">
         <h2>Forest</h2>

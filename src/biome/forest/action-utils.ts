@@ -29,7 +29,11 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
     const woodBonus = getEquipmentBonus("hatchet", "woodGathering");
     const fiberBonus = 0.75 + discoveries.willow_grove * 0.5;
 
-    return { fiber: yieldMultiplier.gatherWood * woodBonus * fiberBonus, wood: woodBonus };
+    return {
+      wood: woodBonus,
+      firewood: yieldMultiplier.gatherWood * woodBonus * 7,
+      fiber: yieldMultiplier.gatherWood * woodBonus * fiberBonus,
+    };
   }, [yieldMultiplier.gatherWood, getEquipmentBonus, discoveries.willow_grove]);
 
   const gatherStone = useCallback(() => {

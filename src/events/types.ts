@@ -9,7 +9,7 @@ export type BaseEvent = {
   descriptions: string[]; // Optional flavor text
 };
 
-type EventEffect = "berryMultiplier" | "woodConsumption";
+type EventEffect = "berryMultiplier" | "firewoodConsumption";
 
 type MonthlyChances = [
   number,

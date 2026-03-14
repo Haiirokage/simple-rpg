@@ -12,6 +12,7 @@ const ATTRIBUTE_COLORS: Record<Attributes, string> = {
   dexterity: "#f5a623",
   wisdom: "hsl(61, 97%, 60%)",
   intelligence: "#ab47bc",
+  charisma: "#26a69a",
 };
 
 const ATTRIBUTE_DESCRIPTIONS: Record<Attributes, string> = {
@@ -20,6 +21,7 @@ const ATTRIBUTE_DESCRIPTIONS: Record<Attributes, string> = {
   dexterity: "Improves combat accuracy and evasion.",
   wisdom: "Your creativity and problem solving skills.",
   intelligence: "Your capacity for knowledge.",
+  charisma: "Your ability to charm and persuade others.",
 };
 
 const AttributeBox = styled.div`
@@ -50,7 +52,10 @@ const ExperienceBar = styled.div<{ color: string }>`
 const PlayerAttributes = () => {
   const { attributes } = useAttributes();
 
-  const attributeEntries = useMemo(() => objectEntries(attributes), [attributes]);
+  const attributeEntries = useMemo(
+    () => objectEntries(attributes).filter(([_, attr]) => attr.level > 0),
+    [attributes],
+  );
 
   return (
     <div>

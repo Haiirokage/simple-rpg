@@ -24,12 +24,12 @@ export const NEGATIVE_EVENTS: EODEvent[] = [
     category: "eod",
     likelihood: [0.05, 0.04, 0.02, 0, 0, 0, 0, 0, 0, 0, 0.02, 0.05],
     effects: {
-      woodConsumption: 2,
+      firewoodConsumption: 2,
     },
     descriptions: [
-      "A sudden cold snap increased your wood consumption for warmth.",
-      "You faced an unexpected chill, leading to higher wood usage to stay warm.",
-      "The drop in temperature forced you to use more wood to keep the cold at bay.",
+      "A sudden cold snap doubled your firewood consumption for warmth.",
+      "You faced an unexpected chill, burning through firewood twice as fast to stay warm.",
+      "The drop in temperature forced you to use more firewood to keep the cold at bay.",
     ],
   },
   {

@@ -1,7 +1,14 @@
-import { useCallback, useEffect } from "preact/hooks";
+import { useCallback, useEffect, useMemo } from "preact/hooks";
 import { makeDataQuery, useDefinedQuery, useUpdateData } from "../data/util";
-import { HUMAN_DEFINITIONS, NPC_SCHEDULES, type HumanType } from "./human-definitions";
+import {
+  HUMAN_DEFINITIONS,
+  NPC_SCHEDULES,
+  getScheduledLocation,
+  type HumanType,
+} from "./human-definitions";
 import { defaultNPCStore, type HumanInstance, type NPCStore } from "./npc-types";
+import type { BiomeType } from "../biome/discovery-types";
+import { useTime } from "../data/time/hooks";
 import { objectEntries } from "../util";
 import { mergeWith } from "lodash";
 
@@ -19,7 +26,14 @@ const generateInstance = (id: string, type: HumanType): HumanInstance => {
     sex,
     age,
     home: def.home,
-    attributes: { strength: 20, constitution: 20, dexterity: 20, wisdom: 20, intelligence: 20 },
+    attributes: {
+      strength: 20,
+      constitution: 20,
+      dexterity: 20,
+      wisdom: 20,
+      intelligence: 20,
+      charisma: 20,
+    },
     equipment: { ...def.equipment },
     resources: { ...def.replenishment, coin: def.allowance },
     allowance: def.allowance,
@@ -95,6 +109,20 @@ export const useNPC = (id: string, type: HumanType) => {
   });
 
   return { ...existing };
+};
+
+export const useNPCsAtLocation = (biome: BiomeType, location: string) => {
+  const npcs = useNPCs();
+  const { time } = useTime();
+  return useMemo(
+    () =>
+      Object.values(npcs).filter((npc) => {
+        const loc = getScheduledLocation(npc.schedule, time);
+
+        return loc?.biome === biome && loc?.location === location;
+      }),
+    [npcs, biome, location, time],
+  );
 };
 
 export const useHandleNPCAllowance = () => {

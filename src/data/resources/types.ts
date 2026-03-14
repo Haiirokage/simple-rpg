@@ -1,6 +1,7 @@
 export const resourceRecord = {
   berry: 0,
   wood: 0,
+  firewood: 0,
   stone: 0,
   rabbitMeat: 0,
   venison: 0,

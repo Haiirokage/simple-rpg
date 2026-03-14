@@ -48,7 +48,9 @@ const ResourceBox = () => {
 
   const discovered = objectKeys(data);
   const foodKeys = discovered.filter((k) => FOOD_KEYS.has(k));
-  const materialKeys = discovered.filter((k) => !FOOD_KEYS.has(k) && k !== "coin");
+  const materialKeys = discovered.filter(
+    (k) => !FOOD_KEYS.has(k) && k !== "coin" && k !== "firewood",
+  );
 
   const storedComponents = objectEntries(items.craftComponents).flatMap(([componentType, entry]) =>
     (Object.keys(MATERIAL_WEIGHTS) as MetalMaterial[])

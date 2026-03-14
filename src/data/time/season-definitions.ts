@@ -4,8 +4,8 @@ import type { ActionId } from "../../biome/forest/action-definitions";
  * Seasonal weights/modifiers for all mechanics.
  */
 export type SeasonWeights = {
-  /** Cost in wood per day for heating (units) */
-  woodCost: number;
+  /** Cost in firewood per day for heating (units) */
+  firewoodCost: number;
   /** Chance of fiber drop when gathering wood (0-1) */
   fiberDrop: number;
   /** Likelihood of catching rabbit with active trap (0-1) */
@@ -41,7 +41,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 8,
     sunset: 17,
     weights: {
-      woodCost: 5,
+      firewoodCost: 5,
       fiberDrop: 0.01,
       rabbitCatch: 0.2,
     },
@@ -55,7 +55,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 7,
     sunset: 18,
     weights: {
-      woodCost: 3,
+      firewoodCost: 3,
       fiberDrop: 0.01,
       rabbitCatch: 0.16,
     },
@@ -69,7 +69,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 6,
     sunset: 19,
     weights: {
-      woodCost: 2,
+      firewoodCost: 2,
       fiberDrop: 0.02,
       rabbitCatch: 0.2,
     },
@@ -83,7 +83,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 5,
     sunset: 20,
     weights: {
-      woodCost: 1,
+      firewoodCost: 1,
       fiberDrop: 0.04,
       rabbitCatch: 0.16,
     },
@@ -97,7 +97,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 4,
     sunset: 21,
     weights: {
-      woodCost: 0,
+      firewoodCost: 0,
       fiberDrop: 0.05,
       rabbitCatch: 0.08,
     },
@@ -111,7 +111,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 3,
     sunset: 22,
     weights: {
-      woodCost: 0,
+      firewoodCost: 0,
       fiberDrop: 0.05,
       rabbitCatch: 0.06,
     },
@@ -125,7 +125,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 4,
     sunset: 21,
     weights: {
-      woodCost: 0,
+      firewoodCost: 0,
       fiberDrop: 0.05,
       rabbitCatch: 0.04,
     },
@@ -139,7 +139,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 5,
     sunset: 20,
     weights: {
-      woodCost: 0,
+      firewoodCost: 0,
       fiberDrop: 0.04,
       rabbitCatch: 0.06,
     },
@@ -153,7 +153,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 6,
     sunset: 19,
     weights: {
-      woodCost: 1,
+      firewoodCost: 1,
       fiberDrop: 0.02,
       rabbitCatch: 0.12,
     },
@@ -167,7 +167,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 7,
     sunset: 18,
     weights: {
-      woodCost: 2,
+      firewoodCost: 2,
       fiberDrop: 0.02,
       rabbitCatch: 0.16,
     },
@@ -181,7 +181,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 8,
     sunset: 17,
     weights: {
-      woodCost: 2,
+      firewoodCost: 2,
       fiberDrop: 0.01,
       rabbitCatch: 0.18,
     },
@@ -195,7 +195,7 @@ export const MONTHS: SeasonDefinition[] = [
     sunrise: 8,
     sunset: 16,
     weights: {
-      woodCost: 4,
+      firewoodCost: 4,
       fiberDrop: 0.01,
       rabbitCatch: 0.2,
     },

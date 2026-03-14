@@ -20,11 +20,13 @@ import DiscoverySplash from "./DiscoverySplash";
 import { EXPLORATION_EVENTS } from "../../events/exploration-events";
 import { useAttributes } from "../../data/attributes/hooks";
 import { getFullSkillBonus } from "../../data/encounters/util";
+import { useHandleNPCs } from "../../npc/npc-hooks";
 
 const EncounterView = () => {
   const { encounter, mutateEncounter } = useHandleEncounter();
   const { exploration, mutateExploration } = useHandleExploration();
   const { discoveries, updateDiscovery } = useHandleDiscoveries();
+  const { npcs } = useHandleNPCs();
   const equipment = useEquipment();
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const setEncounter = useSetEncounter();
@@ -42,7 +44,21 @@ const EncounterView = () => {
     }
   }
   if (encounter.npcs.length > 0) {
-    return <NPCInteractionView />;
+    const npcId = encounter.npcs[0];
+    const npc = npcs[npcId];
+    const frame = encounter.encounterFrameId
+      ? ENCOUNTER_FRAMES[encounter.encounterFrameId]
+      : undefined;
+    if (npc) {
+      return (
+        <NPCInteractionView
+          npc={npc}
+          onLeave={() => setEncounter("exit")}
+          title={frame?.title}
+          description={frame?.description}
+        />
+      );
+    }
   }
   if (!encounter.encounterFrameId) {
     return <div>{encounter.exitMessage || "No encounter active."}</div>;

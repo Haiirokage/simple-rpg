@@ -1,6 +1,7 @@
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import {
   CHARCOAL_ENRICHMENT,
+  FIREWOOD_ENRICHMENT,
   LEATHER_ENRICHMENT,
 } from "../../data/resources/enrichment-definitions";
 import { useHandleResources, useResources } from "../../data/resources/hooks";
@@ -35,9 +36,18 @@ const ResourceEnrichment = () => {
   const { canAfford: canAffordLeather } = getAffordability(leather.cost, resources);
   const leatherCostStr = formatResourceCost(leather.cost);
 
+  const firewood = FIREWOOD_ENRICHMENT;
+  const chopFirewood = () => {
+    addResources({ firewood: firewood.result.firewood, wood: -firewood.cost.wood });
+    grantExperience({ crafting: 5 });
+  };
+  const firewoodDiscovered = hasDiscoveredResources(firewood.cost, data);
+  const { canAfford: canAffordFirewood } = getAffordability(firewood.cost, resources);
+  const firewoodCostStr = formatResourceCost(firewood.cost);
+
   const charcoal = CHARCOAL_ENRICHMENT;
   const burnCharcoal = () => {
-    addResources({ charcoal: charcoal.result.charcoal, wood: -charcoal.cost.wood });
+    addResources({ charcoal: charcoal.result.charcoal, firewood: -charcoal.cost.firewood });
     grantExperience({ crafting: 15 });
   };
   const smithing = useSmithing();
@@ -45,11 +55,21 @@ const ResourceEnrichment = () => {
   const { canAfford: canAffordCharcoal } = getAffordability(charcoal.cost, resources);
   const charcoalCostStr = formatResourceCost(charcoal.cost);
 
-  const showSection = leatherDiscovered || charcoalDiscovered;
+  const showSection = leatherDiscovered || charcoalDiscovered || firewoodDiscovered;
 
   return (
     <>
       {showSection && <Header3>Resource enrichment</Header3>}
+      {firewoodDiscovered && (
+        <TooltipWrapper description="Split and chop logs into smaller pieces for use as fuel.">
+          <ActionButton
+            name={`Chop firewood (${firewoodCostStr})`}
+            cost={{ energy: firewood.energyCost, time: firewood.timeCost }}
+            disabled={!canAffordFirewood}
+            onClick={chopFirewood}
+          />
+        </TooltipWrapper>
+      )}
       {leatherDiscovered && (
         <TooltipWrapper description="Clean the hide with a knife, treat it with a mixture of intestines and water, then smoke it.">
           <ActionButton

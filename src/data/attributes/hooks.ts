@@ -26,6 +26,10 @@ const defaultAttributeStore: AttributeStore = {
     level: 10,
     exp: 0,
   },
+  charisma: {
+    level: 0,
+    exp: 0,
+  },
 } as const;
 
 export const attributesQuery = makeDataQuery("ATTRIBUTES", defaultAttributeStore);

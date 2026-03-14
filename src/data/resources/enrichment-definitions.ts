@@ -22,8 +22,15 @@ export const LEATHER_ENRICHMENT = {
   energyCost: 5,
 };
 
+export const FIREWOOD_ENRICHMENT = {
+  cost: { wood: 1 },
+  result: { firewood: 10 },
+  timeCost: 1,
+  energyCost: 8,
+};
+
 export const CHARCOAL_ENRICHMENT = {
-  cost: { wood: 20 },
+  cost: { firewood: 20 },
   result: { charcoal: 10 },
   timeCost: 10,
   energyCost: 35,

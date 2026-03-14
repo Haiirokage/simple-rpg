@@ -1,7 +1,7 @@
 import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import { useStructures } from "../structures/hooks";
 import { useTime } from "../time/hooks";
-import { getWoodCostPerDay, getRabbitCatchLikelihood } from "../time/season-util";
+import { getFirewoodCostPerDay, getRabbitCatchLikelihood } from "../time/season-util";
 import { useDiscoveries } from "../discoveries/hooks";
 import { FOOD_STORAGE, NUTRITION_TYPES } from "./food-definitions";
 import { defaultResourceStore, type ResourceStore } from "./types";
@@ -121,7 +121,7 @@ export const useHandleNewDay = () => {
     const monthIndex = (day - 1) % 12;
     const event = getEndOfDayEvent(monthIndex);
     const berryMultiplier = event?.effects.berryMultiplier ?? 1;
-    const woodMultiplier = event?.effects.woodConsumption ?? 1;
+    const firewoodMultiplier = event?.effects.firewoodConsumption ?? 1;
 
     if (event) {
       addEntry({
@@ -136,11 +136,11 @@ export const useHandleNewDay = () => {
     // Check if player has lodging in current biome
     const lodging = exploration.active ? exploration.lodging[exploration.biome] : undefined;
 
-    const woodConsumption = lodging ? 0 : getWoodCostPerDay(day) * woodMultiplier;
+    const firewoodConsumption = lodging ? 0 : getFirewoodCostPerDay(day) * firewoodMultiplier;
 
-    // Calculate health damage from insufficient wood (only when at home)
-    const missingWood = Math.max(0, woodConsumption - resources.wood);
-    const healthDamageFromCold = missingWood * 5;
+    // Calculate health damage from insufficient firewood (only when at home)
+    const missingFirewood = Math.max(0, firewoodConsumption - resources.firewood);
+    const healthDamageFromCold = missingFirewood * 5;
 
     // Pick foods to consume from player's inventory (only when not at lodging)
     const consumedFood = lodging
@@ -185,7 +185,7 @@ export const useHandleNewDay = () => {
         ...acc,
         [resource.key]: acc[resource.key] - (resource.mealSize ?? 0),
       }),
-      { ...resources, wood: resources.wood - woodConsumption },
+      { ...resources, firewood: resources.firewood - firewoodConsumption },
     );
 
     const decayedFood = FOOD_STORAGE.reduce(

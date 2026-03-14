@@ -32,6 +32,10 @@ export type Schedule = Partial<Record<number, NPCHome>>;
 export type NPCSchedules = Partial<Record<HumanType, Schedule>>;
 
 export const NPC_SCHEDULES: NPCSchedules = {
+  barmaid: {
+    11: { biome: "village", location: "tavern" },
+    22: { biome: "village" },
+  },
   miller: {
     6: { biome: "village" },
     19: { biome: "village", location: "abandoned_field" },
@@ -39,13 +43,12 @@ export const NPC_SCHEDULES: NPCSchedules = {
   },
 };
 
-/** Returns where an NPC is scheduled to be at a given hour */
+/** Returns where an NPC is scheduled to be at a given hour, wrapping to the last entry if before the first scheduled time */
 export const getScheduledLocation = (schedule: Schedule, hour: number): NPCHome | undefined => {
-  const keys = Object.keys(schedule)
-    .map(Number)
-    .filter((h) => h <= hour)
-    .sort((a, b) => b - a);
-  return keys.length > 0 ? schedule[keys[0]] : undefined;
+  const allKeys = Object.keys(schedule).map(Number).reverse();
+  if (allKeys.length === 0) return undefined;
+  const validKeys = allKeys.filter((h) => h <= hour);
+  return schedule[validKeys.length > 0 ? validKeys[0] : allKeys[0]];
 };
 
 export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
@@ -56,7 +59,7 @@ export const HUMAN_DEFINITIONS: Record<HumanType, HumanDefinition> = {
     home: { biome: "village", location: "tavern" },
     equipment: { knife: { tier: 2, level: 7 } },
     allowance: 40,
-    interestValues: { wood: 3, jar: 5 },
+    interestValues: { firewood: 3, jar: 5 },
     replenishment: { jar: 1 },
     sellList: [{ type: "tool", tool: "knife", price: 15 }],
   },
