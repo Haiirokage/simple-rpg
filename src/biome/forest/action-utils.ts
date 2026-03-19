@@ -22,16 +22,16 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
   const forage = useCallback(() => {
     const seasonalMultiplier = yieldMultiplier.forage;
     const discoveryBonus = 1 + discoveries.berry_patch * 0.5;
-    return { berry: seasonalMultiplier * discoveryBonus * Math.random() };
+    return { berry: seasonalMultiplier * discoveryBonus };
   }, [yieldMultiplier.forage, discoveries.berry_patch]);
 
   const gatherWood = useCallback(() => {
     const woodBonus = getEquipmentBonus("hatchet", "woodGathering");
-    const fiberBonus = 0.75 + discoveries.willow_grove * 0.5;
+    const fiberBonus = 1 + discoveries.willow_grove * 0.5;
 
     return {
       wood: woodBonus,
-      firewood: yieldMultiplier.gatherWood * woodBonus * 7,
+      firewood: yieldMultiplier.gatherWood * woodBonus,
       fiber: yieldMultiplier.gatherWood * woodBonus * fiberBonus,
     };
   }, [yieldMultiplier.gatherWood, getEquipmentBonus, discoveries.willow_grove]);
@@ -43,7 +43,7 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
 
   const gatherTubers = useCallback(() => {
     const explorationBonus = getEquipmentBonus("shoes", "explorationChance");
-    return { tuber: 2 * explorationBonus };
+    return { tuber: explorationBonus };
   }, [getEquipmentBonus]);
 
   return {

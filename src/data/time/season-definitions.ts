@@ -47,7 +47,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 0,
-      gatherWood: 0.01,
+      gatherWood: 0.2,
     },
   },
   {
@@ -61,7 +61,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 0,
-      gatherWood: 0.01,
+      gatherWood: 0.2,
     },
   },
   {
@@ -75,7 +75,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 0.2,
-      gatherWood: 0.02,
+      gatherWood: 0.4,
     },
   },
   {
@@ -89,7 +89,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 0.5,
-      gatherWood: 0.04,
+      gatherWood: 0.8,
     },
   },
   {
@@ -103,7 +103,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 0.75,
-      gatherWood: 0.05,
+      gatherWood: 1.0,
     },
   },
   {
@@ -117,7 +117,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 1.0,
-      gatherWood: 0.05,
+      gatherWood: 1.0,
     },
   },
   {
@@ -131,7 +131,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 1.0,
-      gatherWood: 0.05,
+      gatherWood: 1.0,
     },
   },
   {
@@ -145,7 +145,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 1.0,
-      gatherWood: 0.04,
+      gatherWood: 0.8,
     },
   },
   {
@@ -159,7 +159,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 0.85,
-      gatherWood: 0.02,
+      gatherWood: 0.4,
     },
   },
   {
@@ -173,7 +173,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 0.4,
-      gatherWood: 0.02,
+      gatherWood: 0.4,
     },
   },
   {
@@ -187,7 +187,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 0.2,
-      gatherWood: 0.01,
+      gatherWood: 0.2,
     },
   },
   {
@@ -201,7 +201,7 @@ export const MONTHS: SeasonDefinition[] = [
     },
     yieldMultiplier: {
       forage: 0.1,
-      gatherWood: 0.01,
+      gatherWood: 0.2,
     },
   },
 ];

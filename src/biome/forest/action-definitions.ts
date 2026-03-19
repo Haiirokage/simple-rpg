@@ -39,7 +39,7 @@ export const FOREST_ACTIONS: Record<ActionId, ActionDefinition> = {
       time: 2,
       energy: 10,
     },
-    resourceYield: { wood: 1, firewood: 1, fiber: 1 },
+    resourceYield: { wood: 1, firewood: 0.35, fiber: 0.05 },
   },
   gatherStone: {
     id: "gatherStone",
@@ -58,7 +58,7 @@ export const FOREST_ACTIONS: Record<ActionId, ActionDefinition> = {
       time: 3,
       energy: 8,
     },
-    resourceYield: { tuber: 5 },
+    resourceYield: { tuber: 10 },
     discoveriesRequired: { find_tubers: 1 },
     knowledgeRequired: 220,
   },

@@ -71,10 +71,13 @@ export const getStorageCapacity = (
  * @param cost - Resource cost as Partial<ResourceStore>
  * @returns Formatted string like "4 berry, 2 wood" or null if no cost
  */
-export const formatResourceCost = (cost: Partial<ResourceStore> | undefined): string | null => {
+export const formatResourceCost = (
+  cost: Partial<ResourceStore> | undefined,
+  decimals = 0,
+): string | null => {
   if (!cost) return null;
   return objectEntries(cost)
-    .map(([resource, amount]) => `${amount} ${resource}`)
+    .map(([resource, amount]) => `${amount.toFixed(decimals)} ${resource}`)
     .join(", ");
 };
 

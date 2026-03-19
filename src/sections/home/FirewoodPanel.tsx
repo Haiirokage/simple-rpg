@@ -11,11 +11,9 @@ const CostDisplay = styled.span`
 `;
 
 const FirewoodPanel = () => {
-  const { resources, data } = useResources();
+  const { resources } = useResources();
   const { structures } = useStructures();
   const { day } = useTime();
-
-  if (!("firewood" in data)) return null;
 
   const dailyCost = getFirewoodCostPerDay(day);
   const capacity = getStorageCapacity("firewood", structures);

@@ -17,6 +17,7 @@ import { useActionMultipliers } from "../../biome/forest/action-utils";
 import { sum } from "lodash";
 import ExploreButton from "../ExploreButton";
 import TooltipWrapper from "../../style/TooltipWrapper";
+import { formatResourceCost } from "../../data/resources/util";
 
 const ForestBiome = () => {
   const { addResources } = useHandleResources();
@@ -25,7 +26,7 @@ const ForestBiome = () => {
   const { mutateSpecific } = useUpdateEquipment();
   const { knowledge, gainLevels } = useHandleKnowledge("forest");
   const knowledgeScore = knowledge.tier * 100 + knowledge.level;
-  const expGain = 1 / Math.pow(20, knowledge.tier);
+  const expGain = 1 / Math.pow(15, knowledge.tier);
   const energyModifier = knowledge.tier >= 2 ? -1 : 0;
   const multipliers = useActionMultipliers();
   const grantExperience = useGrantExperience();
@@ -63,44 +64,55 @@ const ForestBiome = () => {
         const { id, name, cost, resourceYield, experienceGrant } = action;
         const multiplier = multipliers[id]();
         const energyCost = cost.energy + energyModifier;
-
         const disabled = !isActionWithinDaylight(time, cost.time, day);
 
         const yieldEntries = resourceYield
           ? objectEntries(resourceYield).reduce(
-              (acc, [key, yieldDef]) => ({
-                ...acc,
-                [key]: yieldDef * (multiplier[key] ?? 1),
-              }),
+              (acc, [key, base]) => ({ ...acc, [key]: base * (multiplier[key] ?? 1) }),
               {} as Partial<ResourceStore>,
             )
           : undefined;
-        const resourceAmount = sum(Object.values(yieldEntries || {}).filter((v) => v > 0));
 
         return (
-          <ActionButton
-            key={id}
-            name={name}
-            cost={{ ...cost, energy: energyCost }}
-            disabled={disabled}
-            onClick={() => {
-              if (yieldEntries) {
-                addResources(yieldEntries);
-              }
-              gainLevels(expGain);
+          <TooltipWrapper
+            description={
+              yieldEntries ? `Average yield: ${formatResourceCost(yieldEntries, 2)}` : undefined
+            }
+          >
+            <ActionButton
+              key={id}
+              name={name}
+              cost={{ ...cost, energy: energyCost }}
+              disabled={disabled}
+              onClick={() => {
+                const roll = 0.2 + Math.cbrt(Math.random());
+                const rolledYield = yieldEntries
+                  ? objectEntries(yieldEntries).reduce(
+                      (acc, [key, value]) => ({ ...acc, [key]: value * roll }),
+                      {} as Partial<ResourceStore>,
+                    )
+                  : undefined;
 
-              if (experienceGrant && resourceAmount > 0) {
-                const scaledExperienceGrant = objectEntries(experienceGrant).reduce(
-                  (acc, [key, value]) => ({
-                    ...acc,
-                    [key]: value * Math.pow(resourceAmount, 2.5),
-                  }),
-                  {},
-                );
-                grantExperience(scaledExperienceGrant);
-              }
-            }}
-          />
+                if (rolledYield) addResources(rolledYield);
+                gainLevels(expGain);
+
+                if (experienceGrant && rolledYield) {
+                  const resourceAmount = sum(Object.values(rolledYield).filter((v) => v > 0));
+                  if (resourceAmount > 0) {
+                    grantExperience(
+                      objectEntries(experienceGrant).reduce(
+                        (acc, [key, value]) => ({
+                          ...acc,
+                          [key]: value * Math.pow(resourceAmount, 2.5),
+                        }),
+                        {},
+                      ),
+                    );
+                  }
+                }
+              }}
+            />
+          </TooltipWrapper>
         );
       })}
 

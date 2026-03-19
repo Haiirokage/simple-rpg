@@ -42,7 +42,7 @@ export const TOOL_DEFINITIONS = {
       NO_TOOL,
       {
         name: "stone",
-        cost: { wood: 5, stone: 8 },
+        cost: { wood: 2, stone: 8 },
         componentCost: {},
         bonus: { woodGathering: { min: 3, max: 4.5, decimals: 1 } },
       },
@@ -61,7 +61,7 @@ export const TOOL_DEFINITIONS = {
       NO_TOOL,
       {
         name: "crude",
-        cost: { wood: 5, fiber: 6 },
+        cost: { wood: 3, fiber: 6 },
         componentCost: {},
         bonus: { range: { min: 130, max: 170 } },
       },
@@ -87,7 +87,7 @@ export const TOOL_DEFINITIONS = {
       NO_TOOL,
       {
         name: "stone",
-        cost: { wood: 2, fiber: 1, stone: 4 },
+        cost: { wood: 1, fiber: 1, stone: 4 },
         componentCost: {},
         bonus: { skinning: { min: 1, max: 1.5, decimals: 1 } },
       },
@@ -106,7 +106,7 @@ export const TOOL_DEFINITIONS = {
       NO_TOOL,
       {
         name: "stone",
-        cost: { wood: 5, stone: 8 },
+        cost: { wood: 2, stone: 8 },
         componentCost: {},
         bonus: {},
         skillBonus: { mining: { min: 3 } },
@@ -131,7 +131,7 @@ export const EQUIPMENT_DEFINITIONS: EquipmentDefinition[] = [
   {
     key: "trap",
     name: "Trap",
-    cost: { wood: 10, fiber: 3 },
+    cost: { wood: 2, fiber: 3 },
     maxCount: 3,
   },
 ];

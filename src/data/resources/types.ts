@@ -22,6 +22,7 @@ export const resourceRecord = {
 export const defaultResourceStore = {
   ...resourceRecord,
   berry: 10,
+  firewood: 1,
 } as const;
 
 export type ResourceKeys = keyof typeof defaultResourceStore;
