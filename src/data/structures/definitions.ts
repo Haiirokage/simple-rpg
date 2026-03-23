@@ -32,7 +32,7 @@ export const PANTRY: StructureDefinition = {
   name: "Pantry",
   tooltip: "Increases storage of food and reduces decay.",
   timeCost: 12,
-  resourceCost: { wood: 60, stone: 20 },
+  resourceCost: { wood: 50, stone: 20 },
   plotCost: 4,
 } as const;
 

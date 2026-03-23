@@ -7,7 +7,8 @@ export type HitTarget = "head" | "body" | "legs";
 export const getDistanceMultiplier = (distance: number, bowRange = 150) => {
   const confidentRange = bowRange / 5;
   const linearDistanceMult = clamp((bowRange - distance) / (bowRange - confidentRange), 0, 1);
-  return Math.sqrt(linearDistanceMult);
+  const distancePenalty = Math.max(1, distance / 100);
+  return Math.cbrt(linearDistanceMult) / distancePenalty;
 };
 
 /** Composure multiplier from combat acuity. 0.8x at level 0, ~1.27x at level 10, ~2.3x at level 100. */
@@ -84,8 +85,10 @@ export const getEffectiveHitChance = (hitChance: number, target: HitTarget): num
  * @returns multiplier for experience gain (0.1-1.0)
  */
 export const getDifficultyMultiplier = (hitChance: number): number => {
-  // 5% = 1.0x, 25% = 0.8x, 50% = 0.55x, 75% = 0.3x, 95% = 0.1x
-  return Math.max(0.1, 1.0 - Math.max(0, hitChance - 0.05));
+  const hitChanceAboveChallenging = Math.max(0, hitChance - 0.2); // 20% is a challenging shot
+
+  // 5% = 1.0x, 20% = 1x, 50% = 0.7x, 75% = 0.45x, 95% = 0.25x
+  return Math.max(0.1, 1.0 - hitChanceAboveChallenging);
 };
 
 export type WoundStatus = "healthy" | "wounded" | "critical";

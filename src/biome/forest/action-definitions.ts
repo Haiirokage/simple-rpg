@@ -39,7 +39,7 @@ export const FOREST_ACTIONS: Record<ActionId, ActionDefinition> = {
       time: 2,
       energy: 10,
     },
-    resourceYield: { wood: 1, firewood: 0.35, fiber: 0.05 },
+    resourceYield: { wood: 1, firewood: 0.3, fiber: 0.07 },
   },
   gatherStone: {
     id: "gatherStone",

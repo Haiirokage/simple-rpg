@@ -6,13 +6,13 @@ import { getSeasonByDay } from "../../../data/time/season-util";
 import { useGrantExperience, useAttributes } from "../../../data/attributes/hooks";
 import { getExpThreshold } from "../../../data/leveling-util";
 import ExplorationCostButton from "../../../components/ExplorationCostButton";
-import { useNPCsAtLocation } from "../../../npc/npc-hooks";
+import { useNPCsAtLocation, useMutateNPCs } from "../../../npc/npc-hooks";
 import NPCInteractionView from "../../../sections/exploration/NPCInteractionView";
 
 const LODGING_COST = 35;
-const DRINK_COST = 7;
+const DRINK_COST = 5;
 const DRINK_HOURS = 2;
-const DRINK_ENERGY = 5;
+const DRINK_ENERGY = 3;
 
 type TavernEvent = {
   title: string;
@@ -25,6 +25,13 @@ type TavernEvent = {
 };
 
 const TAVERN_EVENTS: TavernEvent[] = [
+  {
+    title: "A quiet evening",
+    charismaThreshold: 0,
+    setup: "You sit down for a drink.",
+    successText: "The tavern is quiet and nothing happens",
+    failureText: "The tavern is quiet and nothing happens",
+  },
   {
     title: "A Drunkard Picks a Fight",
     charismaThreshold: 20,
@@ -47,6 +54,12 @@ const TAVERN_EVENTS: TavernEvent[] = [
       "You open your mouth and immediately say something awkward. She smiles politely and turns away.",
   },
 ];
+
+const EVENT_CUMULATIVE_WEIGHTS = TAVERN_EVENTS.reduce<number[]>((acc, e, i) => {
+  const w = Math.max(5, 200 - e.charismaThreshold * 3);
+  return [...acc, (acc[i - 1] ?? 0) + w];
+}, []);
+const TOTAL_EVENT_WEIGHT = EVENT_CUMULATIVE_WEIGHTS[EVENT_CUMULATIVE_WEIGHTS.length - 1];
 
 type DrinkResult = {
   title: string;
@@ -72,7 +85,7 @@ const TavernLocation = () => {
   const villageLodging = lodging.village;
 
   const presentNPCs = useNPCsAtLocation("village", "tavern");
-  console.log(presentNPCs);
+  const { mutateNPC } = useMutateNPCs();
 
   const handleLeave = () => {
     mutateExploration({ location: undefined });
@@ -90,17 +103,27 @@ const TavernLocation = () => {
   };
 
   const handleDrink = () => {
-    const event = TAVERN_EVENTS[Math.floor(Math.random() * TAVERN_EVENTS.length)];
+    const roll = Math.random() * TOTAL_EVENT_WEIGHT;
+    const event =
+      TAVERN_EVENTS[EVENT_CUMULATIVE_WEIGHTS.findIndex((w) => w > roll)] ??
+      TAVERN_EVENTS[TAVERN_EVENTS.length - 1];
     const charisma = attributes.charisma.level;
     const delta = Math.max(0, event.charismaThreshold - charisma);
     const p = 0.9 ** (delta ** 2);
+    console.log("success chance: ", p);
     const success = Math.random() < p;
 
-    if (success) {
+    const barmaid = presentNPCs.find((npc) => npc.type === "barmaid");
+    if (barmaid) {
+      mutateNPC(barmaid.id, {
+        resources: { ...barmaid.resources, coin: (barmaid.resources.coin ?? 0) + DRINK_COST },
+      });
+    }
+
+    if (success && event.charismaThreshold > 0) {
       const expReward = Math.round(
         getExpThreshold(event.charismaThreshold) / (1.5 * Math.sqrt(event.charismaThreshold + 1)),
       );
-      console.log("charisma exp", expReward);
       grantExperience({ charisma: expReward });
     }
     if (!success && event.failureDamage) {

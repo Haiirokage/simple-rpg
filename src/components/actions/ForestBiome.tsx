@@ -75,6 +75,7 @@ const ForestBiome = () => {
 
         return (
           <TooltipWrapper
+            inline
             description={
               yieldEntries ? `Average yield: ${formatResourceCost(yieldEntries, 2)}` : undefined
             }

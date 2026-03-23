@@ -53,12 +53,7 @@ const TooltipWrapper = (props: {
         {props.children}
       </Wrapper>
       {showPopover && props.description && (
-        <EventPopover
-          $top={popoverPos.top}
-          $left={popoverPos.left}
-          onMouseEnter={() => setShowPopover(true)}
-          onMouseLeave={() => setShowPopover(false)}
-        >
+        <EventPopover $top={popoverPos.top} $left={popoverPos.left}>
           {props.description}
         </EventPopover>
       )}

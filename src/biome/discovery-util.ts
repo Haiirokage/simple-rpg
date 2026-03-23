@@ -121,7 +121,7 @@ export const useHasViableDiscoveries = (
   biome: BiomeType,
   knowledgeLevel: number,
   discoveries: DiscoveriesStore,
-  minChance = 0.02,
+  minChance = 0.05,
 ): boolean => {
   return useMemo(() => {
     const { unlockable } = BIOME_DISCOVERIES[biome];
