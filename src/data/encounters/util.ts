@@ -5,9 +5,9 @@ import type { Skills, SkillStore } from "../skills/types";
 
 export const getBasicNPC = (type: AllTargets, distance = 100): CreatureInstance => {
   const definition = getTarget(type);
+
   return {
     ...definition,
-    type: type as CreatureInstance["type"],
     speedFactor: "speedFactor" in definition ? definition.speedFactor : 0,
     loot: "loot" in definition ? definition.loot : [],
     id: "npc_1",
