@@ -6,10 +6,12 @@ interface ConsumableStatus {
   max?: number;
 }
 
-export const tools = ["hatchet", "knife", "bow", "shoes", "pick"] as const;
+export const tools = ["hatchet", "knife", "bow", "shoes", "pick", "staff"] as const;
 export type ToolType = (typeof tools)[number];
 
 export type BowType = "crude" | "stone";
+
+export type WeaponType = Extract<ToolType, "bow" | "staff">;
 
 export interface ToolStatus {
   tier: number; // 0 = none, 1+ = tier index in definition

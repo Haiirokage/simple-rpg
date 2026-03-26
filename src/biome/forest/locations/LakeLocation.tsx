@@ -14,7 +14,7 @@ const LakeLocation = () => {
   const { time, day } = useTime();
   const advanceTime = useAdvanceTime();
   const isNight = !isDay(time, day);
-  const handleSkillCheck = useHandleSkillCheck();
+  const handleSkillCheck = useHandleSkillCheck(exploration.biome);
   const { skills } = useSkills();
   const { consumables } = useEquipment();
   const { mutateSpecific } = useUpdateEquipment();

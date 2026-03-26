@@ -1,44 +1,30 @@
-import type { Attributes } from "../data/attributes/types";
-import type { ResourceStore } from "../data/resources/types";
+import type { Creatures, CreatureDefinition } from "./creature-types";
 
-export type Creatures = "deer" | "wolf";
+// Re-export for any existing imports from this file
+export type { Creatures, CreatureDefinition, CreatureInstance, LootEntry } from "./creature-types";
 
-export interface LootEntry {
-  resources: Partial<ResourceStore>;
-  dc?: number;
-}
-
-export interface BaseNPCDefinition {
-  name: string;
-  attributes: Record<Attributes, number>;
-  targets: Record<"head" | "body" | "legs", { armor_rating: number }>;
-}
-export interface CreatureDefinition extends BaseNPCDefinition {
-  type: Creatures;
-  speedFactor: number; // species speed multiplier: cbrt(dex) * speedFactor = m/s
-  loot: LootEntry[];
-}
-
-export interface CreatureInstance extends CreatureDefinition {
-  id: string;
-  distance: number;
-  health: number;
-  maxHealth: number;
-  hostile: boolean;
-  discovered: boolean;
-}
-
-const getTargets = (head = 0, body = 0, legs = 0) => {
-  return {
-    head: { armor_rating: head },
-    body: { armor_rating: body },
-    legs: { armor_rating: legs },
-  };
-};
+const getTargets = (head = 0, body = 0, legs = 0) => ({
+  head: { armor_rating: head },
+  body: { armor_rating: body },
+  legs: { armor_rating: legs },
+});
 
 export const CREATURES: Record<Creatures, CreatureDefinition> = {
+  human: {
+    name: "Human",
+    speedFactor: 3,
+    attributes: {
+      strength: 20,
+      constitution: 20,
+      dexterity: 20,
+      wisdom: 20,
+      intelligence: 20,
+      charisma: 20,
+    },
+    targets: getTargets(2, 1, 1),
+    loot: [],
+  },
   deer: {
-    type: "deer",
     name: "Deer",
     speedFactor: 4.5,
     attributes: {
@@ -53,7 +39,6 @@ export const CREATURES: Record<Creatures, CreatureDefinition> = {
     loot: [{ resources: { venison: 15 } }, { resources: { hide: 1, venison: 5 }, dc: 9 }],
   },
   wolf: {
-    type: "wolf",
     name: "Wolf",
     speedFactor: 5,
     attributes: {
@@ -71,8 +56,11 @@ export const CREATURES: Record<Creatures, CreatureDefinition> = {
 
 export type OtherTargets = "archeryTarget";
 
-export interface OtherTargetDefinition extends BaseNPCDefinition {
+export interface OtherTargetDefinition {
   id: OtherTargets;
+  name: string;
+  attributes: Record<string, number>;
+  targets: Record<"head" | "body" | "legs", { armor_rating: number }>;
 }
 
 export const OTHER_TARGETS: Record<OtherTargets, OtherTargetDefinition> = {

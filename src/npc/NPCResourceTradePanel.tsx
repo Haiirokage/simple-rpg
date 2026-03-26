@@ -4,7 +4,7 @@ import { useHandleExploration } from "../data/exploration/hooks";
 import { mergeNumericRecords, objectEntries } from "../util";
 import CurrencyDisplay from "../components/CurrencyDisplay";
 import { npcBuyPrice, npcSellPrice, useHandleNPCs } from "./npc-hooks";
-import type { HumanInstance } from "./npc-types";
+import type { HumanInstance } from "./creature-types";
 import { resourceRecord, type ResourceCost, type ResourceKeys } from "../data/resources/types";
 
 const TRADE_TRUST_CAP = 10;
@@ -65,7 +65,7 @@ const NPCResourceTradePanel = ({ npc, onTrade, onCancel }: Props) => {
   const npcCoin = npc.resources.coin ?? 0;
   const playerCoin = inventory.coin ?? 0;
 
-  const visibleEntries = objectEntries(npc.interestValues);
+  const visibleEntries = objectEntries(npc.definition.interestValues);
 
   if (visibleEntries.length === 0) return null;
 

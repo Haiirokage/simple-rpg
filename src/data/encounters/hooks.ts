@@ -16,13 +16,13 @@ import type {
 } from "../../npc/creature-definitions";
 import { objectEntries, type AtLeast } from "../../util";
 import type { Skills } from "../skills/types";
+import type { BiomeType } from "../../biome/discovery-types";
 import { sum } from "lodash";
 import { getFullSkillBonus } from "./util";
 import { useHandleEquipment } from "../equipment/hooks";
 
 export const defaultEncounterStore: EncounterStore = {
   active: false,
-  biome: "forest",
   enemies: {},
   npcs: [],
   timePassed: 0,
@@ -47,11 +47,11 @@ export const useHandleEncounter = () => {
 
 const createCreatureInstance = (
   definition: CreatureDefinition,
-  config: { id?: string; distance?: number; hostile?: boolean; discovered?: boolean } = {},
+  config: { id: string; distance?: number; hostile?: boolean; discovered?: boolean },
 ): CreatureInstance => {
   return {
     ...definition,
-    id: config.id || `${definition.type}1`,
+    id: config.id,
     distance: config.distance ?? 100,
     health: 100,
     maxHealth: 100,
@@ -150,9 +150,8 @@ const KNOWLEDGE_SCALE = 50;
  *
  * bonus from levels(1-100) is sqrt(level), this gives a total bonus of 10 at level 100, with earlier levels getting bonuses sooner, while attribute give level / 20(max 5)
  */
-export const useSkillRoll = () => {
-  const { encounter } = useHandleEncounter();
-  const { knowledge } = useHandleKnowledge(encounter.biome);
+export const useSkillRoll = (biome: BiomeType) => {
+  const { knowledge } = useHandleKnowledge(biome);
   const { skills } = useSkills();
   const { attributes } = useAttributes();
   const { getSkillBonuses } = useHandleEquipment();
@@ -193,10 +192,9 @@ export const useSkillRoll = () => {
  * Hook that returns a function to resolve skill checks.
  * Returns "success" or "failure" based on d6 roll + bonuses vs DC.
  */
-export const useHandleSkillCheck = () => {
-  const skillRoll = useSkillRoll();
-  const { encounter } = useHandleEncounter();
-  const { knowledge, gainLevels } = useHandleKnowledge(encounter.biome);
+export const useHandleSkillCheck = (biome: BiomeType) => {
+  const skillRoll = useSkillRoll(biome);
+  const { knowledge, gainLevels } = useHandleKnowledge(biome);
   const grantExperience = useGrantSkillExperience();
 
   return useCallback(

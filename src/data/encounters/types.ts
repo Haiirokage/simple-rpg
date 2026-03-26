@@ -3,7 +3,8 @@ import type { Skills } from "../skills/types";
 import type { CreatureInstance, Creatures } from "../../npc/creature-definitions";
 import type { PlayerEffect } from "../effect-util";
 import type { HumanType } from "../../npc/human-definitions";
-import type { BiomeType, AllUnlockables, AllBiomeUnlockables } from "../../biome/discovery-types";
+import type { WeaponType } from "../equipment/types";
+import type { AllUnlockables, AllBiomeUnlockables } from "../../biome/discovery-types";
 import type { ForestEncounterFrameId } from "../../biome/forest/encounter-definitions";
 import type { VillageEncounterFrameId } from "../../biome/village/encounter-definitions";
 
@@ -28,6 +29,7 @@ export interface FrameOutcome extends BaseOutcome {
 export interface CombatConfig {
   flavorText: string;
   exitMessage?: string;
+  sparring?: { weapon: WeaponType };
   onKill?: Partial<{
     frameId: EncounterFrameId;
     discovery: AllUnlockables;
@@ -103,7 +105,6 @@ export interface EncounterFrame extends BaseEncounterFrame {
 
 export type EncounterStore = {
   active: boolean;
-  biome: BiomeType;
   encounterFrameId?: EncounterFrameId;
   encounteredDiscovery?: AllBiomeUnlockables;
   enemies: Record<string, CreatureInstance>;

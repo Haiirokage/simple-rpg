@@ -22,7 +22,7 @@ const CombatResolution = ({ enemies, combatContext }: Props) => {
   const { encounter, mutateEncounter } = useHandleEncounter();
   const { exploration, mutateExploration } = useHandleExploration();
   const { updateDiscovery } = useHandleDiscoveries();
-  const skillRoll = useSkillRoll();
+  const skillRoll = useSkillRoll(exploration.biome);
   const grantExperience = useGrantSkillExperience();
   const { updatePlayerStatus } = useHandlePlayerStatus();
   const equipment = useEquipment();

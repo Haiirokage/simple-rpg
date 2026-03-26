@@ -30,7 +30,7 @@ const EncounterView = () => {
   const equipment = useEquipment();
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const setEncounter = useSetEncounter();
-  const handleSkillCheck = useHandleSkillCheck();
+  const handleSkillCheck = useHandleSkillCheck(exploration.biome);
   const { handleAttack, getHitChance } = useHandleAttack();
   const handleEffect = useHandleEffect();
   const initiateCombat = useInitiateCombat();

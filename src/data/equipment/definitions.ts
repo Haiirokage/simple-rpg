@@ -1,6 +1,6 @@
 import type { ResourceStore } from "../resources/types";
 import type { Skills } from "../skills/types";
-import type { ConsumableType, ToolType } from "./types";
+import type { ConsumableType, ToolType, WeaponType } from "./types";
 import type { ComponentCost } from "../craftComponents/types";
 
 export type EquipmentDefinition = {
@@ -120,12 +120,54 @@ export const TOOL_DEFINITIONS = {
       },
     ],
   },
+  staff: {
+    key: "staff",
+    name: "Staff",
+    tiers: [
+      NO_TOOL,
+      {
+        name: "crude",
+        cost: { wood: 4 },
+        componentCost: {},
+        bonus: {},
+      },
+    ],
+  },
 } as const satisfies Record<ToolType, ToolDefinition>;
 
 // Extract bonus keys for each tool from the definitions
 type ToolDefs = typeof TOOL_DEFINITIONS;
 type ExtractKeys<T> = T extends object ? keyof T : never;
 export type ToolBonusKeys<T extends ToolType> = ExtractKeys<ToolDefs[T]["tiers"][number]["bonus"]>;
+
+export type WeaponBonusType = "meleeRange";
+
+export interface WeaponTier {
+  name: string;
+  bonus: Partial<Record<WeaponBonusType, NumberRange>>;
+  skillBonus?: Partial<Record<Skills, NumberRange>>;
+}
+
+export interface WeaponDefinition {
+  key: WeaponType;
+  name: string;
+  tiers: WeaponTier[]; // index 0 = none, 1+ = tier index matching ToolStatus.tier
+}
+
+const NO_WEAPON: WeaponTier = { name: "none", bonus: {} };
+
+export const WEAPON_DEFINITIONS = {
+  bow: {
+    key: "bow",
+    name: "Bow",
+    tiers: [NO_WEAPON, { name: "crude", bonus: {} }],
+  },
+  staff: {
+    key: "staff",
+    name: "Staff",
+    tiers: [NO_WEAPON, { name: "wooden", bonus: { meleeRange: { min: 3 } } }],
+  },
+} as const satisfies Record<WeaponType, WeaponDefinition>;
 
 export const EQUIPMENT_DEFINITIONS: EquipmentDefinition[] = [
   {

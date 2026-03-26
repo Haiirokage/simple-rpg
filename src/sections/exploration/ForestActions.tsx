@@ -32,7 +32,7 @@ const ForestActions = () => {
   const { exploration, mutateExploration, modifyActions } = useHandleExploration();
   const setEncounter = useSetEncounter();
   const { encounter } = useHandleEncounter();
-  const handleSkillCheck = useHandleSkillCheck();
+  const handleSkillCheck = useHandleSkillCheck(exploration.biome);
   const { equipment } = useHandleEquipment();
   const { time, day } = useTime();
   const isNight = !isDay(time, day);

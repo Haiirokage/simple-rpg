@@ -21,7 +21,7 @@ const SmeltingPanel = ({ onCancel }: Props) => {
   const charcoal = exploration.inventory.charcoal ?? 0;
 
   const skillMultiplier = COPPER_BASE_SKILL + skills.smithing.level * SKILL_PER_LEVEL;
-  const charcoalFactor = 0.8 * selectedOre ? Math.sqrt(selectedCharcoal / selectedOre) : 0.1;
+  const charcoalFactor = 0.8 * (selectedOre ? Math.sqrt(selectedCharcoal / selectedOre) : 0.1);
   const expectedYield = Math.min(
     selectedOre * COPPER_HARD_CAP * Math.min(1, charcoalFactor * skillMultiplier),
     Math.floor(COPPER_HARD_CAP * selectedOre),

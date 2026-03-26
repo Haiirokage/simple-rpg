@@ -6,7 +6,9 @@ import {
   getScheduledLocation,
   type HumanType,
 } from "./human-definitions";
-import { defaultNPCStore, type HumanInstance, type NPCStore } from "./npc-types";
+import { CREATURES } from "./creature-definitions";
+import { defaultNPCStore, type NPCStore } from "./npc-types";
+import type { HumanInstance } from "./creature-types";
 import type { BiomeType } from "../biome/discovery-types";
 import { useTime } from "../data/time/hooks";
 import { objectEntries } from "../util";
@@ -20,27 +22,24 @@ const generateInstance = (id: string, type: HumanType): HumanInstance => {
   const sex = def.sex ?? (Math.random() < 0.5 ? "male" : "female");
 
   return {
+    ...CREATURES["human"],
+    definition: def,
+    attributes: def.attributes,
     id,
     type,
-    name: def.id, // placeholder — proper name generation is future work
+    name: def.id,
     sex,
     age,
-    home: def.home,
-    attributes: {
-      strength: 20,
-      constitution: 20,
-      dexterity: 20,
-      wisdom: 20,
-      intelligence: 20,
-      charisma: 20,
-    },
-    equipment: { ...def.equipment },
     resources: { ...def.replenishment, coin: def.allowance },
-    allowance: def.allowance,
-    interestValues: def.interestValues,
+    equipment: { ...def.equipment },
     sellList: [...def.sellList],
     schedule: NPC_SCHEDULES[type] ?? {},
     trust: 0,
+    health: 100,
+    maxHealth: 100,
+    distance: 0,
+    hostile: false,
+    discovered: true,
   };
 };
 
@@ -74,7 +73,15 @@ export const useHandleNPCs = () => {
   const npcs = useNPCs();
   const { mutateNPC } = useMutateNPCs();
 
-  return { npcs, mutateNPC };
+  /** Grant trust up to cap, never reducing below current value. */
+  const grantTrust = (id: string, amount: number, cap: number) => {
+    const npc = npcs[id];
+    if (!npc) return;
+    const newTrust = Math.min(cap, npc.trust + amount);
+    mutateNPC(id, { trust: Math.max(npc.trust, newTrust) });
+  };
+
+  return { npcs, mutateNPC, grantTrust };
 };
 
 export const useGetOrCreateNPC = () => {
@@ -133,14 +140,15 @@ export const useHandleNPCAllowance = () => {
     const updates = objectEntries(npcs).reduce((acc, [id, npc]) => {
       const def = HUMAN_DEFINITIONS[npc.type];
       const currentCoin = npc.resources.coin ?? 0;
-      const maxCoin = Math.floor(npc.allowance * 1.5);
-      const newCoin = Math.min(currentCoin + npc.allowance, maxCoin);
+      const maxCoin = Math.floor(def.allowance * 1.5);
+      const newCoin = Math.min(currentCoin + def.allowance, maxCoin);
       const resourcesCapped = mergeWith({ ...npc.resources }, def.interestValues, (a = 0, b) => {
-        const cap = Math.floor(npc.allowance / b);
+        const cap = Math.floor(def.allowance / b);
         return Math.min(a, cap);
       });
       acc[id] = {
         ...npc,
+        definition: def,
         schedule: NPC_SCHEDULES[npc.type] ?? {},
         resources: {
           ...mergeWith({ ...resourcesCapped }, def.replenishment, (a = 0, b) => {
@@ -148,7 +156,6 @@ export const useHandleNPCAllowance = () => {
           }),
           coin: newCoin,
         },
-        interestValues: def.interestValues,
       };
       return acc;
     }, {} as NPCStore);

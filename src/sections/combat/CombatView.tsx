@@ -13,6 +13,7 @@ import {
 import { useHandleAttack } from "../../combat/hooks";
 import { useAcuity, useGrantAcuityExp } from "../../data/acuity/hooks";
 import { getEffectiveHitChance, getHealthLost, getSprintDistance } from "../../combat/util";
+import { useHandleExploration } from "../../data/exploration/hooks";
 import { useHandleEquipment } from "../../data/equipment/hooks";
 import { useAttributes } from "../../data/attributes/hooks";
 import { useSkills } from "../../data/skills/hooks";
@@ -48,8 +49,9 @@ const CombatView = ({ enemies }: Props) => {
   const { encounter, mutateEncounter } = useHandleEncounter();
   const { getEquipmentBonus } = useHandleEquipment();
   const { skills } = useSkills();
+  const { exploration } = useHandleExploration();
   const { updateDiscovery } = useHandleDiscoveries();
-  const handleSkillCheck = useHandleSkillCheck();
+  const handleSkillCheck = useHandleSkillCheck(exploration.biome);
   const { playerStatus, updatePlayerStatus } = useHandlePlayerStatus();
   const { attributes } = useAttributes();
   const [selectedEnemy, setSelectedEnemy] = useState(Object.keys(enemies)[0]);
