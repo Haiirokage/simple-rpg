@@ -24,7 +24,7 @@ const targets = {
 };
 
 const HomeActions = () => {
-  const { getEquipmentBonus } = useHandleEquipment();
+  const { getWeaponStats } = useHandleEquipment();
   const [rangeTarget, setRangeTarget] = useState("100");
   const [hitTarget, setHitTarget] = useState<HitTarget>("body");
   const { data: homeUpgrades } = useHomeUpgrades();
@@ -35,7 +35,8 @@ const HomeActions = () => {
   const hasStoneGym = homeUpgrades.stoneGym;
   const hasArcheryTarget = homeUpgrades.archery_target;
 
-  const bowRange = getEquipmentBonus("bow", "range");
+  const bowStats = getWeaponStats("bow");
+  const bowRange = bowStats?.class === "projectile" ? (bowStats.tier?.range ?? 0) : 0;
 
   const trainStrength = () => {
     const expGain = playerForce * playerForce * trainStrengthCost.energy;

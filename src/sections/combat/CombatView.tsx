@@ -47,7 +47,7 @@ const CombatView = ({ enemies }: Props) => {
   const { handleAttack, getHitChance } = useHandleAttack();
   const setEncounter = useSetEncounter();
   const { encounter, mutateEncounter } = useHandleEncounter();
-  const { getEquipmentBonus } = useHandleEquipment();
+  const { getWeaponStats } = useHandleEquipment();
   const { skills } = useSkills();
   const { exploration } = useHandleExploration();
   const { updateDiscovery } = useHandleDiscoveries();
@@ -59,8 +59,9 @@ const CombatView = ({ enemies }: Props) => {
   const grantAcuityExp = useGrantAcuityExp();
   const acuity = useAcuity();
 
-  const noWeapon = !getEquipmentBonus("bow", "range");
-  const bowRange = getEquipmentBonus("bow", "range");
+  const bowStats = getWeaponStats("bow");
+  const bowRange = bowStats?.class === "projectile" ? (bowStats.tier?.range ?? 0) : 0;
+  const noWeapon = !bowRange;
   const combatContext = encounter.combatContext;
   const enemy = selectedEnemy ? enemies[selectedEnemy] : undefined;
   const enemyEntries = objectEntries(enemies);

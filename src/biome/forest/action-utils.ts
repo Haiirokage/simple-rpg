@@ -16,7 +16,7 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
   const { day } = useTime();
   const discoveries = useDiscoveries();
   const { yieldMultiplier } = getSeasonByDay(day);
-  const { getEquipmentBonus } = useHandleEquipment();
+  const { getTool } = useHandleEquipment();
   const playerForce = usePlayerForce();
 
   const forage = useCallback(() => {
@@ -26,7 +26,7 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
   }, [yieldMultiplier.forage, discoveries.berry_patch]);
 
   const gatherWood = useCallback(() => {
-    const woodBonus = getEquipmentBonus("hatchet", "woodGathering");
+    const woodBonus = getTool("hatchet").bonuses.woodGathering;
     const fiberBonus = 1 + discoveries.willow_grove * 0.5;
 
     return {
@@ -34,7 +34,7 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
       firewood: yieldMultiplier.gatherWood * woodBonus,
       fiber: yieldMultiplier.gatherWood * woodBonus * fiberBonus,
     };
-  }, [yieldMultiplier.gatherWood, getEquipmentBonus, discoveries.willow_grove]);
+  }, [yieldMultiplier.gatherWood, getTool, discoveries.willow_grove]);
 
   const gatherStone = useCallback(() => {
     const strengthMult = playerForce / 50;
@@ -42,9 +42,9 @@ export const useActionMultipliers = (): Record<ActionId, () => Partial<ResourceS
   }, [playerForce]);
 
   const gatherTubers = useCallback(() => {
-    const explorationBonus = getEquipmentBonus("shoes", "explorationChance");
+    const explorationBonus = getTool("shoes").bonuses.explorationChance;
     return { tuber: explorationBonus };
-  }, [getEquipmentBonus]);
+  }, [getTool]);
 
   return {
     forage,

@@ -16,7 +16,7 @@ export interface NumberRange {
   decimals?: number;
 }
 
-export type EquipmentBonusType = "woodGathering" | "range" | "explorationChance" | "skinning";
+export type EquipmentBonusType = "woodGathering" | "explorationChance" | "skinning";
 
 export interface ToolTier {
   name: string; // e.g. "wooden", "stone", "iron"
@@ -63,7 +63,7 @@ export const TOOL_DEFINITIONS = {
         name: "crude",
         cost: { wood: 3, fiber: 6 },
         componentCost: {},
-        bonus: { range: { min: 130, max: 170 } },
+        bonus: {},
       },
     ],
   },
@@ -140,34 +140,74 @@ type ToolDefs = typeof TOOL_DEFINITIONS;
 type ExtractKeys<T> = T extends object ? keyof T : never;
 export type ToolBonusKeys<T extends ToolType> = ExtractKeys<ToolDefs[T]["tiers"][number]["bonus"]>;
 
-export type WeaponBonusType = "meleeRange";
+export type AttackMode = "strike" | "stab" | "throw";
+export type DamageType = "blunt" | "pierce" | "slash" | "cleave";
 
-export interface WeaponTier {
+// --- Melee ---
+
+export interface MeleeTier {
   name: string;
-  bonus: Partial<Record<WeaponBonusType, NumberRange>>;
-  skillBonus?: Partial<Record<Skills, NumberRange>>;
+  hardness: NumberRange; // material quality, scales with level
 }
 
-export interface WeaponDefinition {
+export interface MeleeWeaponDefinition {
   key: WeaponType;
   name: string;
-  tiers: WeaponTier[]; // index 0 = none, 1+ = tier index matching ToolStatus.tier
+  class: "melee";
+  length: number; // reach in meters, constant across tiers
+  attacks: Partial<Record<AttackMode, DamageType>>; // e.g. { strike: "blunt", stab: "pierce" }
+  tiers: Record<number, MeleeTier>; // tier 0 absent = no weapon equipped
 }
 
-const NO_WEAPON: WeaponTier = { name: "none", bonus: {} };
+// --- Projectile (bow, crossbow) ---
 
-export const WEAPON_DEFINITIONS = {
-  bow: {
-    key: "bow",
-    name: "Bow",
-    tiers: [NO_WEAPON, { name: "crude", bonus: {} }],
-  },
-  staff: {
-    key: "staff",
-    name: "Staff",
-    tiers: [NO_WEAPON, { name: "wooden", bonus: { meleeRange: { min: 3 } } }],
-  },
-} as const satisfies Record<WeaponType, WeaponDefinition>;
+export interface ProjectileTier {
+  name: string;
+  range: NumberRange;
+  strengthRequired?: number;
+}
+
+export interface ProjectileWeaponDefinition {
+  key: WeaponType;
+  name: string;
+  class: "projectile";
+  tiers: Record<number, ProjectileTier>; // tier 0 absent = no weapon equipped
+}
+
+export type WeaponDefinition = MeleeWeaponDefinition | ProjectileWeaponDefinition;
+
+// Resolved stats — NumberRange fields replaced with number for the current tier/level
+export type ResolvedMeleeTier = { name: string; hardness: number };
+export type ResolvedProjectileTier = { name: string; range: number; strengthRequired?: number };
+
+export type MeleeWeaponStats = Omit<MeleeWeaponDefinition, "tiers"> & {
+  tier: ResolvedMeleeTier | undefined;
+};
+export type ProjectileWeaponStats = Omit<ProjectileWeaponDefinition, "tiers"> & {
+  tier: ResolvedProjectileTier | undefined;
+};
+
+export const WEAPON_DEFINITIONS: { bow: ProjectileWeaponDefinition; staff: MeleeWeaponDefinition } =
+  {
+    bow: {
+      key: "bow",
+      name: "Bow",
+      class: "projectile",
+      tiers: {
+        1: { name: "crude", range: { min: 130, max: 170 } },
+      },
+    },
+    staff: {
+      key: "staff",
+      name: "Staff",
+      class: "melee",
+      length: 1.8,
+      attacks: { strike: "blunt", stab: "blunt" },
+      tiers: {
+        1: { name: "wooden", hardness: { min: 1, max: 3 } },
+      },
+    },
+  };
 
 export const EQUIPMENT_DEFINITIONS: EquipmentDefinition[] = [
   {

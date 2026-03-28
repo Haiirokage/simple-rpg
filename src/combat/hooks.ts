@@ -23,14 +23,19 @@ const SEVERITY_MULT: Record<HitSeverity, number> = { critical: 1, severe: 0.5, m
  * Calculates hit chance, damage, and updates NPC health.
  */
 export const useHandleAttack = () => {
-  const { getEquipmentBonus } = useHandleEquipment();
+  const { getWeaponStats } = useHandleEquipment();
   const { attributes } = useAttributes();
   const { skills } = useHandleSkills();
   const grantSkillExperience = useGrantSkillExperience();
   const acuity = useAcuity();
 
+  const getBowRange = () => {
+    const stats = getWeaponStats("bow");
+    return stats?.class === "projectile" ? (stats.tier?.range ?? 0) : 0;
+  };
+
   const getHitChance = (creature: CreatureInstance) => {
-    const bowRange = getEquipmentBonus("bow", "range");
+    const bowRange = getBowRange();
     const creatureDex = getEffectiveDex(creature);
     return calculateHitChance(
       attributes.dexterity.level,
@@ -49,8 +54,7 @@ export const useHandleAttack = () => {
       (creature: CreatureInstance, target: HitTarget, discovered = false) => {
         if (!creature) return "failure";
 
-        const bowRange = getEquipmentBonus("bow", "range");
-        console.log("range", bowRange);
+        const bowRange = getBowRange();
 
         const creatureDex = getEffectiveDex(creature);
         const hitChance = calculateHitChance(
@@ -99,7 +103,7 @@ export const useHandleAttack = () => {
 
         return { healthLost, hitSeverity };
       },
-      [attributes, skills, acuity, grantSkillExperience, getEquipmentBonus],
+      [attributes, skills, acuity, grantSkillExperience, getWeaponStats],
     ),
   };
 };

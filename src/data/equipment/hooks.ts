@@ -3,10 +3,13 @@ import { mergeNumericRecords, objectEntries } from "../../util";
 import { makeDataQuery, useDefinedQuery, useUpdateData } from "../util";
 import {
   TOOL_DEFINITIONS,
-  type EquipmentBonusType,
+  WEAPON_DEFINITIONS,
+  type MeleeWeaponStats,
+  type ProjectileWeaponStats,
   type ToolBonusKeys,
   type ToolTier,
 } from "./definitions";
+import type { WeaponType } from "./types";
 import { defaultEquipmentStore, tools, type EquipmentStore, type ToolType } from "./types";
 import type { Skills } from "../skills/types";
 import { getValueByLevel, resolveSkillBonuses } from "./util";
@@ -54,11 +57,29 @@ export const useHandleEquipment = () => {
     return { toolStatus, toolDefinition, bonuses, skillBonuses };
   };
 
-  const getEquipmentBonus = (toolType: ToolType, bonusType: EquipmentBonusType) => {
-    const { toolStatus, toolDefinition } = getTool(toolType);
-    const tierDefinition = toolDefinition.tiers[toolStatus.tier] as ToolTier;
+  const getWeaponStats = (
+    weaponType: WeaponType,
+  ): ProjectileWeaponStats | MeleeWeaponStats | undefined => {
+    const toolStatus = equipment.tools[weaponType] || { tier: 0, level: 1 };
+    const def = WEAPON_DEFINITIONS[weaponType];
+    if (!def.tiers[toolStatus.tier]) return undefined;
+    if (def.class === "projectile") {
+      const rawTier = def.tiers[toolStatus.tier];
+      return {
+        ...def,
+        tier: {
+          name: rawTier.name,
+          range: getValueByLevel(toolStatus.level, rawTier.range),
+          strengthRequired: rawTier.strengthRequired,
+        },
+      };
+    }
 
-    return getValueByLevel(toolStatus.level, tierDefinition.bonus[bonusType]);
+    const rawTier = def.tiers[toolStatus.tier];
+    return {
+      ...def,
+      tier: { name: rawTier.name, hardness: getValueByLevel(toolStatus.level, rawTier.hardness) },
+    };
   };
 
   const getSkillBonuses = useCallback(
@@ -71,7 +92,7 @@ export const useHandleEquipment = () => {
     [equipment.tools],
   );
 
-  return { equipment, getTool, getEquipmentBonus, getSkillBonuses };
+  return { equipment, getTool, getWeaponStats, getSkillBonuses };
 };
 
 export const useResetTraps = () => {
