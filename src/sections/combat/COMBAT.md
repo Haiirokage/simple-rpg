@@ -157,6 +157,50 @@ CombinationAttack:
 
 ---
 
+## Event-driven timing model
+
+Combat runs on millisecond resolution timestamps. All positions are computed on demand via
+interpolation; the simulation only advances at event points.
+
+### Weapon state
+
+Each combatant's weapon is described by a minimal snapshot:
+
+```
+WeaponState:
+  pos: WeaponPos          // position now
+  target: WeaponPos       // where the weapon is heading
+  currentTime: number     // What the time is
+```
+
+When a new action is taken we must calculate when the next event of interest happens.
+
+### Events
+
+An event is a point in time that is relevant to a specific agent. For example: Your opponent makes a move, and you've noticed it. You or your oponent hits something. 
+
+These are then handled differently depending on who's the agent.
+- **Player event** — the simulation pauses and the player is prompted for their next action
+- **NPC event** — the NPC's decision rules fire and schedule the next NPC action
+
+When any action is taken, the next event for any agent is computed and that agent makes it's response.
+
+The earliest pending event across all agents determines when the next thing happens.
+
+### Resolving an exchange
+
+When an attack is committed, two arrival times matter:
+- when the attacker's weapon reaches the target
+- how long the defender needs to recognize that the attack ishappening
+
+If the defender notices the attack before it arrives, he will get a chance to react. The time it takes between an action is begun and the oponent notices it is based on dexterity and skill.
+
+Block effectiveness is determined by weapon distance from impact plus a skill roll — not purely
+geometric. A weapon that barely arrived in position still has a chance to deflect; one far off has
+none.
+
+---
+
 ## Stances (future)
 
 A stance bundles a default guard with preferred attack directions and movement tendencies.
