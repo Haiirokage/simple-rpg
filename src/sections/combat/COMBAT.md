@@ -168,24 +168,49 @@ Each combatant's weapon is described by a minimal snapshot:
 
 ```
 WeaponState:
-  pos: WeaponPos          // position now
+  pos: WeaponPos          // position at startTime
   target: WeaponPos       // where the weapon is heading
-  currentTime: number     // What the time is
+  startTime: number       // when this movement began
 ```
 
-When a new action is taken we must calculate when the next event of interest happens.
+Position at any later time is computed on demand via interpolation from `pos` toward `target`.
+
+Each agent also tracks what they currently **know** about the opponent's weapon — which may lag behind reality:
+
+```
+NoticedState:
+  pos: WeaponPos          // opponent's position as of the last notice event
+  direction: Vec2         // movement direction observed at that moment
+```
+
+This is the state displayed in the UI for the opponent's weapon. It only updates when a notice event fires.
 
 ### Events
 
-An event is a point in time that is relevant to a specific agent. For example: Your opponent makes a move, and you've noticed it. You or your oponent hits something. 
+An event is a point in time relevant to a specific agent. Events are stored in a sorted queue; the simulation always advances to the earliest pending event.
 
-These are then handled differently depending on who's the agent.
-- **Player event** — the simulation pauses and the player is prompted for their next action
-- **NPC event** — the NPC's decision rules fire and schedule the next NPC action
+```
+Event:
+  | { time: number; agent: Agent; type: "notice"; snapshot: NoticedState }
+  | { time: number; agent: Agent; type: "arrival" }
+  | { time: number; agent: Agent; type: "hit" }
+```
 
-When any action is taken, the next event for any agent is computed and that agent makes it's response.
+- **Player notice event** — simulation pauses, player is prompted for their next action
+- **NPC notice event** — NPC decision rules fire and schedule the next NPC action
+- **Arrival event** — weapon has reached its target; if no follow-up action is queued, weapon rests
+- **Hit event** — weapon contacts opponent; resolve damage/block
 
-The earliest pending event across all agents determines when the next thing happens.
+### Notice snapshots and feints
+
+When a movement begins at time `T`, a notice event is queued for the opponent at `T + opponent.noticeMs`. The event carries a **frozen snapshot** of the mover's position and direction at time `T` — not the current state when the timer fires.
+
+This means:
+- A feint that changes direction at `T+150ms` fools any opponent with `noticeMs > 150` — they react to the original direction
+- A direction change cancels the pending notice for the old movement and queues a new one from the change point
+- If the old notice already fired before the direction change, the opponent is committed to reacting to the fake direction
+
+Slower reaction time is always a disadvantage. It never accidentally grants current information.
 
 ### Resolving an exchange
 
